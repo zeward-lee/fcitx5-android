@@ -526,12 +526,15 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     private fun applyPreviewChrome(theme: Theme) {
         val barBackgroundColor = resolveBarBackgroundColor(theme)
         fakeKawaiiBar.background = if (navbarBorder.getValue()) {
-            val cornerRadius = ctx.dp(kotlin.math.max(6f, ThemeManager.prefs.keyRadius.getValue().toFloat()))
-            borderDrawable(
-                width = ctx.dp(1),
-                stroke = resolveBarBorderColor(theme, barBackgroundColor),
-                background = barBackgroundColor,
-                cornerRadius = cornerRadius
+            val cornerRadius = ctx.dp(kotlin.math.max(8f, ThemeManager.prefs.keyRadius.getValue() + 2f))
+            android.graphics.drawable.InsetDrawable(
+                borderDrawable(
+                    width = ctx.dp(1),
+                    stroke = resolveBarBorderColor(theme, barBackgroundColor),
+                    background = barBackgroundColor,
+                    cornerRadius = cornerRadius
+                ),
+                3, 0, 3, 0
             )
         } else {
             ColorDrawable(barBackgroundColor)

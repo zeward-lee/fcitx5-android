@@ -728,12 +728,15 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             background = run {
                 val backgroundColor = resolveBarBackgroundColor()
                 if (ThemeManager.prefs.navbarBorder.getValue()) {
-                    val cornerRadius = dp(max(6f, ThemeManager.prefs.keyRadius.getValue().toFloat()))
-                    borderDrawable(
-                        width = dp(1),
-                        stroke = resolveBarBorderColor(backgroundColor),
-                        background = backgroundColor,
-                        cornerRadius = cornerRadius
+                    val cornerRadius = dp(max(8f, ThemeManager.prefs.keyRadius.getValue() + 2f))
+                    android.graphics.drawable.InsetDrawable(
+                        borderDrawable(
+                            width = dp(1),
+                            stroke = resolveBarBorderColor(backgroundColor),
+                            background = backgroundColor,
+                            cornerRadius = cornerRadius
+                        ),
+                        3, 0, 3, 0
                     )
                 } else {
                     ColorDrawable(backgroundColor)
