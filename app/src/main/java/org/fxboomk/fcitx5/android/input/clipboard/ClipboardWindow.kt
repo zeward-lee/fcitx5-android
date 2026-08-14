@@ -62,9 +62,9 @@ import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.ClipboardUriStore
 import org.fxboomk.fcitx5.android.utils.EventStateMachine
 import org.fxboomk.fcitx5.android.utils.item
+import org.fxboomk.fcitx5.android.utils.styledColorOrDefault
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
-import splitties.resources.styledColor
 import splitties.views.dsl.core.withTheme
 
 class ClipboardWindow : InputWindow.ExtendedInputWindow<ClipboardWindow>() {
@@ -360,7 +360,12 @@ class ClipboardWindow : InputWindow.ExtendedInputWindow<ClipboardWindow>() {
         promptMenu = PopupMenu(context, ui.deleteAllButton).apply {
             menu.add(buildSpannedString {
                 bold {
-                    color(context.styledColor(android.R.attr.colorAccent)) {
+                    color(
+                        context.styledColorOrDefault(
+                            android.R.attr.colorAccent,
+                            theme.genericActiveForegroundColor
+                        )
+                    ) {
                         append(context.getString(if (skipPinned) R.string.delete_all_except_pinned else R.string.delete_all_pinned_items))
                     }
                 }
