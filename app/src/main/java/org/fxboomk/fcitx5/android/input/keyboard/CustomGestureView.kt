@@ -139,6 +139,16 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         // double tap state should be preserved on touch up
     }
 
+    fun cancelGestures() {
+        isPressed = false
+        resetState()
+        // reset double tap state on cancel
+        if (doubleTapEnabled) {
+            maybeDoubleTap = false
+            lastClickTime = 0
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
@@ -239,14 +249,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
-                isPressed = false
                 dispatchGestureEvent(GestureType.Up, event.x, event.y)
-                resetState()
-                // reset double tap state on cancel
-                if (doubleTapEnabled) {
-                    maybeDoubleTap = false
-                    lastClickTime = 0
-                }
+                cancelGestures()
                 return true
             }
         }
