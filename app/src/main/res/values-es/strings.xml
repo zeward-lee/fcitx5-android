@@ -183,6 +183,7 @@
     <string name="save_failed">Error al guardar</string>
     <string name="text_keyboard_layout_add_layout">Añadir distribución</string>
     <string name="text_keyboard_layout_add_row">Añadir fila</string>
+    <string name="text_keyboard_layout_move_row_up">Mover fila hacia arriba</string>
     <string name="text_keyboard_layout_add_key">Añadir tecla</string>
     <string name="text_keyboard_layout_key_type">Tipo de tecla</string>
     <string name="text_keyboard_layout_key_main">Carácter principal</string>

@@ -454,6 +454,7 @@
     <string name="save_failed">儲存失敗</string>
     <string name="text_keyboard_layout_add_layout">新增佈局</string>
     <string name="text_keyboard_layout_add_row">新增列</string>
+    <string name="text_keyboard_layout_move_row_up">上移此列</string>
     <string name="text_keyboard_layout_add_key">新增按鍵</string>
     <string name="text_keyboard_layout_key_type">按鍵類型</string>
     <string name="text_keyboard_layout_key_main">主字元</string>

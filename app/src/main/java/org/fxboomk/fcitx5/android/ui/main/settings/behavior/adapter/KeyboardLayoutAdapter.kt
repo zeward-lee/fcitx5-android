@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -85,6 +86,9 @@ class KeyboardLayoutAdapter(
         /** Called when the add row button is clicked */
         fun onAddRowClick()
 
+        /** Called when a row is moved up. */
+        fun onMoveRowUpClick(rowIndex: Int)
+
         /** Called when a row drag position changes */
         fun onRowPositionChanged(from: Int, to: Int)
 
@@ -102,6 +106,7 @@ class KeyboardLayoutAdapter(
     }
 
     private companion object {
+        private const val KEY_ACTION_CHIP_SIZE_DP = 32
         private const val VIEW_TYPE_ROW = 0
         private const val VIEW_TYPE_ADD_ROW = 1
         private const val CROSS_ROW_STEP_DELAY_MS = 100L
@@ -498,8 +503,36 @@ class KeyboardLayoutAdapter(
             }
         }
         holder.keysFlow.addView(addKeyChip, ViewGroup.MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            context.dp(KEY_ACTION_CHIP_SIZE_DP),
+            context.dp(KEY_ACTION_CHIP_SIZE_DP)
+        ).apply {
+            rightMargin = context.dp(6)
+            bottomMargin = context.dp(4)
+            topMargin = context.dp(4)
+        })
+
+        val moveRowUpChip = ImageView(context).apply {
+            setImageResource(R.drawable.arrow_collapse_up)
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+            setPadding(context.dp(8), context.dp(8), context.dp(8), context.dp(8))
+            contentDescription = context.getString(R.string.text_keyboard_layout_move_row_up)
+            isEnabled = position > 0
+            alpha = if (isEnabled) 1f else 0.4f
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(context.styledColor(android.R.attr.colorButtonNormal))
+                setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
+                cornerRadius = context.dp(4).toFloat()
+            }
+            setOnClickListener {
+                val adapterPosition = holder.bindingAdapterPosition
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    listener.onMoveRowUpClick(adapterPosition)
+                }
+            }
+        }
+        holder.keysFlow.addView(moveRowUpChip, ViewGroup.MarginLayoutParams(
+            context.dp(KEY_ACTION_CHIP_SIZE_DP),
+            context.dp(KEY_ACTION_CHIP_SIZE_DP)
         ).apply {
             rightMargin = context.dp(6)
             bottomMargin = context.dp(4)

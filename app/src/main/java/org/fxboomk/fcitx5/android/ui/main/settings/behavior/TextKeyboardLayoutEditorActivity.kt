@@ -783,7 +783,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         spinnerContainer.addView(subModeSpinner, 1) // Add after layoutSpinner
 
         // Bind submode spinner data
-        bindSubModeSpinner(labels)
+        bindSubModeSpinner(labels, if (isRime) RIME_SUBMODE_MIN_VISIBLE_CHARS else 0)
 
         // Update button behavior for submode
         updateLayoutButtonBehavior()
@@ -858,12 +858,31 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun bindSubModeSpinner(labels: List<String>) {
-        val adapter = ArrayAdapter(
+    private fun bindSubModeSpinner(labels: List<String>, minimumVisibleCharacters: Int) {
+        subModeSpinner.minimumWidth = if (minimumVisibleCharacters > 0) {
+            val characterWidth = TextView(this).apply { textSize = 16f }
+                .paint.measureText("中".repeat(minimumVisibleCharacters))
+            (characterWidth + dp(SPINNER_HORIZONTAL_PADDING_DP)).toInt()
+        } else {
+            0
+        }
+        val adapter = object : ArrayAdapter<String>(
             this,
             android.R.layout.simple_spinner_item,
-            labels.toTypedArray()
-        )
+            labels
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                return super.getView(position, convertView, parent).also { view ->
+                    (view as? TextView)?.minEms = minimumVisibleCharacters
+                }
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                return super.getDropDownView(position, convertView, parent).also { view ->
+                    (view as? TextView)?.minEms = minimumVisibleCharacters
+                }
+            }
+        }
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         subModeSpinner.adapter = adapter
 
@@ -1253,6 +1272,21 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
                 override fun onAddRowClick() {
                     addRow()
+                }
+
+                override fun onMoveRowUpClick(rowIndex: Int) {
+                    val destinationIndex = rowIndex - 1
+                    if (rowIndex !in currentRowsRef.indices || destinationIndex !in currentRowsRef.indices) return
+
+                    val row = currentRowsRef.removeAt(rowIndex)
+                    currentRowsRef.add(destinationIndex, row)
+                    rowsAdapter?.notifyRowMoved(rowIndex, destinationIndex)
+                    rowsAdapter?.notifyRowChanged(rowIndex)
+                    rowsAdapter?.notifyRowChanged(destinationIndex)
+                    currentLayout?.let { name ->
+                        previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection)
+                        updateSaveButtonState()
+                    }
                 }
 
                 override fun onRowPositionChanged(from: Int, to: Int) {
@@ -2622,6 +2656,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val RIME_SUBMODE_MIN_VISIBLE_CHARS = 4
+        private const val SPINNER_HORIZONTAL_PADDING_DP = 32
         private const val MENU_SAVE_ID = 3001
         private const val MENU_LAYOUT_FILE_SWITCH_ID = 3002
         private const val MENU_LAYOUT_FILE_CREATE_ID = 3003

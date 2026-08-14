@@ -851,8 +851,10 @@ class MacroEditorActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(Menu.NONE, 1, Menu.NONE, R.string.macro_editor_confirm)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(Menu.NONE, 1, Menu.NONE, R.string.save).apply {
+            setIcon(R.drawable.ic_baseline_save_24)
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        }
         // Save menu item reference
         saveMenuItem = menu.findItem(1)
         // Initialize button state

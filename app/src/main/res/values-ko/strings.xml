@@ -153,6 +153,7 @@
     <string name="save_failed">저장 실패</string>
     <string name="text_keyboard_layout_add_layout">레이아웃 추가</string>
     <string name="text_keyboard_layout_add_row">행 추가</string>
+    <string name="text_keyboard_layout_move_row_up">행 위로 이동</string>
     <string name="text_keyboard_layout_add_key">키 추가</string>
     <string name="text_keyboard_layout_key_type">키 유형</string>
     <string name="text_keyboard_layout_key_main">기본 문자</string>

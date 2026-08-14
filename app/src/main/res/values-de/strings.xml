@@ -262,6 +262,7 @@
     <string name="save_failed">Speichern fehlgeschlagen</string>
     <string name="text_keyboard_layout_add_layout">Layout hinzufügen</string>
     <string name="text_keyboard_layout_add_row">Zeile hinzufügen</string>
+    <string name="text_keyboard_layout_move_row_up">Zeile nach oben verschieben</string>
     <string name="text_keyboard_layout_add_key">Taste hinzufügen</string>
     <string name="text_keyboard_layout_key_type">Tastentyp</string>
     <string name="text_keyboard_layout_key_main">Hauptzeichen</string>

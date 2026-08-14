@@ -417,6 +417,7 @@
     <string name="save_failed">Ошибка сохранения</string>
     <string name="text_keyboard_layout_add_layout">Добавить раскладку</string>
     <string name="text_keyboard_layout_add_row">Добавить ряд</string>
+    <string name="text_keyboard_layout_move_row_up">Переместить строку вверх</string>
     <string name="text_keyboard_layout_add_key">Добавить клавишу</string>
     <string name="text_keyboard_layout_key_type">Тип клавиши</string>
     <string name="text_keyboard_layout_key_main">Основной символ</string>

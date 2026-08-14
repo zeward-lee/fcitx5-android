@@ -574,6 +574,7 @@
     <string name="save_failed">保存失败</string>
     <string name="text_keyboard_layout_add_layout">添加布局</string>
     <string name="text_keyboard_layout_add_row">添加行</string>
+    <string name="text_keyboard_layout_move_row_up">上移此行</string>
     <string name="text_keyboard_layout_add_key">添加按键</string>
     <string name="text_keyboard_layout_key_type">按键类型</string>
     <string name="text_keyboard_layout_key_main">主字符</string>

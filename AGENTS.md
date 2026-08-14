@@ -41,3 +41,5 @@ This project is indexed by GitNexus as **fcitx5-android** (372358 symbols, 56506
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+@RTK.md

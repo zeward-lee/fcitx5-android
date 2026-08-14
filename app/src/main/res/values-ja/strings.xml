@@ -350,6 +350,7 @@
     <string name="save_failed">保存に失敗しました</string>
     <string name="text_keyboard_layout_add_layout">レイアウトを追加</string>
     <string name="text_keyboard_layout_add_row">行を追加</string>
+    <string name="text_keyboard_layout_move_row_up">行を上へ移動</string>
     <string name="text_keyboard_layout_add_key">キーを追加</string>
     <string name="text_keyboard_layout_key_type">キータイプ</string>
     <string name="text_keyboard_layout_key_main">メイン文字</string>

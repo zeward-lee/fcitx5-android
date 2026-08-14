@@ -733,6 +733,7 @@
     <string name="save_failed">Save failed</string>
     <string name="text_keyboard_layout_add_layout">Add Layout</string>
     <string name="text_keyboard_layout_add_row">Add Row</string>
+    <string name="text_keyboard_layout_move_row_up">Move row up</string>
     <string name="text_keyboard_layout_add_key">Add Key</string>
     <string name="text_keyboard_layout_key_type">Key Type</string>
     <string name="text_keyboard_layout_key_main">Main Character</string>
