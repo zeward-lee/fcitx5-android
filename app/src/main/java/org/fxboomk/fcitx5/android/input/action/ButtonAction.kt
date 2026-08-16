@@ -369,7 +369,7 @@ data object AiCandidatesAction : ButtonAction() {
 
 data object ThemeToggleAction : ButtonAction() {
     override val id = "theme_toggle"
-    override val defaultIcon = R.drawable.ic_baseline_dark_mode_24
+    override val defaultIcon = R.drawable.ic_theme_light_dark_24
     override val defaultLabelRes = R.string.toggle_day_night_theme
 
     override fun isActive(service: FcitxInputMethodService): Boolean {

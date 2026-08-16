@@ -50,6 +50,8 @@ import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
 import org.fxboomk.fcitx5.android.input.keyboard.KeyView
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
+import org.fxboomk.fcitx5.android.input.keyboard.keyboardHeightPercentOverride
+import org.fxboomk.fcitx5.android.input.keyboard.resolveTextKeyboardLayout
 import org.fxboomk.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
 import org.fxboomk.fcitx5.android.utils.BitmapBlurUtil
 import org.fxboomk.fcitx5.android.utils.DarkenColorFilter
@@ -560,10 +562,18 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         val displayMetrics = resources.displayMetrics
         val w = displayMetrics.widthPixels
         val h = displayMetrics.heightPixels
-        val hPercent = when (resources.configuration.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> keyboardHeightPercentLandscape
-            else -> keyboardHeightPercent
-        }
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val previewIme = currentPreviewIme() ?: resolvePreviewInputMethodEntry()
+        val hPercent = TextKeyboard.textLayoutJson
+            ?.let { json ->
+                resolveTextKeyboardLayout(
+                    json = json,
+                    uniqueName = previewIme.uniqueName,
+                    displayName = previewIme.displayName,
+                    subModeLabel = previewIme.subMode.label,
+                )?.keyboardHeightPercentOverride(isLandscape)
+            }
+            ?: if (isLandscape) keyboardHeightPercentLandscape else keyboardHeightPercent
         return w to (h * hPercent / 100)
     }
 

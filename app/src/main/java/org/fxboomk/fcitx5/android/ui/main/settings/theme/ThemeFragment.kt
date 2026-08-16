@@ -61,8 +61,8 @@ class ThemeFragment : Fragment() {
         previewUi = KeyboardPreviewUi(this, ThemeManager.activeTheme)
         ThemeManager.addOnChangedListener(onThemeChangeListener)
         val preview = previewUi.root.apply {
-            scaleX = 0.64f
-            scaleY = 0.6f
+            scaleX = 0.68f
+            scaleY = 0.68f
             outlineProvider = ViewOutlineProvider.BOUNDS
             elevation = dp(4f)
             tag = "theme_preview_capture"
@@ -97,7 +97,8 @@ class ThemeFragment : Fragment() {
 
         val previewWrapper = constraintLayout {
             add(preview, lParams(wrapContent, wrapContent) {
-                topOfParent(dp(-52))
+                // Hide only the preview toolbar so the keyboard's top-row labels remain visible.
+                topOfParent(dp(-40))
                 startOfParent()
                 endOfParent()
             })

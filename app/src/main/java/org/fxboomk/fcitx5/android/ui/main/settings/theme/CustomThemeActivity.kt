@@ -1282,21 +1282,6 @@ class CustomThemeActivity : AppCompatActivity() {
         lifecycleScope.withLoadingDialog(this) {
             try {
                 var outputTheme = theme
-                if (theme.backgroundImage == null &&
-                    backgroundStates.hasStorageFiles() &&
-                    backgroundStates.hasCroppedBitmap()
-                ) {
-                    theme = theme.copy(
-                        backgroundImage = Theme.Custom.CustomBackground(
-                            croppedFilePath = backgroundStates.croppedImageFile.absolutePath,
-                            srcFilePath = backgroundStates.srcImageFile.absolutePath,
-                            brightness = brightnessSeekBar.progress,
-                            cropRect = backgroundStates.cropRect,
-                            cropRotation = backgroundStates.cropRotation,
-                            blurRadius = blurRadiusSeekBar.progress.toFloat()
-                        )
-                    )
-                }
                 whenHasBackground {
                     withContext(Dispatchers.IO) {
                         if (srcImageDirty && pendingSrcUri != null) {
