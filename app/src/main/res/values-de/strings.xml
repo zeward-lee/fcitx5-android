@@ -671,6 +671,7 @@
     <string name="status_area">Statusbereich</string>
     <string name="swipe_symbol_behavior">Wischrichtung für Symbole</string>
     <string name="switch_to_voice_input">Zur Spracheingabe wechseln</string>
+    <string name="toggle_number_keyboard">Zifferntastatur umschalten</string>
     <string name="table_dict_replace_message">Tabellenwörterbuch "%1$s" existiert bereits. Sie können ein neues Wörterbuch importieren und es ersetzen.</string>
     <string name="table_file_does_not_exist_message">Tabellenwörterbuch "%1$s" existiert nicht. Bitte prüfen Sie die Wörterbuchdatei oder importieren Sie sie erneut.</string>
     <string name="text_editing_button_radius">Eckradius der Textbearbeitungstasten</string>

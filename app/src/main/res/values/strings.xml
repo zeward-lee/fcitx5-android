@@ -654,6 +654,7 @@
     <string name="hide_candidates_list">Hide candidates list</string>
     <string name="switch_to_voice_input">Switch to voice input</string>
     <string name="hide_keyboard">Hide keyboard</string>
+    <string name="toggle_number_keyboard">Toggle number keyboard</string>
     <string name="private_mode">Private mode (tap to toggle toolbar)</string>
     <string name="hide_toolbar">Hide toolbar</string>
     <string name="expand_toolbar">Expand toolbar</string>

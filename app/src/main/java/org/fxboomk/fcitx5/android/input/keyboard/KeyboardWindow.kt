@@ -47,6 +47,9 @@ internal fun shouldComposeForKeyboardOverride(
 private fun InputMethodEntry.isRimeInputMethod(): Boolean =
     addon == "rime" || icon == "fcitx-rime"
 
+internal fun toggledNumberKeyboardLayout(currentLayout: String): String =
+    if (currentLayout == NumberKeyboard.Name) TextKeyboard.Name else NumberKeyboard.Name
+
 class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), EssentialWindow,
     InputBroadcastReceiver {
 
@@ -206,6 +209,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 windowManager.attachWindow(PickerWindow.Key.Symbol)
             }
         }
+    }
+
+    fun toggleNumberKeyboard() {
+        switchLayout(toggledNumberKeyboardLayout(currentKeyboardName))
     }
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {

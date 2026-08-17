@@ -407,6 +407,7 @@
     <string name="expand_candidates_list">展開選字列表</string>
     <string name="hide_candidates_list">隱藏選字列表</string>
     <string name="switch_to_voice_input">切換到語音輸入</string>
+    <string name="toggle_number_keyboard">切換數字鍵盤</string>
     <string name="hide_keyboard">隱藏鍵盤</string>
     <string name="private_mode">隱私模式（點擊以切換工具欄）</string>
     <string name="hide_toolbar">隱藏工具列</string>

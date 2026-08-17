@@ -9,6 +9,7 @@ import android.content.Context
 import android.view.KeyEvent
 import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.fxboomk.fcitx5.android.R
@@ -25,6 +26,7 @@ import org.fxboomk.fcitx5.android.input.dialog.InputMethodPickerDialog
 import org.fxboomk.fcitx5.android.input.editing.TextEditingWindow
 import org.fxboomk.fcitx5.android.input.bar.ui.ToolButton
 import org.fxboomk.fcitx5.android.input.keyboard.LangSwitchBehavior
+import org.fxboomk.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fxboomk.fcitx5.android.input.keyboard.switchToEnglishInputMode
 import org.fxboomk.fcitx5.android.input.status.StatusAreaWindow
 import org.fxboomk.fcitx5.android.input.wm.InputWindowManager
@@ -111,101 +113,113 @@ sealed class ButtonAction {
         /**
          * All available button actions.
          */
-        val allActions = listOf(
-            UndoAction,
-            RedoAction,
-            CursorMoveAction,
-            FloatingToggleAction,
-            AiCandidatesAction,
-            ClipboardAction,
-            ThemeToggleAction,
-            LanguageSwitchAction,
-            ThemeAction,
-            MoreAction,
-            InputMethodOptionsAction,
-            ReloadConfigAction,
-            VirtualKeyboardAction,
-            OneHandedKeyboardAction,
-            BrowseUserDataDirAction,
-            SettingsGlobalOptionsAction,
-            SettingsInputMethodsAction,
-            SettingsCandidatesWindowAction,
-            SettingsClipboardSettingsAction,
-            SettingsSymbolSettingsAction,
-            SettingsPluginSettingsAction,
-            SettingsLlmAction,
-            SettingsAdvancedAction,
-            SettingsDeveloperAction,
-            SettingsAboutAction,
-            SettingsLicenseAction,
-            EditTextKeyboardLayoutAction,
-            TextKeyboardLayoutFileSelectAction,
-            EditFontsetAction,
-        )
+        val allActions: List<ButtonAction> by lazy {
+            listOf(
+                UndoAction,
+                RedoAction,
+                CursorMoveAction,
+                FloatingToggleAction,
+                AiCandidatesAction,
+                ClipboardAction,
+                ThemeToggleAction,
+                NumberKeyboardAction,
+                LanguageSwitchAction,
+                ThemeAction,
+                MoreAction,
+                InputMethodOptionsAction,
+                ReloadConfigAction,
+                VirtualKeyboardAction,
+                OneHandedKeyboardAction,
+                BrowseUserDataDirAction,
+                SettingsGlobalOptionsAction,
+                SettingsInputMethodsAction,
+                SettingsCandidatesWindowAction,
+                SettingsClipboardSettingsAction,
+                SettingsSymbolSettingsAction,
+                SettingsPluginSettingsAction,
+                SettingsLlmAction,
+                SettingsAdvancedAction,
+                SettingsDeveloperAction,
+                SettingsAboutAction,
+                SettingsLicenseAction,
+                EditTextKeyboardLayoutAction,
+                TextKeyboardLayoutFileSelectAction,
+                EditFontsetAction,
+            )
+        }
 
         /**
          * Actions exposed by macro editor as "app actions".
          */
-        val macroEditorActions = listOf(
-            ThemeAction,
-            VirtualKeyboardAction,
-            MoreAction,
-            BrowseUserDataDirAction,
-            ClipboardAction,
-            CursorMoveAction,
-            FloatingToggleAction,
-            LanguageSwitchAction,
-            ReloadConfigAction,
-            OneHandedKeyboardAction,
-            InputMethodOptionsAction,
-            UndoAction,
-            RedoAction,
-            SettingsGlobalOptionsAction,
-            SettingsInputMethodsAction,
-            SettingsCandidatesWindowAction,
-            SettingsClipboardSettingsAction,
-            SettingsSymbolSettingsAction,
-            SettingsPluginSettingsAction,
-            SettingsLlmAction,
-            SettingsAdvancedAction,
-            SettingsDeveloperAction,
-            SettingsAboutAction,
-            SettingsLicenseAction,
-            EditTextKeyboardLayoutAction,
-            TextKeyboardLayoutFileSelectAction,
-            EditFontsetAction
-        )
+        val macroEditorActions: List<ButtonAction> by lazy {
+            listOf(
+                ThemeAction,
+                VirtualKeyboardAction,
+                MoreAction,
+                BrowseUserDataDirAction,
+                ClipboardAction,
+                CursorMoveAction,
+                FloatingToggleAction,
+                LanguageSwitchAction,
+                ReloadConfigAction,
+                OneHandedKeyboardAction,
+                InputMethodOptionsAction,
+                UndoAction,
+                RedoAction,
+                SettingsGlobalOptionsAction,
+                SettingsInputMethodsAction,
+                SettingsCandidatesWindowAction,
+                SettingsClipboardSettingsAction,
+                SettingsSymbolSettingsAction,
+                SettingsPluginSettingsAction,
+                SettingsLlmAction,
+                SettingsAdvancedAction,
+                SettingsDeveloperAction,
+                SettingsAboutAction,
+                SettingsLicenseAction,
+                EditTextKeyboardLayoutAction,
+                TextKeyboardLayoutFileSelectAction,
+                EditFontsetAction
+            )
+        }
 
         /**
          * Button actions available for Kawaii Bar.
          */
-        val kawaiiBarActions = listOf(
-            UndoAction,
-            RedoAction,
-            CursorMoveAction,
-            FloatingToggleAction,
-            AiCandidatesAction,
-            ClipboardAction,
-            ThemeToggleAction
-        )
+        val kawaiiBarActions: List<ButtonAction> by lazy {
+            listOf(
+                UndoAction,
+                RedoAction,
+                CursorMoveAction,
+                FloatingToggleAction,
+                AiCandidatesAction,
+                ClipboardAction,
+                ThemeToggleAction,
+                NumberKeyboardAction
+            )
+        }
 
         /**
          * Button actions available for Status Area.
          */
-        val statusAreaActions = listOf(
-            LanguageSwitchAction,
-            ThemeAction,
-            InputMethodOptionsAction,
-            ReloadConfigAction,
-            VirtualKeyboardAction,
-            OneHandedKeyboardAction,
-            MoreAction
-        )
+        val statusAreaActions: List<ButtonAction> by lazy {
+            listOf(
+                LanguageSwitchAction,
+                ThemeAction,
+                InputMethodOptionsAction,
+                ReloadConfigAction,
+                VirtualKeyboardAction,
+                OneHandedKeyboardAction,
+                MoreAction
+            )
+        }
 
         /**
          * All actions that can be added to either section.
          */
-        val allConfigurableActions = kawaiiBarActions + statusAreaActions
+        val allConfigurableActions: List<ButtonAction> by lazy {
+            kawaiiBarActions + statusAreaActions
+        }
     }
 }
 
@@ -396,6 +410,27 @@ data object ThemeToggleAction : ButtonAction() {
         view: View
     ) {
         AppUtil.launchMainToThemeList(context)
+    }
+}
+
+data object NumberKeyboardAction : ButtonAction() {
+    override val id = "number_keyboard"
+    override val defaultIcon = R.drawable.ic_number_pad
+    override val defaultLabelRes = R.string.toggle_number_keyboard
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        (windowManager.getEssentialWindow(KeyboardWindow) as KeyboardWindow).toggleNumberKeyboard()
+        ContextCompat.getMainExecutor(service).execute {
+            windowManager.attachWindow(KeyboardWindow)
+            onActionComplete?.invoke()
+        }
     }
 }
 
