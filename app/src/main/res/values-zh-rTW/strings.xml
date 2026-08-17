@@ -164,6 +164,7 @@
     <string name="dark_mode_theme_summary">選擇多個主題並在切換時輪詢</string>
     <string name="new_theme">新主題</string>
     <string name="theme_name">主題名稱</string>
+    <string name="rename">重新命名</string>
     <string name="theme_name_empty">主題名稱不能為空</string>
     <string name="skip">跳過</string>
     <string name="none">無</string>
@@ -838,4 +839,20 @@
     <string name="llm_model_status_remote_unavailable" translatable="false">狀態：遠端模型不可用</string>
     <string name="llm_model_status_remote_missing_name" translatable="false">狀態：未填寫模型名稱</string>
     <string name="llm_api_key_set" translatable="false">已配置，%1$s</string>
+    <string name="voice_status_connecting">正在連線...</string>
+    <string name="voice_status_loading">正在載入...</string>
+    <string name="voice_error_no_permission">未授予 RECORD_AUDIO 權限</string>
+    <string name="voice_error_failed">語音輸入失敗</string>
+    <string name="voice_error_invalid_provider">無效的語音輸入提供者</string>
+    <string name="voice_error_not_available">語音輸入提供者無法使用</string>
+    <string name="voice_error_disconnected">語音輸入提供者已中斷連線</string>
+    <string name="voice_error_null_binding">語音輸入提供者未回傳繫結</string>
+    <string name="voice_error_cannot_bind">無法繫結語音輸入提供者</string>
+    <string name="voice_error_bind_timeout">繫結語音輸入提供者逾時</string>
+    <string name="voice_error_call_failed">呼叫語音輸入提供者失敗</string>
+    <string name="voice_error_invalid_audio_config">語音輸入提供者要求了不支援的音訊格式</string>
+    <string name="voice_error_audio_minbuf">AudioRecord.getMinBufferSize=%d</string>
+    <string name="voice_error_audio_construct">AudioRecord 建立被拒絕：%s</string>
+    <string name="voice_error_audio_not_init">AudioRecord 尚未初始化</string>
+    <string name="voice_error_audio_start_failed">startRecording 失敗：%s</string>
 </resources>

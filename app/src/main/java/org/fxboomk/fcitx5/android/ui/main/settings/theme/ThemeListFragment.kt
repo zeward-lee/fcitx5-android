@@ -63,10 +63,7 @@ class ThemeListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         shareImportManager = ThemeShareImportManager(
-            fragment = this,
-            previewViewProvider = {
-                parentFragment?.view?.findViewWithTag<View>("theme_preview_capture")
-            }
+            fragment = this
         ) { newCreated, theme, migrated ->
             onThemeImported(newCreated, theme, migrated)
         }
@@ -224,7 +221,6 @@ class ThemeListFragment : Fragment() {
             getString(R.string.choose_image),
             getString(R.string.import_from_file),
             getString(R.string.duplicate_builtin_theme),
-            getString(R.string.theme_share_active),
             getString(R.string.theme_import_qr_scan),
             getString(R.string.theme_import_qr_image)
         )
@@ -260,9 +256,8 @@ class ThemeListFragment : Fragment() {
                         }
                         dialog.show()
                     }
-                    3 -> shareImportManager.shareActiveThemeFromMenu()
-                    4 -> shareImportManager.importThemeByQrScan()
-                    5 -> shareImportManager.importThemeByQrImage()
+                    3 -> shareImportManager.importThemeByQrScan()
+                    4 -> shareImportManager.importThemeByQrImage()
                 }
             }
             .show()

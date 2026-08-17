@@ -67,7 +67,6 @@ import org.fxboomk.fcitx5.android.utils.parcelable
 import org.fxboomk.fcitx5.android.utils.styledFloat
 import org.fxboomk.fcitx5.android.utils.toast
 import splitties.dimensions.dp
-import splitties.resources.color
 import splitties.resources.resolveThemeAttribute
 import splitties.resources.styledColor
 import splitties.resources.styledDrawable
@@ -1400,19 +1399,30 @@ class CustomThemeActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun shareTheme() {
+        ThemeShareManager(
+            context = this,
+            lifecycleScope = lifecycleScope,
+            previewViewProvider = { previewWrapper },
+            startActivity = ::startActivity
+        ).share(currentEditableThemeSnapshot())
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (!newCreated) {
-            val iconTint = color(R.color.red_400)
-            menu.item(R.string.save, R.drawable.ic_baseline_delete_24, iconTint, true) {
-                promptDelete()
-            }
-        }
         val iconTint = styledColor(android.R.attr.colorControlNormal)
-        menu.item(R.string.theme_name, R.drawable.ic_baseline_edit_24, iconTint, true) {
+        saveMenuItem = menu.item(R.string.save, R.drawable.ic_baseline_save_24, iconTint, true) {
+            done()
+        }
+        menu.item(R.string.rename) {
             promptRenameTheme()
         }
-        saveMenuItem = menu.item(R.string.save, R.drawable.ic_baseline_check_24, iconTint, true) {
-            done()
+        if (!newCreated) {
+            menu.item(R.string.delete) {
+                promptDelete()
+            }
+            menu.item(R.string.share) {
+                shareTheme()
+            }
         }
         updateSaveButtonState()
         return true

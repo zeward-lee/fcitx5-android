@@ -118,6 +118,7 @@
     <string name="dark_mode_theme_summary">Mehrere Themen auswählen und beim Umschalten durchlaufen</string>
     <string name="new_theme">Neues Thema</string>
     <string name="theme_name">Themenname</string>
+    <string name="rename">Umbenennen</string>
     <string name="theme_name_empty">Themenname darf nicht leer sein</string>
     <string name="skip">Überspringen</string>
     <string name="none">Kein</string>
@@ -833,4 +834,27 @@
     <string name="llm_model_status_remote_unavailable" translatable="false">Status: Remote-Modell nicht verfügbar</string>
     <string name="llm_model_status_remote_missing_name" translatable="false">Status: Modellname nicht ausgefüllt</string>
     <string name="llm_api_key_set" translatable="false">Konfiguriert, %1$s</string>
+    <string name="preedit_style">Stil des Eingabebereichs</string>
+    <string name="preedit_style_default">Standard</string>
+    <string name="preedit_style_inline_candidate_bar">Inline-Kandidatenleiste</string>
+    <string name="settings_search_hint">Einstellungen durchsuchen</string>
+    <string name="settings_search_results">Suchergebnisse</string>
+    <string name="settings_search_no_results">Keine passenden Einstellungen</string>
+    <string name="settings_search_loading_fcitx">Fcitx-Einstellungen werden geladen...</string>
+    <string name="voice_status_connecting">Verbindung wird hergestellt...</string>
+    <string name="voice_status_loading">Wird geladen...</string>
+    <string name="voice_error_no_permission">Berechtigung RECORD_AUDIO nicht erteilt</string>
+    <string name="voice_error_failed">Spracheingabe fehlgeschlagen</string>
+    <string name="voice_error_invalid_provider">Ungültiger Spracheingabeanbieter</string>
+    <string name="voice_error_not_available">Spracheingabeanbieter ist nicht verfügbar</string>
+    <string name="voice_error_disconnected">Spracheingabeanbieter wurde getrennt</string>
+    <string name="voice_error_null_binding">Spracheingabeanbieter hat keine Bindung zurückgegeben</string>
+    <string name="voice_error_cannot_bind">Spracheingabeanbieter kann nicht gebunden werden</string>
+    <string name="voice_error_bind_timeout">Zeitüberschreitung beim Binden des Spracheingabeanbieters</string>
+    <string name="voice_error_call_failed">Aufruf des Spracheingabeanbieters fehlgeschlagen</string>
+    <string name="voice_error_invalid_audio_config">Spracheingabeanbieter hat ein nicht unterstütztes Audioformat angefordert</string>
+    <string name="voice_error_audio_minbuf">AudioRecord.getMinBufferSize=%d</string>
+    <string name="voice_error_audio_construct">Erstellung von AudioRecord verweigert: %s</string>
+    <string name="voice_error_audio_not_init">AudioRecord nicht initialisiert</string>
+    <string name="voice_error_audio_start_failed">startRecording fehlgeschlagen: %s</string>
 </resources>

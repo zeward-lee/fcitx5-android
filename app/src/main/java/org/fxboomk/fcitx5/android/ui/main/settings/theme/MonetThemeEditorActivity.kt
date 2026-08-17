@@ -437,6 +437,15 @@ class MonetThemeEditorActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun shareTheme() {
+        ThemeShareManager(
+            context = this,
+            lifecycleScope = lifecycleScope,
+            previewViewProvider = { previewWrapper },
+            startActivity = ::startActivity
+        ).share(currentTheme.toCustom(), themeName)
+    }
+
     private fun updateSaveButtonState() {
         val changed = mapping != originalMapping
         saveMenuItem?.isEnabled = changed
@@ -453,13 +462,23 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(
+            Menu.NONE,
+            MENU_SHARE,
+            Menu.NONE,
+            getString(R.string.share)
+        ).apply {
+            setIcon(R.drawable.ic_baseline_share_24)
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+        }
         saveMenuItem = menu.add(
             Menu.NONE,
             MENU_SAVE,
-            Menu.NONE,
-            getString(android.R.string.ok)
+            MENU_SHARE,
+            getString(R.string.save)
         ).apply {
-            setIcon(R.drawable.ic_baseline_check_24)
+            setIcon(R.drawable.ic_baseline_save_24)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
             // Use themed color and refresh it in updateSaveButtonState() for a visible disabled state.
@@ -481,6 +500,10 @@ class MonetThemeEditorActivity : AppCompatActivity() {
             saveAndFinish()
             true
         }
+        MENU_SHARE -> {
+            shareTheme()
+            true
+        }
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -494,6 +517,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     
     companion object {
         private const val MENU_SAVE = 1
+        private const val MENU_SHARE = 2
         private const val EXTRA_THEME_NAME = "monet_editor_theme_name"
         private const val EXTRA_IS_DARK = "monet_editor_is_dark"
         private const val EXTRA_RESULT = "monet_editor_result"

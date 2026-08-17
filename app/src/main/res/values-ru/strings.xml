@@ -153,6 +153,7 @@
     <string name="dark_mode_theme_summary">Выберите несколько тем и переключайтесь между ними</string>
     <string name="new_theme">Новая тема</string>
     <string name="theme_name">Название темы</string>
+    <string name="rename">Переименовать</string>
     <string name="theme_name_empty">Название темы не может быть пустым</string>
     <string name="skip">Пропустить</string>
     <string name="none">Нет</string>
@@ -835,4 +836,27 @@
     <string name="llm_model_status_remote_unavailable" translatable="false">Статус: удаленная модель недоступна</string>
     <string name="llm_model_status_remote_missing_name" translatable="false">Статус: имя модели не указано</string>
     <string name="llm_api_key_set" translatable="false">Настроено, %1$s</string>
+    <string name="preedit_style">Стиль области ввода</string>
+    <string name="preedit_style_default">По умолчанию</string>
+    <string name="preedit_style_inline_candidate_bar">Встроенная панель кандидатов</string>
+    <string name="settings_search_hint">Поиск настроек</string>
+    <string name="settings_search_results">Результаты поиска</string>
+    <string name="settings_search_no_results">Нет подходящих настроек</string>
+    <string name="settings_search_loading_fcitx">Загрузка настроек Fcitx...</string>
+    <string name="voice_status_connecting">Подключение...</string>
+    <string name="voice_status_loading">Загрузка...</string>
+    <string name="voice_error_no_permission">Разрешение RECORD_AUDIO не предоставлено</string>
+    <string name="voice_error_failed">Сбой голосового ввода</string>
+    <string name="voice_error_invalid_provider">Недопустимый поставщик голосового ввода</string>
+    <string name="voice_error_not_available">Поставщик голосового ввода недоступен</string>
+    <string name="voice_error_disconnected">Поставщик голосового ввода отключен</string>
+    <string name="voice_error_null_binding">Поставщик голосового ввода не вернул привязку</string>
+    <string name="voice_error_cannot_bind">Не удается привязать поставщика голосового ввода</string>
+    <string name="voice_error_bind_timeout">Время ожидания привязки поставщика голосового ввода истекло</string>
+    <string name="voice_error_call_failed">Сбой вызова поставщика голосового ввода</string>
+    <string name="voice_error_invalid_audio_config">Поставщик голосового ввода запросил неподдерживаемый аудиоформат</string>
+    <string name="voice_error_audio_minbuf">AudioRecord.getMinBufferSize=%d</string>
+    <string name="voice_error_audio_construct">Создание AudioRecord отклонено: %s</string>
+    <string name="voice_error_audio_not_init">AudioRecord не инициализирован</string>
+    <string name="voice_error_audio_start_failed">Сбой startRecording: %s</string>
 </resources>

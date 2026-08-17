@@ -5,34 +5,26 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.theme
 
 import android.Manifest
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.net.Uri
 import android.os.Build
-import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import org.fxboomk.fcitx5.android.BuildConfig
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.CustomThemeSerializer
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeFilesManager
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.LayoutQrBitmapUtil
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fxboomk.fcitx5.android.utils.importErrorDialog
@@ -41,14 +33,11 @@ import org.fxboomk.fcitx5.android.utils.toast
 import org.fxboomk.fcitx5.android.utils.zipInputStream
 import splitties.resources.styledDrawable
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.nio.charset.Charset
-import java.util.UUID
 import java.util.zip.ZipInputStream
 
 class ThemeShareImportManager(
     private val fragment: Fragment,
-    private val previewViewProvider: () -> View?,
     private val onImported: (newCreated: Boolean, theme: Theme.Custom, migrated: Boolean) -> Unit
 ) {
     private val qrChunkCollector = QrChunkCollector()
@@ -78,142 +67,9 @@ class ThemeShareImportManager(
         }
     }
 
-    fun showMenu(anchor: android.view.View?) {
-        val ctx = fragment.requireContext()
-        androidx.appcompat.widget.PopupMenu(ctx, anchor ?: fragment.requireView()).apply {
-            gravity = android.view.Gravity.END
-            menu.add(0, MENU_SHARE_ACTIVE, 0, ctx.getString(R.string.theme_share_active))
-            menu.add(0, MENU_IMPORT_QR_SCAN, 1, ctx.getString(R.string.theme_import_qr_scan))
-            menu.add(0, MENU_IMPORT_QR_IMAGE, 2, ctx.getString(R.string.theme_import_qr_image))
-            menu.add(0, MENU_IMPORT_ZIP, 3, ctx.getString(R.string.import_from_file))
-            setOnMenuItemClickListener { onMenuItemClick(it) }
-            show()
-        }
-    }
-
-    private fun onMenuItemClick(item: android.view.MenuItem): Boolean {
-        when (item.itemId) {
-            MENU_SHARE_ACTIVE -> shareActiveTheme()
-            MENU_IMPORT_QR_SCAN -> startCameraScanImport()
-            MENU_IMPORT_QR_IMAGE -> pickQrImageLauncher.launch("image/*")
-            MENU_IMPORT_ZIP -> importZipLauncher.launch("application/zip")
-            else -> return false
-        }
-        return true
-    }
-
-    fun shareActiveThemeFromMenu() = shareActiveTheme()
-
     fun importThemeByQrScan() = startCameraScanImport()
 
     fun importThemeByQrImage() = pickQrImageLauncher.launch("image/*")
-
-    private fun shareActiveTheme() {
-        val activeTheme = ThemeManager.activeTheme
-        val displayName = activeTheme.name
-        val custom = when (activeTheme) {
-            is Theme.Custom -> activeTheme
-            is Theme.Builtin -> activeTheme.deriveCustomNoBackground(UUID.randomUUID().toString())
-            is Theme.Monet -> activeTheme.toCustom().copy(name = UUID.randomUUID().toString())
-        }
-        if (custom.backgroundImage != null) {
-            MaterialAlertDialogBuilder(fragment.requireContext())
-                .setIcon(fragment.requireContext().styledDrawable(android.R.attr.alertDialogIcon))
-                .setTitle(R.string.share)
-                .setMessage(R.string.theme_share_has_background_zip_tip)
-                .setPositiveButton(android.R.string.ok) { _, _ -> shareThemeAsZip(custom) }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-            return
-        }
-        shareThemeAsQr(custom, displayName)
-    }
-
-    private fun shareThemeAsZip(theme: Theme.Custom) {
-        fragment.viewLifecycleOwner.lifecycleScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                runCatching {
-                    val cacheDir = File(fragment.requireContext().cacheDir, "shared").apply { mkdirs() }
-                    val zipFile = File(cacheDir, "theme-${System.currentTimeMillis()}.zip")
-                    zipFile.outputStream().use { os ->
-                        ThemeFilesManager.exportTheme(theme, os).getOrThrow()
-                    }
-                    zipFile
-                }
-            }
-            result.onSuccess { zipFile ->
-                val uri = FileProvider.getUriForFile(
-                    fragment.requireContext(),
-                    "${BuildConfig.APPLICATION_ID}.share.fileprovider",
-                    zipFile
-                )
-                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "application/zip"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-                fragment.startActivity(Intent.createChooser(sendIntent, fragment.getString(R.string.theme_share_zip_title)))
-            }.onFailure {
-                fragment.requireContext().toast(it)
-            }
-        }
-    }
-
-    private fun shareThemeAsQr(theme: Theme.Custom, displayName: String) {
-        fragment.viewLifecycleOwner.lifecycleScope.launch {
-            val result = withContext(Dispatchers.Default) {
-                runCatching {
-                    val bundle = ThemeQrTransferCodec.encodeThemeToChunks(theme)
-                    val labels = JsonFileQrShareManager.buildChunkLabels(
-                        bundle = bundle,
-                        typeLabel = fragment.getString(R.string.qr_payload_type_theme),
-                        nameLabel = displayName
-                    )
-                    val previewBitmap = withContext(Dispatchers.Main) {
-                        renderThemePreviewBitmap()
-                    }
-                    val image = try {
-                        LayoutQrBitmapUtil.composeLongImageStreamingWithPreview(
-                            bundle.chunks.map { it.encode() },
-                            labels,
-                            previewBitmap
-                        )
-                    } finally {
-                        if (previewBitmap != null && !previewBitmap.isRecycled) previewBitmap.recycle()
-                    }
-                    val uri = JsonFileQrShareManager.saveLongImageToShareCache(fragment.requireContext(), image, "theme-qr")
-                    if (!image.isRecycled) image.recycle()
-                    uri
-                }
-            }
-            result.onSuccess { uri ->
-                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "image/png"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-                fragment.startActivity(Intent.createChooser(sendIntent, fragment.getString(R.string.theme_share_qr_title)))
-                fragment.requireContext().toast(R.string.text_keyboard_layout_qr_exported)
-            }.onFailure {
-                fragment.requireContext().toast(
-                    fragment.getString(R.string.text_keyboard_layout_qr_export_failed, it.localizedMessage ?: "")
-                )
-            }
-        }
-    }
-
-    private suspend fun renderThemePreviewBitmap(): Bitmap? =
-        withContext(Dispatchers.Main) {
-            val root = previewViewProvider() ?: return@withContext null
-            val width = root.width
-            val height = root.height
-            if (width <= 0 || height <= 0) return@withContext null
-            delay(16)
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bitmap ->
-                val canvas = Canvas(bitmap)
-                root.draw(canvas)
-            }
-        }
 
     private fun startCameraScanImport() {
         val granted = ContextCompat.checkSelfPermission(fragment.requireContext(), Manifest.permission.CAMERA) ==
@@ -446,12 +302,5 @@ class ThemeShareImportManager(
             }
         }
         error("No theme json found")
-    }
-
-    companion object {
-        const val MENU_SHARE_ACTIVE = 1
-        const val MENU_IMPORT_QR_SCAN = 2
-        const val MENU_IMPORT_QR_IMAGE = 3
-        const val MENU_IMPORT_ZIP = 4
     }
 }

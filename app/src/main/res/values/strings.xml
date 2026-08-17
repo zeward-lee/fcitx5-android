@@ -190,6 +190,7 @@
     <string name="dark_mode_theme_summary">Select multiple themes and cycle through them</string>
     <string name="new_theme">New theme</string>
     <string name="theme_name">Theme name</string>
+    <string name="rename">Rename</string>
     <string name="theme_name_empty">Theme name cannot be empty</string>
     <string name="monet_editor_select_color_resource">Select Color Resource</string>
     <string name="monet_editor_select">Select</string>

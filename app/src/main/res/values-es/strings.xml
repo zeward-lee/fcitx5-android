@@ -93,6 +93,7 @@
     <string name="dark_mode_theme_summary">Seleccionar varios temas y alternar entre ellos</string>
     <string name="new_theme">Tema nuevo</string>
     <string name="theme_name">Nombre del tema</string>
+    <string name="rename">Cambiar nombre</string>
     <string name="theme_name_empty">El nombre del tema no puede estar vacío</string>
     <string name="skip">Omitir</string>
     <string name="none">Ninguno</string>
@@ -837,4 +838,27 @@
     <string name="llm_model_status_remote_unavailable" translatable="false">Estado: modelo remoto no disponible</string>
     <string name="llm_model_status_remote_missing_name" translatable="false">Estado: nombre del modelo sin completar</string>
     <string name="llm_api_key_set" translatable="false">Configurado, %1$s</string>
+    <string name="preedit_style">Estilo del área de composición</string>
+    <string name="preedit_style_default">Predeterminado</string>
+    <string name="preedit_style_inline_candidate_bar">Barra de candidatos integrada</string>
+    <string name="settings_search_hint">Buscar ajustes</string>
+    <string name="settings_search_results">Resultados de búsqueda</string>
+    <string name="settings_search_no_results">No hay ajustes coincidentes</string>
+    <string name="settings_search_loading_fcitx">Cargando ajustes de Fcitx...</string>
+    <string name="voice_status_connecting">Conectando...</string>
+    <string name="voice_status_loading">Cargando...</string>
+    <string name="voice_error_no_permission">Permiso RECORD_AUDIO no concedido</string>
+    <string name="voice_error_failed">Falló la entrada de voz</string>
+    <string name="voice_error_invalid_provider">Proveedor de entrada de voz no válido</string>
+    <string name="voice_error_not_available">El proveedor de entrada de voz no está disponible</string>
+    <string name="voice_error_disconnected">El proveedor de entrada de voz se desconectó</string>
+    <string name="voice_error_null_binding">El proveedor de entrada de voz no devolvió ninguna vinculación</string>
+    <string name="voice_error_cannot_bind">No se puede vincular el proveedor de entrada de voz</string>
+    <string name="voice_error_bind_timeout">Se agotó el tiempo de vinculación del proveedor de entrada de voz</string>
+    <string name="voice_error_call_failed">Falló la llamada al proveedor de entrada de voz</string>
+    <string name="voice_error_invalid_audio_config">El proveedor de entrada de voz solicitó un formato de audio no compatible</string>
+    <string name="voice_error_audio_minbuf">AudioRecord.getMinBufferSize=%d</string>
+    <string name="voice_error_audio_construct">Se denegó la creación de AudioRecord: %s</string>
+    <string name="voice_error_audio_not_init">AudioRecord no está inicializado</string>
+    <string name="voice_error_audio_start_failed">Falló startRecording: %s</string>
 </resources>
