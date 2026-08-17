@@ -8,6 +8,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.fxboomk.fcitx5.android.input.keyboard.AlphabetKey
+import org.fxboomk.fcitx5.android.input.keyboard.KeyAction
 import org.fxboomk.fcitx5.android.input.keyboard.KeyDef
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.junit.Assert.assertEquals
@@ -156,6 +158,30 @@ class LayoutJsonUtilsRowStyleTest {
         assertEquals("@", appearance.altText1)
         assertEquals(KeyDef.Appearance.AltTextPosition.TopBottom, appearance.altTextPositionOverride)
         assertEquals("@", LayoutJsonUtils.keyDefToJson(keyDef)["alt1"])
+    }
+
+    @Test
+    fun alphabetKey_customAltCharacters_commitTheirExactText() {
+        val keyJson = LayoutJsonUtils.parseKeyJson(
+            Json.parseToJsonElement(
+                """{"type":"AlphabetKey","main":"q","alt":"A","alt1":"Ä"}"""
+            ).jsonObject
+        )!!
+        val keyDef = LayoutJsonUtils.createKeyDef(keyJson)
+        val swipe = keyDef.behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().single()
+
+        assertEquals(KeyAction.CommitAction("A"), swipe.action)
+        assertEquals(KeyAction.CommitAction("Ä"), swipe.downAction)
+    }
+
+    @Test
+    fun alphabetKey_builtinAltCharacter_keepsFcitxKeyAction() {
+        val swipe = AlphabetKey("Q", "1").behaviors
+            .filterIsInstance<KeyDef.Behavior.Swipe>()
+            .single()
+
+        assertEquals(KeyAction.FcitxKeyAction("1"), swipe.action)
+        assertNull(swipe.downAction)
     }
 
     @Test

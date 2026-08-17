@@ -746,6 +746,7 @@ object LayoutJsonUtils {
                 character = key.main ?: "",
                 punctuation = key.alt ?: "",
                 punctuation1 = key.alt1?.takeIf { it.isNotEmpty() },
+                commitPunctuationDirectly = true,
                 displayText = resolveDisplayText(
                     key.displayText,
                     subModeLabel,

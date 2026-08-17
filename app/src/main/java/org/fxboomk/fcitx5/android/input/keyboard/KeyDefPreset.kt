@@ -91,7 +91,8 @@ class AlphabetKey(
     backgroundColor: Int? = null,
     backgroundColorMonet: String? = null,
     shadowColor: Int? = null,
-    shadowColorMonet: String? = null
+    shadowColorMonet: String? = null,
+    commitPunctuationDirectly: Boolean = false
 ) : KeyDef(
     Appearance.AltText(
         displayText = displayText,
@@ -113,8 +114,18 @@ class AlphabetKey(
     setOf(
         Behavior.Press(KeyAction.FcitxKeyAction(character)),
         Behavior.Swipe(
-            KeyAction.FcitxKeyAction(punctuation),
-            punctuation1?.takeIf { it.isNotEmpty() }?.let { KeyAction.FcitxKeyAction(it) }
+            if (commitPunctuationDirectly) {
+                KeyAction.CommitAction(punctuation)
+            } else {
+                KeyAction.FcitxKeyAction(punctuation)
+            },
+            punctuation1?.takeIf { it.isNotEmpty() }?.let {
+                if (commitPunctuationDirectly) {
+                    KeyAction.CommitAction(it)
+                } else {
+                    KeyAction.FcitxKeyAction(it)
+                }
+            }
         )
     ),
     popup ?: arrayOf(
