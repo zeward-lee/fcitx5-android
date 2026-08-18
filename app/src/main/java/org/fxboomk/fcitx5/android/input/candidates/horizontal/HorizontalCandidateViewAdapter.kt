@@ -19,7 +19,6 @@ import org.fxboomk.fcitx5.android.input.font.FontProviders
 import splitties.dimensions.dp
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
-import splitties.views.setPaddingDp
 
 open class HorizontalCandidateViewAdapter(val theme: Theme) :
     RecyclerView.Adapter<CandidateViewHolder>() {
@@ -96,9 +95,13 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         val ui = CandidateItemUi(parent.context, theme, candFont)
         ui.root.apply {
             minimumWidth = dp(40)
-            setPaddingDp(8, 0, 8, 0)
             layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
         }
+        ui.configureHorizontalHighlightSpacing(
+            outerPadding = parent.context.dp(HORIZONTAL_CANDIDATE_OUTER_PADDING_DP),
+            highlightPadding = parent.context.dp(HORIZONTAL_CANDIDATE_HIGHLIGHT_PADDING_DP),
+            verticalPadding = parent.context.dp(HORIZONTAL_CANDIDATE_VERTICAL_PADDING_DP),
+        )
         return CandidateViewHolder(ui)
     }
 

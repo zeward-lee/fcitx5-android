@@ -50,9 +50,42 @@ import splitties.dimensions.dp
 import java.util.ArrayDeque
 import kotlin.math.max
 
+internal const val HORIZONTAL_CANDIDATE_OUTER_PADDING_DP = 4
+internal const val HORIZONTAL_CANDIDATE_HIGHLIGHT_PADDING_DP = 8
+internal const val HORIZONTAL_CANDIDATE_VERTICAL_PADDING_DP = 4
+
 internal fun activeCandidateIndex(cursorIndex: Int, candidateCount: Int): Int {
     if (candidateCount <= 0) return -1
     return cursorIndex.coerceIn(0, candidateCount - 1)
+}
+
+internal data class HorizontalCandidateLayoutSizing(
+    val minWidth: Int,
+    val flexGrow: Float,
+    val secondLayoutPassNeeded: Boolean,
+)
+
+internal fun resolveHorizontalCandidateLayoutSizing(
+    fillStyle: HorizontalCandidateMode,
+    candidateCount: Int,
+    availableWidth: Int,
+    maxSpanCount: Int,
+    dividerWidth: Int,
+): HorizontalCandidateLayoutSizing {
+    val safeMaxSpanCount = maxSpanCount.coerceAtLeast(1)
+    return when (fillStyle) {
+        NeverFillWidth -> HorizontalCandidateLayoutSizing(0, 0f, false)
+        AutoFillWidth -> HorizontalCandidateLayoutSizing(
+            minWidth = (availableWidth / safeMaxSpanCount - dividerWidth).coerceAtLeast(0),
+            flexGrow = if (candidateCount < safeMaxSpanCount) 0f else 1f,
+            secondLayoutPassNeeded = candidateCount < safeMaxSpanCount,
+        )
+        AlwaysFillWidth -> HorizontalCandidateLayoutSizing(
+            minWidth = 0,
+            flexGrow = if (candidateCount <= 1) 0f else 1f,
+            secondLayoutPassNeeded = false,
+        )
+    }
 }
 
 internal fun moveActiveCandidateIndex(
@@ -202,7 +235,11 @@ class HorizontalCandidateComponent :
     private val measurementCandidateUi by lazy {
         CandidateItemUi(context, theme).also { ui ->
             ui.root.minimumWidth = context.dp(40)
-            ui.root.setPadding(context.dp(8), 0, context.dp(8), 0)
+            ui.configureHorizontalHighlightSpacing(
+                outerPadding = context.dp(HORIZONTAL_CANDIDATE_OUTER_PADDING_DP),
+                highlightPadding = context.dp(HORIZONTAL_CANDIDATE_HIGHLIGHT_PADDING_DP),
+                verticalPadding = context.dp(HORIZONTAL_CANDIDATE_VERTICAL_PADDING_DP),
+            )
             ui.root.layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -552,25 +589,17 @@ class HorizontalCandidateComponent :
         activeIndex: Int,
         indexOffset: Int,
     ) {
-        val maxSpanCount = maxSpanCountPref.getValue()
-        when (fillStyle) {
-            NeverFillWidth -> {
-                layoutMinWidth = 0
-                layoutFlexGrow = 0f
-                secondLayoutPassNeeded = false
-            }
-            AutoFillWidth -> {
-                layoutMinWidth = view.width / maxSpanCount - dividerDrawable.intrinsicWidth
-                layoutFlexGrow = if (candidates.size < maxSpanCount) 0f else 1f
-                secondLayoutPassNeeded = candidates.size < maxSpanCount
-                secondLayoutPassDone = false
-            }
-            AlwaysFillWidth -> {
-                layoutMinWidth = 0
-                layoutFlexGrow = 1f
-                secondLayoutPassNeeded = false
-            }
-        }
+        val sizing = resolveHorizontalCandidateLayoutSizing(
+            fillStyle = fillStyle,
+            candidateCount = candidates.size,
+            availableWidth = view.width,
+            maxSpanCount = maxSpanCountPref.getValue(),
+            dividerWidth = dividerDrawable.intrinsicWidth,
+        )
+        layoutMinWidth = sizing.minWidth
+        layoutFlexGrow = sizing.flexGrow
+        secondLayoutPassNeeded = sizing.secondLayoutPassNeeded
+        secondLayoutPassDone = false
         adapter.updateCandidates(candidates, total, activeIndex, indexOffset)
         bar.syncCandidateBarState(candidateEmpty = !hasVisibleCandidateContent(candidates))
         if (candidates.isEmpty()) {

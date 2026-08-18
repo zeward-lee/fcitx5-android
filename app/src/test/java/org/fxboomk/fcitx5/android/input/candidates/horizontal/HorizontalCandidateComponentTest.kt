@@ -11,6 +11,58 @@ import org.junit.Test
 class HorizontalCandidateComponentTest {
 
     @Test
+    fun `highlight spacing preserves the existing candidate item width`() {
+        assertEquals(4, HORIZONTAL_CANDIDATE_OUTER_PADDING_DP)
+        assertEquals(8, HORIZONTAL_CANDIDATE_HIGHLIGHT_PADDING_DP)
+        assertEquals(4, HORIZONTAL_CANDIDATE_VERTICAL_PADDING_DP)
+    }
+
+    @Test
+    fun `always fill keeps a single candidate at its natural width`() {
+        val sizing = resolveHorizontalCandidateLayoutSizing(
+            fillStyle = HorizontalCandidateMode.AlwaysFillWidth,
+            candidateCount = 1,
+            availableWidth = 500,
+            maxSpanCount = 5,
+            dividerWidth = 1,
+        )
+
+        assertEquals(0, sizing.minWidth)
+        assertEquals(0f, sizing.flexGrow)
+        assertEquals(false, sizing.secondLayoutPassNeeded)
+    }
+
+    @Test
+    fun `always fill still distributes multiple candidates`() {
+        val sizing = resolveHorizontalCandidateLayoutSizing(
+            fillStyle = HorizontalCandidateMode.AlwaysFillWidth,
+            candidateCount = 2,
+            availableWidth = 500,
+            maxSpanCount = 5,
+            dividerWidth = 1,
+        )
+
+        assertEquals(0, sizing.minWidth)
+        assertEquals(1f, sizing.flexGrow)
+        assertEquals(false, sizing.secondLayoutPassNeeded)
+    }
+
+    @Test
+    fun `auto fill preserves one candidate slot width without stretching`() {
+        val sizing = resolveHorizontalCandidateLayoutSizing(
+            fillStyle = HorizontalCandidateMode.AutoFillWidth,
+            candidateCount = 1,
+            availableWidth = 500,
+            maxSpanCount = 5,
+            dividerWidth = 1,
+        )
+
+        assertEquals(99, sizing.minWidth)
+        assertEquals(0f, sizing.flexGrow)
+        assertEquals(true, sizing.secondLayoutPassNeeded)
+    }
+
+    @Test
     fun `uses paged cursor index when it is within range`() {
         assertEquals(2, activeCandidateIndex(cursorIndex = 2, candidateCount = 5))
     }

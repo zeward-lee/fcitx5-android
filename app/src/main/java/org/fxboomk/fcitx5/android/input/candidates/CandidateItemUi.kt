@@ -9,6 +9,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.widget.FrameLayout
 import androidx.annotation.ColorInt
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
@@ -82,13 +83,13 @@ class CandidateItemUi(
         @ColorInt pressColor: Int,
         cornerRadius: Float = ctx.dp(6f)
     ) {
-        root.background = firstCandidateDrawable(
+        root.background = normalBackground
+        content.background = firstCandidateDrawable(
             bgColor = bgColor,
             strokeColor = strokeColor,
             cornerRadius = cornerRadius,
             strokeWidth = 1,
             pressColor = pressColor,
-            inset = ctx.dp(4)
         )
         hasFirstCandidateStyle = true
         renderCandidate()
@@ -96,14 +97,25 @@ class CandidateItemUi(
 
     fun resetToDefaultBackground(@ColorInt pressColor: Int) {
         root.background = pressHighlightDrawable(pressColor)
+        content.background = null
         hasFirstCandidateStyle = false
         renderCandidate()
+    }
+
+    fun configureHorizontalHighlightSpacing(
+        outerPadding: Int,
+        highlightPadding: Int,
+        verticalPadding: Int,
+    ) {
+        root.setPadding(outerPadding, verticalPadding, outerPadding, verticalPadding)
+        content.setPadding(highlightPadding, 0, highlightPadding, 0)
     }
 
     fun setActive(active: Boolean) {
         isActive = active
         renderCandidate()
         text.background = null
+        content.background = null
         root.background = if (active) activeBackground else normalBackground
     }
 
@@ -132,10 +144,17 @@ class CandidateItemUi(
         }
     }
 
+    private val content = view(::FrameLayout) {
+        isDuplicateParentStateEnabled = true
+        add(text, lParams(wrapContent, matchParent) {
+            gravity = gravityCenter
+        })
+    }
+
     override val root = view(::CustomGestureView) {
         background = normalBackground
         longPressFeedbackEnabled = false
-        add(text, lParams(wrapContent, matchParent) {
+        add(content, lParams(wrapContent, matchParent) {
             gravity = gravityCenter
         })
     }
