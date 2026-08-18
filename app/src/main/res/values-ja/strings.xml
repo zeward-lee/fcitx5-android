@@ -321,6 +321,7 @@
     <string name="popup_editor_add_candidate">候補を追加</string>
     <string name="popup_editor_add_candidate_button">追加</string>
     <string name="popup_editor_candidate_input_hint">候補値を入力</string>
+    <string name="popup_editor_qr_export">設定をQRコードで共有</string>
     <string name="edit_text_playground">EditText プレイグラウンド</string>
     <string name="edit_text_keyboard_layout">汎用キーボードレイアウトを編集</string>
     <string name="font_size">フォントサイズ</string>

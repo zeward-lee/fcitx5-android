@@ -125,7 +125,10 @@
       "Bash(git show *)",
       "Bash(git commit *)",
       "Bash(git add *)",
-      "Bash(./gradlew assembleMainlineDebug -PbuildABI=arm64-v8a)"
+      "Bash(./gradlew assembleMainlineDebug -PbuildABI=arm64-v8a)",
+      "mcp__gitnexus__detect_changes",
+      "Bash(git check-ignore *)",
+      "Bash(rtk stat *)"
     ]
   }
 }

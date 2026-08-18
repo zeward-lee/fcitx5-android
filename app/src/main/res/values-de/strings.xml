@@ -237,6 +237,7 @@
     <string name="popup_editor_add_candidate">Kandidat hinzufügen</string>
     <string name="popup_editor_add_candidate_button">Hinzufügen</string>
     <string name="popup_editor_candidate_input_hint">Kandidatenwert eingeben</string>
+    <string name="popup_editor_qr_export">Konfiguration als QR-Code teilen</string>
     <string name="edit_text_playground">EditText-Spielplatz</string>
     <string name="edit_text_keyboard_layout">Allgemeines Tastaturlayout bearbeiten</string>
     <string name="text_keyboard_layout_preview">Vorschau</string>

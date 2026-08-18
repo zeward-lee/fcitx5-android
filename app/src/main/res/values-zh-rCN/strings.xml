@@ -407,6 +407,7 @@
     <string name="popup_editor_add_candidate">添加候选</string>
     <string name="popup_editor_add_candidate_button">添加</string>
     <string name="popup_editor_candidate_input_hint">请输入候选值</string>
+    <string name="popup_editor_qr_export">分享配置为二维码</string>
     <string name="cannot_resolve_popup_preset">无法定位弹出预设文件</string>
     <string name="popup_preset_saved_at">popuppreset.json 已保存到：%1$s</string>
     <string name="fontset_editor_hint">点击每一项可从 fonts 目录选择一个或多个字体。多个字体将按顺序作为回退字体使用。</string>

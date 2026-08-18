@@ -323,6 +323,7 @@
     <string name="popup_editor_add_candidate">新增候選</string>
     <string name="popup_editor_add_candidate_button">新增</string>
     <string name="popup_editor_candidate_input_hint">請輸入候選值</string>
+    <string name="popup_editor_qr_export">分享配置為二維碼</string>
     <string name="cannot_resolve_popup_preset">無法定位彈出預設檔案</string>
     <string name="popup_preset_saved_at">popuppreset.json 已儲存至：%1$s</string>
     <string name="fcitx_daemon">Fcitx 常駐程式</string>

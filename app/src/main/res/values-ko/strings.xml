@@ -127,6 +127,7 @@
     <string name="popup_editor_add_candidate">후보 추가</string>
     <string name="popup_editor_add_candidate_button">추가</string>
     <string name="popup_editor_candidate_input_hint">후보 값 입력</string>
+    <string name="popup_editor_qr_export">구성을 QR 코드로 공유</string>
     <string name="edit_text_playground">EditText 테스트 공간</string>
     <string name="edit_text_keyboard_layout">범용 키보드 레이아웃 편집</string>
     <string name="text_keyboard_layout_preview">미리보기</string>

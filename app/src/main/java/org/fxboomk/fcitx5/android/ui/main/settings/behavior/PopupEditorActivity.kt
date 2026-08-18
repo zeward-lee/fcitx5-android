@@ -115,6 +115,7 @@ class PopupEditorActivity : AppCompatActivity() {
     private val popupFile: File? by lazy { provider.popupPresetFile() }
 
     private val entries: MutableMap<String, MutableList<String>> = linkedMapOf()
+    private val defaultEntries: Map<String, List<String>> by lazy { readDefaultPresetFromPopupKt() }
     private var originalEntries: Map<String, List<String>> = emptyMap()
     private var saveMenuItem: MenuItem? = null
     private var adapter: PopupAdapter? = null
@@ -167,11 +168,11 @@ class PopupEditorActivity : AppCompatActivity() {
         saveMenuItem = menu.add(Menu.NONE, MENU_SAVE_ID, Menu.NONE, "${getString(R.string.save)}")
         saveMenuItem?.setIcon(R.drawable.ic_baseline_save_24)
         saveMenuItem?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(Menu.NONE, MENU_QR_EXPORT_ID, Menu.NONE, getString(R.string.text_keyboard_layout_qr_export))
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_QR_IMPORT_SCAN_ID, Menu.NONE, getString(R.string.text_keyboard_layout_qr_import_scan))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_QR_IMPORT_IMAGE_ID, Menu.NONE, getString(R.string.text_keyboard_layout_qr_import_image))
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_QR_EXPORT_ID, Menu.NONE, getString(R.string.popup_editor_qr_export))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         updateSaveButtonState()
         return true
@@ -205,7 +206,7 @@ class PopupEditorActivity : AppCompatActivity() {
         // try reading user-provided popup preset JSON; fallback to built-in PopupPreset
         val snapshot = ConfigProviders.readPopupPreset<Map<String, List<String>>>()
         val parsed: Map<String, List<String>> = snapshot?.value
-            ?: readDefaultPresetFromPopupKt()
+            ?: defaultEntries
         parsed.toSortedMap().forEach { (k, v) ->
             entries[k] = v.toMutableList()
         }
@@ -478,9 +479,16 @@ class PopupEditorActivity : AppCompatActivity() {
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel, null)
+            .setNeutralButton(R.string.reset, null)
             .create()
 
         dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                values.clear()
+                values.addAll(defaultEntries[currentKeyValue].orEmpty())
+                buildCandidates()
+            }
+
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val newKey = currentKeyValue
                 if (newKey.isEmpty() || newKey == getString(R.string.popup_editor_key_input_hint)) {

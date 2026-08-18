@@ -562,6 +562,7 @@
     <string name="popup_editor_add_candidate">Add candidate</string>
     <string name="popup_editor_add_candidate_button">Add</string>
     <string name="popup_editor_candidate_input_hint">Enter candidate value</string>
+    <string name="popup_editor_qr_export">Share configuration as QR code</string>
     <string name="cannot_resolve_popup_preset">Unable to resolve popup preset file</string>
     <string name="popup_preset_saved_at">popuppreset.json saved at: %1$s</string>
     <string name="fontset_editor_hint">Tap each item to choose one or more fonts from the fonts directory. Multiple fonts are used as fallback in order.</string>

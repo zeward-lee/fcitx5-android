@@ -158,6 +158,7 @@
     <string name="popup_editor_add_candidate">Añadir candidato</string>
     <string name="popup_editor_add_candidate_button">Añadir</string>
     <string name="popup_editor_candidate_input_hint">Ingrese valor del candidato</string>
+    <string name="popup_editor_qr_export">Compartir la configuración como código QR</string>
     <string name="edit_text_playground">Área de pruebas de EditText</string>
     <string name="edit_text_keyboard_layout">Editar distribución general del teclado</string>
     <string name="text_keyboard_layout_preview">Vista previa</string>
