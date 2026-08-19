@@ -540,6 +540,12 @@
     <string name="buttons_customizer_hint">Drag buttons to reorder or move between Kawaii Bar (top row) and Status Area (menu). Long press to start dragging.</string>
     <string name="kawaii_bar_section">Kawaii Bar (Top Row)</string>
     <string name="status_area_section">Status Area (Menu)</string>
+    <string name="more_menu_items">More Menu Items</string>
+    <string name="available_buttons_section">Available Buttons</string>
+    <string name="button_icon_code_point">Iconfont Unicode code point</string>
+    <string name="button_icon_code_point_hint">For example: E141</string>
+    <string name="button_icon_code_point_summary">Uses the configured button icon font, or the bundled iconfont.ttf by default. Leave blank to use the default icon.</string>
+    <string name="button_icon_code_point_invalid">Enter 4 to 6 hexadecimal digits</string>
     <string name="language_switch">Language Switch</string>
     <string name="all_buttons_added">All available buttons have been added</string>
     <string name="add_button_to_section_title">Add to Section</string>

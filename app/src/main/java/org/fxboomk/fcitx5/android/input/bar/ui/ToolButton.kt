@@ -14,7 +14,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.theme.Theme
-import org.fxboomk.fcitx5.android.input.font.FontProviders
+import org.fxboomk.fcitx5.android.input.font.ButtonIconFont
 import org.fxboomk.fcitx5.android.input.keyboard.CustomGestureView
 import org.fxboomk.fcitx5.android.utils.borderlessRippleDrawable
 import org.fxboomk.fcitx5.android.utils.circlePressHighlightDrawable
@@ -77,12 +77,11 @@ class ToolButton(context: Context) : CustomGestureView(context) {
         image.imageResource = icon
     }
 
-    fun setIconText(iconText: String, iconFontKey: String = "button_icon_font") {
-        val typeface = FontProviders.resolveTypeface(iconFontKey, null)
+    fun setIconText(iconText: String) {
         image.visibility = GONE
         text.visibility = VISIBLE
         text.text = iconText
-        text.typeface = typeface
+        text.typeface = ButtonIconFont.typeface(context)
     }
 
     fun setPressHighlightColor(@ColorInt color: Int) {

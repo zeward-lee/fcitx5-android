@@ -13,6 +13,7 @@ sealed class StatusAreaEntry(
     val label: String,
     @DrawableRes
     val icon: Int,
+    val iconText: String? = null,
     val active: Boolean
 ) {
     /**
@@ -22,16 +23,17 @@ sealed class StatusAreaEntry(
         val buttonAction: ButtonAction,
         label: String,
         icon: Int,
+        iconText: String? = null,
         active: Boolean = false,
         val longPressAction: LongPressActionType? = null
-    ) : StatusAreaEntry(label, icon, active) {
+    ) : StatusAreaEntry(label, icon, iconText, active) {
         enum class LongPressActionType {
             EnterAdjustingMode
         }
     }
 
     class Android(label: String, icon: Int, val type: Type, active: Boolean = false) :
-        StatusAreaEntry(label, icon, active) {
+        StatusAreaEntry(label, icon, null, active) {
         enum class Type {
             InputMethod,
             ReloadConfig,
@@ -42,7 +44,7 @@ sealed class StatusAreaEntry(
     }
 
     class Fcitx(val action: Action, label: String, icon: Int, active: Boolean) :
-        StatusAreaEntry(label, icon, active)
+        StatusAreaEntry(label, icon, null, active)
 
     companion object {
         private fun drawableFromIconName(icon: String) = when (icon) {

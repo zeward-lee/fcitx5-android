@@ -5,6 +5,7 @@
 package org.fxboomk.fcitx5.android.input.action
 
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -19,5 +20,11 @@ class ButtonActionTest {
         assertFalse(
             ButtonsLayoutConfig.default().kawaiiBarButtons.any { it.id == NumberKeyboardAction.id }
         )
+    }
+
+    @Test
+    fun moreButtonIsTheFixedFirstKawaiiBarButton() {
+        assertEquals("more", ButtonsLayoutConfig.default().kawaiiBarButtons.first().id)
+        assertEquals("font:E141", ButtonsLayoutConfig.default().kawaiiBarButtons.first().icon)
     }
 }

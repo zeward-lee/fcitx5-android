@@ -25,6 +25,7 @@ import org.fxboomk.fcitx5.android.input.bar.ui.ToolButton
 import org.fxboomk.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fxboomk.fcitx5.android.input.action.ButtonAction
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
 import org.fxboomk.fcitx5.android.input.config.ConfigChangeListener
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
@@ -94,7 +95,14 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                 null
             }
 
-            StatusAreaEntry.ActionEntry(action, label, action.defaultIcon, active, longPressAction)
+            StatusAreaEntry.ActionEntry(
+                buttonAction = action,
+                label = label,
+                icon = ButtonIconSpec.drawableResource(context, button.icon, action.defaultIcon),
+                iconText = ButtonIconSpec.glyph(button.icon),
+                active = active,
+                longPressAction = longPressAction
+            )
         }
 
         // Always add input_method_options at the end (fixed, not configurable)

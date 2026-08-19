@@ -398,11 +398,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
 
-        // Filter out 'more' button from config
-        val filteredButtons = config.kawaiiBarButtons.filter { it.id != "more" }
-
-        // Return buttons without 'more' button (removed per user request)
-        return filteredButtons
+        // The more button is fixed at the left edge and is rendered by IdleUi.
+        // Keep it in the loaded config so its icon can be customized.
+        return buildList {
+            add(ButtonsLayoutConfig.moreButtonOrDefault(config.kawaiiBarButtons))
+            addAll(config.kawaiiBarButtons.filter { it.id != "more" })
+        }
     }
 
     private var _idleUi: IdleUi? = null
@@ -593,7 +594,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         if (newConfig != currentButtonsConfig) {
             currentButtonsConfig = newConfig
             // Update the existing IdleUi with new config
-            _idleUi?.buttonsUi?.updateConfig(newConfig)
+            _idleUi?.updateConfig(newConfig)
             updateButtonsState()
         }
     }

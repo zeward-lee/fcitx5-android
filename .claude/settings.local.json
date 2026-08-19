@@ -129,7 +129,8 @@
       "mcp__gitnexus__detect_changes",
       "Bash(git check-ignore *)",
       "Bash(rtk stat *)",
-      "Bash(git submodule *)"
+      "Bash(git submodule *)",
+      "Bash(rtk ping *)"
     ]
   }
 }

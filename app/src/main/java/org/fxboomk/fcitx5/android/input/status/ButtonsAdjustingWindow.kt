@@ -4,10 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.input.status
 
-import android.content.ClipData
 import android.content.res.Configuration
 import android.graphics.Rect
-import android.view.DragEvent
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -30,12 +28,15 @@ import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.FcitxInputMethodService
 import org.fxboomk.fcitx5.android.input.action.ButtonAction
+import org.fxboomk.fcitx5.android.input.AutoScaleTextView
 import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fxboomk.fcitx5.android.input.bar.ui.ToolButton
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
 import org.fxboomk.fcitx5.android.input.dependency.inputMethodService
+import org.fxboomk.fcitx5.android.input.font.ButtonIconFont
 import org.fxboomk.fcitx5.android.input.wm.InputWindow
 import splitties.dimensions.dp
 import splitties.views.backgroundColor
@@ -67,6 +68,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private val topButtons = mutableListOf<ConfigurableButton>()
     private val bottomButtons = mutableListOf<ConfigurableButton>()
     private val availableButtons = mutableListOf<ConfigurableButton>()
+    private var moreButtonConfig = ButtonsLayoutConfig.defaultMoreButton()
     private var originalTop = listOf<ConfigurableButton>()
     private var originalBottom = listOf<ConfigurableButton>()
     private var dragInProgress = false
@@ -146,6 +148,21 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
+    private fun applyMoreButtonIcon(config: ConfigurableButton?) {
+        val glyph = ButtonIconSpec.glyph(config?.icon)
+        if (glyph != null) {
+            moreButton.setIconText(glyph)
+        } else {
+            moreButton.setIcon(
+                ButtonIconSpec.drawableResource(
+                    context,
+                    config?.icon,
+                    R.drawable.ic_baseline_arrow_drop_down_24
+                )
+            )
+        }
+    }
+
     private val topRow by lazy {
         LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -168,6 +185,13 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             layoutParams = LayoutParams(context.dp(24), context.dp(24))
         }
 
+        val textIcon = AutoScaleTextView(context).apply {
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 20f)
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            layoutParams = LayoutParams(context.dp(24), context.dp(24))
+        }
+
         val label = TextView(context).apply {
             textSize = 11f
             gravity = Gravity.CENTER
@@ -182,13 +206,24 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             gravity = Gravity.CENTER
             setPadding(context.dp(4), context.dp(4), context.dp(4), context.dp(4))
             addView(icon)
+            addView(textIcon)
             addView(label)
             layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, context.dp(72))
         }
 
-        fun bind(iconRes: Int, text: String, disabled: Boolean, theme: Theme) {
-            icon.setImageDrawable(ContextCompat.getDrawable(context, iconRes)?.mutate())
-            icon.drawable?.setTint(theme.keyTextColor)
+        fun bind(iconRes: Int, iconText: String?, text: String, disabled: Boolean, theme: Theme) {
+            if (iconText != null) {
+                icon.visibility = View.GONE
+                textIcon.visibility = View.VISIBLE
+                textIcon.text = iconText
+                textIcon.typeface = ButtonIconFont.typeface(context)
+                textIcon.setTextColor(theme.keyTextColor)
+            } else {
+                icon.visibility = View.VISIBLE
+                textIcon.visibility = View.GONE
+                icon.setImageDrawable(ContextCompat.getDrawable(context, iconRes)?.mutate())
+                icon.drawable?.setTint(theme.keyTextColor)
+            }
             label.setTextColor(theme.keyTextColor)
             label.text = text
             alpha = if (disabled) 0.45f else 1f
@@ -227,11 +262,21 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             if (position < list.size) {
                 val button = list[position]
                 val action = ButtonAction.fromId(button.id)
-                val icon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+                val fallbackIcon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
                 val label = button.label
                     ?: action?.let { holder.itemView.context.getString(it.defaultLabelRes) }
                     ?: button.id
-                ui.bind(icon, label, disabled = false, theme = theme)
+                ui.bind(
+                    iconRes = ButtonIconSpec.drawableResource(
+                        holder.itemView.context,
+                        button.icon,
+                        fallbackIcon
+                    ),
+                    iconText = ButtonIconSpec.glyph(button.icon),
+                    text = label,
+                    disabled = false,
+                    theme = theme
+                )
                 // Enable long click and set listener
                 ui.isLongClickable = true
                 ui.setOnLongClickListener(View.OnLongClickListener { view ->
@@ -304,7 +349,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                 val action = ButtonAction.fromId("input_method_options")
                 val icon = action?.defaultIcon ?: R.drawable.ic_baseline_language_24
                 val label = action?.let { holder.itemView.context.getString(it.defaultLabelRes) } ?: "IME"
-                ui.bind(icon, label, disabled = true, theme = theme)
+                ui.bind(icon, null, label, disabled = true, theme = theme)
             }
         }
     }
@@ -338,7 +383,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         val minWidth = context.dp(40)
         val spacing = context.dp(4)
         val available = topScroller.width
-        val count = topButtons.size + 1
+        val count = topButtons.size
         val evenWidth = if (available > 0 && count > 0) {
             ((available - count * spacing) / count).coerceAtLeast(0)
         } else {
@@ -347,8 +392,13 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         val useEven = evenWidth >= minWidth
         topButtons.forEachIndexed { index, button ->
             val action = ButtonAction.fromId(button.id)
-            val icon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+            val icon = ButtonIconSpec.drawableResource(
+                context,
+                button.icon,
+                action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+            )
             val view = ToolButton(context, icon, currentTheme).apply {
+                ButtonIconSpec.glyph(button.icon)?.let(::setIconText)
                 layoutParams = LinearLayout.LayoutParams(
                     if (useEven) evenWidth else ViewGroup.LayoutParams.WRAP_CONTENT,
                     context.dp(KawaiiBarComponent.HEIGHT)
@@ -424,20 +474,6 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             }
             topContainer.addView(view)
         }
-        val topMore = ToolButton(context, R.drawable.ic_baseline_more_horiz_24, currentTheme).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                if (useEven) evenWidth else ViewGroup.LayoutParams.WRAP_CONTENT,
-                context.dp(KawaiiBarComponent.HEIGHT)
-            ).apply {
-                marginStart = context.dp(2)
-                marginEnd = context.dp(2)
-            }
-            minimumWidth = minWidth
-            image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            alpha = 1f
-            visibility = View.GONE  // Hide per user request
-        }
-        topContainer.addView(topMore)
         topContainer.layoutParams = FrameLayout.LayoutParams(
             if (useEven) ViewGroup.LayoutParams.MATCH_PARENT else ViewGroup.LayoutParams.WRAP_CONTENT,
             context.dp(KawaiiBarComponent.HEIGHT)
@@ -619,6 +655,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private fun loadState() {
         val config = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
             ?: ButtonsLayoutConfig.default()
+        moreButtonConfig = ButtonsLayoutConfig.moreButtonOrDefault(config.kawaiiBarButtons)
+        applyMoreButtonIcon(moreButtonConfig)
         val reservedIds = setOf("more", "input_method_options")
         val configurableIds = ButtonAction.allConfigurableActions
             .map { it.id }
@@ -669,7 +707,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         runCatching {
             file.parentFile?.mkdirs()
             val config = ButtonsLayoutConfig(
-                kawaiiBarButtons = topButtons.toList(),
+                kawaiiBarButtons = listOf(moreButtonConfig) + topButtons,
                 statusAreaButtons = bottomButtons.toList()
             )
             file.writeText(prettyJson.encodeToString(config) + "\n")

@@ -18,6 +18,7 @@ import org.fxboomk.fcitx5.android.input.action.ButtonAction
 import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fxboomk.fcitx5.android.input.bar.ui.ToolButton
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
 import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
@@ -61,8 +62,9 @@ class ButtonsBarUi(
     }
 
     fun updateConfig(newButtons: List<ConfigurableButton>) {
-        if (newButtons != buttons) {
-            buttons = newButtons
+        val filteredButtons = newButtons.filter { it.id != "more" }
+        if (filteredButtons != buttons) {
+            buttons = filteredButtons
             buildButtons()
         }
     }
@@ -87,15 +89,9 @@ class ButtonsBarUi(
 
     @DrawableRes
     private fun getIconResForButton(buttonId: String, customIcon: String?): Int {
-        // If custom icon is specified, try to find it
-        if (customIcon != null) {
-            // Try to get resource ID from name
-            val resId = ctx.resources.getIdentifier(customIcon, "drawable", ctx.packageName)
-            if (resId != 0) return resId
-        }
-
-        // Return default icon from ButtonAction
-        return ButtonAction.fromId(buttonId)?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+        val fallback = ButtonAction.fromId(buttonId)?.defaultIcon
+            ?: R.drawable.ic_baseline_more_horiz_24
+        return ButtonIconSpec.drawableResource(ctx, customIcon, fallback)
     }
 
     private fun getDefaultLabel(buttonId: String): String {
@@ -137,6 +133,7 @@ class ButtonsBarUi(
             val config = buttons[viewType]
             val iconRes = getIconResForButton(config.id, config.icon)
             val button = ToolButton(ctx, iconRes, theme).apply {
+                ButtonIconSpec.glyph(config.icon)?.let(::setIconText)
                 contentDescription = config.label ?: getDefaultLabel(config.id)
                 tag = config.id
                 // Ensure button always fills KawaiiBar height

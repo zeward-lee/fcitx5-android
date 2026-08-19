@@ -4,6 +4,8 @@
  */
 package org.fxboomk.fcitx5.android.input.config
 
+import android.content.Context
+import androidx.annotation.DrawableRes
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,9 +24,9 @@ data class ConfigurableButton(
     val id: String,
 
     /**
-     * Optional: Icon resource name (without extension) to use for this button.
+     * Optional: Drawable resource name or iconfont Unicode code point.
      * If null, uses default icon for the action.
-     * Examples: "ic_baseline_undo_24", "ic_clipboard", "ic_cursor_move"
+     * Examples: "ic_baseline_undo_24", "ic_clipboard", "font:E141"
      */
     @SerialName("icon")
     val icon: String? = null,
@@ -45,6 +47,30 @@ data class ConfigurableButton(
     val longPressAction: String? = null
 )
 
+/** Shared parsing rules for drawable names and iconfont code points. */
+object ButtonIconSpec {
+    private val codePointPattern = Regex("(?:font:)?([0-9A-Fa-f]{4,6})")
+
+    fun codePoint(value: String?): Int? {
+        val match = value?.trim()?.let(codePointPattern::matchEntire) ?: return null
+        return match.groupValues[1].toIntOrNull(16)?.takeIf {
+            it in 0..0x10FFFF && it !in 0xD800..0xDFFF
+        }
+    }
+
+    fun glyph(value: String?): String? = codePoint(value)?.let { String(Character.toChars(it)) }
+
+    fun canonicalCodePoint(value: String): String? = codePoint(value)?.let { "font:%04X".format(it) }
+
+    @DrawableRes
+    fun drawableResource(context: Context, value: String?, @DrawableRes fallback: Int): Int {
+        if (value.isNullOrBlank() || codePoint(value) != null) return fallback
+        return context.resources.getIdentifier(value, "drawable", context.packageName)
+            .takeIf { it != 0 }
+            ?: fallback
+    }
+}
+
 /**
  * Unified configuration for both Kawaii Bar and Status Area buttons layout.
  * Stored in a single JSON file for easier management.
@@ -54,7 +80,7 @@ data class ButtonsLayoutConfig(
     /**
      * List of buttons to display on Kawaii Bar, in order.
      * Maximum 6 buttons recommended for visual balance.
-     * Note: 'more' button is always added automatically and should not be in this list.
+     * The fixed 'more' button is stored first and cannot be moved.
      */
     @SerialName("kawaiiBarButtons")
     val kawaiiBarButtons: List<ConfigurableButton>,
@@ -68,11 +94,24 @@ data class ButtonsLayoutConfig(
     val statusAreaButtons: List<ConfigurableButton>
 ) {
     companion object {
+        private const val DEFAULT_MORE_ICON = "font:E141"
+
+        fun defaultMoreButton(): ConfigurableButton = ConfigurableButton(
+            id = "more",
+            icon = DEFAULT_MORE_ICON
+        )
+
+        fun moreButtonOrDefault(buttons: List<ConfigurableButton>): ConfigurableButton {
+            val button = buttons.firstOrNull { it.id == "more" } ?: return defaultMoreButton()
+            return if (button.icon.isNullOrBlank()) button.copy(icon = DEFAULT_MORE_ICON) else button
+        }
+
         /**
          * Default unified button configuration.
          */
         fun default(): ButtonsLayoutConfig = ButtonsLayoutConfig(
             kawaiiBarButtons = listOf(
+                defaultMoreButton(),
                 ConfigurableButton("undo"),
                 ConfigurableButton("redo"),
                 ConfigurableButton("cursor_move"),

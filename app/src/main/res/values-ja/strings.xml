@@ -299,6 +299,12 @@
     <string name="buttons_customizer_hint">ボタンをドラッグして並べ替えたり、Kawaii Bar（上段）と Status Area（メニュー）間を移動できます。長押しでドラッグ開始。</string>
     <string name="kawaii_bar_section">Kawaii Bar（上段）</string>
     <string name="status_area_section">Status Area（メニュー）</string>
+    <string name="more_menu_items">その他のメニュー項目</string>
+    <string name="available_buttons_section">利用可能なボタン</string>
+    <string name="button_icon_code_point">Iconfont Unicode コードポイント</string>
+    <string name="button_icon_code_point_hint">例: E141</string>
+    <string name="button_icon_code_point_summary">設定されたボタンアイコンフォントを使用し、未設定の場合は内蔵の iconfont.ttf を使用します。空欄にすると既定のアイコンを使用します。</string>
+    <string name="button_icon_code_point_invalid">4～6 桁の 16 進数を入力してください</string>
     <string name="language_switch">言語切替</string>
     <string name="all_buttons_added">利用可能なボタンはすべて追加済みです</string>
     <string name="add_button_to_section_title">セクションに追加</string>

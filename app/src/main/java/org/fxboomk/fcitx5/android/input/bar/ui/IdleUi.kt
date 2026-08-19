@@ -24,6 +24,7 @@ import org.fxboomk.fcitx5.android.input.bar.ui.idle.ClipboardSuggestionUi
 import org.fxboomk.fcitx5.android.input.bar.ui.idle.InlineSuggestionsUi
 import org.fxboomk.fcitx5.android.input.bar.ui.idle.NumberRow
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
 import org.fxboomk.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fxboomk.fcitx5.android.input.popup.PopupComponent
@@ -67,13 +68,25 @@ class IdleUi(
         if (ctx.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_LTR) 1f else -1f
     }
 
-    val menuButton = ToolButton(ctx, R.drawable.ic_baseline_apps_24, theme)
+    private var menuButtonConfig = buttonsConfig.firstOrNull { it.id == "more" }
+
+    val menuButton = ToolButton(
+        ctx,
+        ButtonIconSpec.drawableResource(
+            ctx,
+            menuButtonConfig?.icon,
+            R.drawable.ic_baseline_apps_24
+        ),
+        theme
+    ).apply {
+        ButtonIconSpec.glyph(menuButtonConfig?.icon)?.let(::setIconText)
+    }
 
     val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_keyboard_hide_24, theme)
 
     val emptyBar = Space(ctx)
 
-    val buttonsUi = ButtonsBarUi(ctx, theme, buttonsConfig)
+    val buttonsUi = ButtonsBarUi(ctx, theme, buttonsConfig.filter { it.id != "more" })
 
     val clipboardUi = ClipboardSuggestionUi(ctx, theme)
 
@@ -82,6 +95,12 @@ class IdleUi(
     }
 
     val inlineSuggestionsBar = InlineSuggestionsUi(ctx)
+
+    fun updateConfig(newButtons: List<ConfigurableButton>) {
+        menuButtonConfig = newButtons.firstOrNull { it.id == "more" }
+        buttonsUi.updateConfig(newButtons)
+        updateMenuButtonIcon()
+    }
 
     private val animator = ViewAnimator(ctx).apply {
         add(emptyBar, lParams(matchParent, matchParent))
@@ -137,13 +156,25 @@ class IdleUi(
     }
 
     private fun updateMenuButtonIcon() {
-        menuButton.setIcon(
-            when {
-                inPrivate -> R.drawable.ic_view_private
-                currentState == State.Clipboard || currentState == State.InlineSuggestion -> R.drawable.ic_baseline_arrow_back_24
-                else -> R.drawable.ic_baseline_apps_24
+        when {
+            inPrivate -> menuButton.setIcon(R.drawable.ic_view_private)
+            currentState == State.Clipboard || currentState == State.InlineSuggestion ->
+                menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
+            else -> {
+                val iconText = ButtonIconSpec.glyph(menuButtonConfig?.icon)
+                if (iconText != null) {
+                    menuButton.setIconText(iconText)
+                } else {
+                    menuButton.setIcon(
+                        ButtonIconSpec.drawableResource(
+                            ctx,
+                            menuButtonConfig?.icon,
+                            R.drawable.ic_baseline_apps_24
+                        )
+                    )
+                }
             }
-        )
+        }
     }
 
     private fun updateMenuButtonContentDescription() {

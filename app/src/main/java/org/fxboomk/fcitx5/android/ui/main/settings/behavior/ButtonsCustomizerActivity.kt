@@ -9,6 +9,9 @@ import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -35,10 +38,12 @@ import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.input.AutoScaleTextView
+import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.ConfigProvider
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
+import org.fxboomk.fcitx5.android.input.font.ButtonIconFont
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.styledColor
@@ -67,6 +72,19 @@ internal fun List<ButtonsCustomizerActivity.ListItem>.findCurrentButtonPosition(
             item.section == section &&
             item.button.id == buttonId
     }
+}
+
+internal fun MutableList<ButtonsCustomizerActivity.ListItem>.moveButton(
+    fromPosition: Int,
+    insertPosition: Int,
+    targetSection: ButtonsCustomizerActivity.Section
+): Int {
+    val item = getOrNull(fromPosition) as? ButtonsCustomizerActivity.ListItem.ButtonItem ?: return -1
+    removeAt(fromPosition)
+    val adjustedPosition = if (fromPosition < insertPosition) insertPosition - 1 else insertPosition
+    val destination = adjustedPosition.coerceIn(0, size)
+    add(destination, item.copy(section = targetSection))
+    return destination
 }
 
 /**
@@ -136,6 +154,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     // Available button definitions (all buttons can be used in either section)
     // Note: input_method_options is fixed at the end of Status Area and not configurable
     private val availableButtons = listOf(
+        ButtonDefinition("more", R.drawable.ic_baseline_apps_24, R.string.more_menu_items),
         ButtonDefinition("undo", R.drawable.ic_baseline_undo_24, R.string.undo),
         ButtonDefinition("redo", R.drawable.ic_baseline_redo_24, R.string.redo),
         ButtonDefinition("cursor_move", R.drawable.ic_cursor_move, R.string.text_editing),
@@ -156,6 +175,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
      * These are the core buttons that are always available in the app.
      */
     private val builtInButtonIds = availableButtons.map { it.id }.toSet()
+    private val fixedButtonIds = setOf("more")
 
     data class ButtonDefinition(
         val id: String,
@@ -165,6 +185,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
     // Sealed class for list items
     sealed class ListItem {
+        data class SectionHeader(val section: Section) : ListItem()
         data class ButtonItem(val button: ConfigurableButton, val section: Section) : ListItem()
         data class AddButtonItem(val buttonDef: ButtonDefinition) : ListItem()
         data object AddButtonPlaceholder : ListItem() // "+" button for Kawaii Bar
@@ -227,7 +248,15 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         // Build combined list
         items.clear()
         // Kawaii Bar section buttons
+        items.add(ListItem.SectionHeader(Section.KawaiiBar))
+        items.add(
+            ListItem.ButtonItem(
+                ButtonsLayoutConfig.moreButtonOrDefault(config.kawaiiBarButtons),
+                Section.KawaiiBar
+            )
+        )
         config.kawaiiBarButtons.forEach { button ->
+            if (button.id == "more") return@forEach
             items.add(ListItem.ButtonItem(button, Section.KawaiiBar))
         }
         // Add "+" button for Kawaii Bar
@@ -235,6 +264,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
         // Status Area section buttons
         // Filter out input_method_options as it's always added automatically at the end
+        items.add(ListItem.SectionHeader(Section.StatusArea))
         config.statusAreaButtons.filter { it.id != "input_method_options" }.forEach { button ->
             items.add(ListItem.ButtonItem(button, Section.StatusArea))
         }
@@ -248,7 +278,10 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
     private fun updateAddButtonsSection() {
         // Remove existing AddButtons section
-        items.removeAll { it is ListItem.AddButtonItem }
+        items.removeAll {
+            it is ListItem.AddButtonItem ||
+                (it is ListItem.SectionHeader && it.section == Section.AddButtons)
+        }
 
         // Get all current button IDs
         val currentIds = items.filterIsInstance<ListItem.ButtonItem>().map { it.button.id }
@@ -257,6 +290,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         val availableIds = availableButtons.filter { it.id !in currentIds }
 
         if (availableIds.isNotEmpty()) {
+            items.add(ListItem.SectionHeader(Section.AddButtons))
             availableIds.forEach { buttonDef ->
                 items.add(ListItem.AddButtonItem(buttonDef))
             }
@@ -278,6 +312,11 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         // Setup RecyclerView
         adapter = CombinedAdapter()
         recyclerView.adapter = adapter
+        (recyclerView.layoutManager as GridLayoutManager).spanSizeLookup =
+            object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int =
+                    if (items.getOrNull(position) is ListItem.SectionHeader) 4 else 1
+            }
         recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
                 outRect: android.graphics.Rect,
@@ -294,6 +333,10 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                             outRect.bottom = dp(4)
                             outRect.left = dp(4)
                             outRect.right = dp(4)
+                        }
+                        is ListItem.SectionHeader -> {
+                            outRect.top = dp(12)
+                            outRect.bottom = dp(4)
                         }
                     }
                 }
@@ -319,6 +362,21 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
             0
         ) {
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                val dragFlags = if (
+                    items.getOrNull(viewHolder.bindingAdapterPosition) is ListItem.ButtonItem
+                ) {
+                    ItemTouchHelper.UP or ItemTouchHelper.DOWN or
+                        ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+                } else {
+                    0
+                }
+                return makeMovementFlags(dragFlags, 0)
+            }
+
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -337,7 +395,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 val toItem = items[toPosition]
 
                 // Only allow moving ButtonItem
-                if (fromItem !is ListItem.ButtonItem) {
+                if (fromItem !is ListItem.ButtonItem || fromItem.button.id in fixedButtonIds) {
                     return false
                 }
 
@@ -348,38 +406,31 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 var targetSection: Section
 
                 // Determine target section and insert position based on drop position
-                when {
+                when (toItem) {
+                    is ListItem.SectionHeader -> {
+                        targetSection = toItem.section
+                        if (targetSection == Section.AddButtons) return false
+                        // firstPositionInSection already points immediately after the header.
+                        insertPosition = firstPositionInSection(targetSection)
+                    }
                     // Dropping on KawaiiBar "+" placeholder
-                    toItem is ListItem.AddButtonPlaceholder -> {
-                        val dragCenterX = getViewCenterX(viewHolder.itemView)
-                        val plusCenterX = getViewCenterX(target.itemView)
-                        val (position, section) = determineDropPositionOnKawaiiBarPlus(
-                            dragCenterX, plusCenterX, kawaiiBarEndIndex
-                        )
-                        insertPosition = position
-                        targetSection = section
+                    ListItem.AddButtonPlaceholder -> {
+                        insertPosition = kawaiiBarEndIndex
+                        targetSection = Section.KawaiiBar
                     }
                     // Dropping on StatusArea "+" placeholder -> insert before it (in StatusArea)
-                    toItem is ListItem.StatusAreaAddButtonPlaceholder -> {
-                        val dragCenterX = getViewCenterX(viewHolder.itemView)
-                        val plusCenterX = getViewCenterX(target.itemView)
-                        val (position, section) = determineDropPositionOnStatusAreaPlus(
-                            dragCenterX, plusCenterX, statusAreaEndIndex
-                        )
-                        insertPosition = position
-                        targetSection = section
+                    ListItem.StatusAreaAddButtonPlaceholder -> {
+                        insertPosition = statusAreaEndIndex
+                        targetSection = Section.StatusArea
                     }
-                    // Dropping on an available item -> move to AddButtons section
-                    toItem is ListItem.AddButtonItem -> {
-                        targetSection = Section.AddButtons
-                        insertPosition = toPosition
-                    }
+                    is ListItem.AddButtonItem -> return false
                     // Dropping on a regular button - use drag position relative to target button center
-                    else -> {
+                    is ListItem.ButtonItem -> {
+                        if (toItem.button.id in fixedButtonIds) return false
                         val dragCenterX = getViewCenterX(viewHolder.itemView)
                         val targetCenterX = getViewCenterX(target.itemView)
                         insertPosition = determineInsertPositionOnButton(dragCenterX, targetCenterX, toPosition)
-                        targetSection = determineSectionByPosition(insertPosition)
+                        targetSection = toItem.section
                     }
                 }
 
@@ -388,18 +439,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     insertPosition = statusAreaEndIndex
                 }
 
-                // Move item to new position
-                val item = items.removeAt(fromPosition)
-                // Adjust insertPosition if the item was removed from before the target position
-                val adjustedInsertPosition = if (fromPosition < insertPosition) insertPosition - 1 else insertPosition
-                // Update the section if moving to a different section
-                val updatedItem = if (item is ListItem.ButtonItem && item.section != targetSection) {
-                    ListItem.ButtonItem(item.button.copy(), targetSection)
-                } else {
-                    item
-                }
-                items.add(adjustedInsertPosition, updatedItem)
-                adapter?.notifyItemMoved(fromPosition, adjustedInsertPosition)
+                val destination = items.moveButton(fromPosition, insertPosition, targetSection)
+                if (destination < 0) return false
+                adapter?.notifyItemMoved(fromPosition, destination)
 
                 updateSaveButtonState()
                 return true
@@ -440,71 +482,26 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Determine which section a position belongs to based on placeholders.
-     * Positions before AddButtonPlaceholder belong to KawaiiBar.
-     * Positions after AddButtonPlaceholder (but before StatusAreaAddButtonPlaceholder) belong to StatusArea.
-     */
-    private fun determineSectionByPosition(position: Int): Section {
-        val kawaiiBarEndIndex = items.indexOfFirst { it is ListItem.AddButtonPlaceholder }
-        val statusAreaEndIndex = items.indexOfFirst { it is ListItem.StatusAreaAddButtonPlaceholder }
-
-        return when {
-            // Before KawaiiBar "+" button position -> KawaiiBar
-            // Use < not <= because == kawaiiBarEndIndex is the placeholder itself
-            position < kawaiiBarEndIndex -> Section.KawaiiBar
-            // At or after KawaiiBar "+" but before StatusArea "+" -> StatusArea
-            // Use < not <= because == statusAreaEndIndex is the StatusArea placeholder
-            position < statusAreaEndIndex -> Section.StatusArea
-            // After StatusArea "+" -> AddButtons section
-            else -> Section.AddButtons
+    private fun firstPositionInSection(section: Section): Int {
+        val headerIndex = items.indexOfFirst {
+            it is ListItem.SectionHeader && it.section == section
+        }
+        if (headerIndex < 0) return items.size
+        val firstItemIndex = headerIndex + 1
+        return if (
+            section == Section.KawaiiBar &&
+            (items.getOrNull(firstItemIndex) as? ListItem.ButtonItem)?.button?.id in fixedButtonIds
+        ) {
+            firstItemIndex + 1
+        } else {
+            firstItemIndex
         }
     }
 
-    /**
-     * Calculate the center X coordinate of a view in window coordinates.
-     */
     private fun getViewCenterX(view: View): Float {
         val location = IntArray(2)
         view.getLocationInWindow(location)
         return location[0] + view.width / 2f
-    }
-
-    /**
-     * Determine insert position and target section when dropping on KawaiiBar "+" placeholder.
-     * @param dragCenterX Center X of the dragged view
-     * @param plusCenterX Center X of the "+" placeholder
-     * @param kawaiiBarEndIndex Position of KawaiiBar "+" placeholder
-     * @return Pair of (insertPosition, targetSection)
-     */
-    private fun determineDropPositionOnKawaiiBarPlus(
-        dragCenterX: Float,
-        plusCenterX: Float,
-        kawaiiBarEndIndex: Int
-    ): Pair<Int, Section> {
-        return if (dragCenterX < plusCenterX) {
-            // Left of "+" -> KawaiiBar (insert before "+")
-            Pair(kawaiiBarEndIndex, Section.KawaiiBar)
-        } else {
-            // Right of "+" -> StatusArea (insert after "+")
-            Pair(kawaiiBarEndIndex + 1, Section.StatusArea)
-        }
-    }
-
-    /**
-     * Determine insert position and target section when dropping on StatusArea "+" placeholder.
-     * Left side keeps it in StatusArea; right side moves it to AddButtons section.
-     */
-    private fun determineDropPositionOnStatusAreaPlus(
-        dragCenterX: Float,
-        plusCenterX: Float,
-        statusAreaEndIndex: Int
-    ): Pair<Int, Section> {
-        return if (dragCenterX < plusCenterX) {
-            Pair(statusAreaEndIndex, Section.StatusArea)
-        } else {
-            Pair((statusAreaEndIndex + 1).coerceAtMost(items.size), Section.AddButtons)
-        }
     }
 
     /**
@@ -576,12 +573,65 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
         // Button info
         val infoText = TextView(this).apply {
-            text = "${getString(buttonDef?.labelRes ?: 0).ifEmpty { button.id }} (${button.id})"
+            val buttonName = buttonDef?.let { getString(it.labelRes) } ?: button.id
+            text = "$buttonName (${button.id})"
             textSize = 14f
             setTypeface(null, Typeface.BOLD)
             setPadding(0, 0, 0, dp(8))
         }
         dialogView.addView(infoText)
+
+        val iconLabel = TextView(this).apply {
+            setText(R.string.button_icon_code_point)
+            textSize = 13f
+            setPadding(0, dp(8), 0, 0)
+        }
+        dialogView.addView(iconLabel)
+
+        val iconInput = EditText(this).apply {
+            hint = getString(R.string.button_icon_code_point_hint)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+            isSingleLine = true
+            setText(ButtonIconSpec.codePoint(button.icon)?.let { "%04X".format(it) }.orEmpty())
+        }
+        dialogView.addView(iconInput)
+
+        val iconPreview = TextView(this).apply {
+            textSize = 32f
+            gravity = android.view.Gravity.CENTER
+            setPadding(0, dp(8), 0, dp(4))
+            minimumHeight = dp(56)
+        }
+        dialogView.addView(iconPreview)
+
+        val iconHint = TextView(this).apply {
+            setText(R.string.button_icon_code_point_summary)
+            textSize = 12f
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+        }
+        dialogView.addView(iconHint)
+
+        fun updateIconPreview() {
+            val value = iconInput.text?.toString().orEmpty()
+            val glyph = ButtonIconSpec.glyph(value)
+            iconPreview.typeface = if (glyph == null) Typeface.DEFAULT else ButtonIconFont.typeface(this)
+            iconPreview.text = when {
+                value.isBlank() -> ""
+                glyph != null -> glyph
+                else -> "?"
+            }
+        }
+        iconInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                iconInput.error = null
+                updateIconPreview()
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+        updateIconPreview()
 
         // Custom label input (only for custom buttons, not built-in)
         var labelInput: EditText? = null
@@ -631,28 +681,49 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             dialogView.addView(deleteButton)
         }
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.edit_button_title)
             .setView(dialogView)
-            .setPositiveButton(R.string.ok) { _, _ ->
+            .setPositiveButton(R.string.ok, null)
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val iconValue = iconInput.text?.toString()?.trim().orEmpty()
+                val customIcon = if (iconValue.isBlank()) {
+                    when {
+                        button.id == "more" -> ButtonsLayoutConfig.defaultMoreButton().icon
+                        ButtonIconSpec.codePoint(button.icon) == null -> button.icon
+                        else -> null
+                    }
+                } else {
+                    ButtonIconSpec.canonicalCodePoint(iconValue)
+                }
+                if (iconValue.isNotBlank() && customIcon == null) {
+                    iconInput.error = getString(R.string.button_icon_code_point_invalid)
+                    return@setOnClickListener
+                }
+
                 val customLabel = if (isBuiltIn) null else labelInput?.text?.toString()?.trim()?.ifEmpty { null }
                 val longPressAction = if (longPressToggle?.isChecked == true) "floating_menu" else null
 
                 val updatedButton = ConfigurableButton(
                     id = button.id,
-                    icon = button.icon,
+                    icon = customIcon,
                     label = customLabel,
                     longPressAction = longPressAction
                 )
 
                 val currentPosition = findCurrentButtonPosition(button.id, section)
-                if (currentPosition == -1) return@setPositiveButton
+                if (currentPosition == -1) return@setOnClickListener
                 items[currentPosition] = ListItem.ButtonItem(updatedButton, section)
                 adapter?.notifyItemChanged(currentPosition)
                 updateSaveButtonState()
+                dialog.dismiss()
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        }
+        dialog.show()
     }
 
     private fun saveConfig() {
@@ -706,6 +777,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private val VIEW_TYPE_BUTTON_ITEM = 1
     private val VIEW_TYPE_ADD_BUTTON_ITEM = 2
     private val VIEW_TYPE_ADD_PLACEHOLDER = 3
+    private val VIEW_TYPE_SECTION_HEADER = 4
 
     private inner class CombinedAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -714,6 +786,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 is ListItem.ButtonItem -> VIEW_TYPE_BUTTON_ITEM
                 is ListItem.AddButtonItem -> VIEW_TYPE_ADD_BUTTON_ITEM
                 is ListItem.AddButtonPlaceholder, is ListItem.StatusAreaAddButtonPlaceholder -> VIEW_TYPE_ADD_PLACEHOLDER
+                is ListItem.SectionHeader -> VIEW_TYPE_SECTION_HEADER
             }
         }
 
@@ -722,8 +795,19 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 VIEW_TYPE_BUTTON_ITEM -> createButtonViewHolder(parent)
                 VIEW_TYPE_ADD_BUTTON_ITEM -> createAddButtonViewHolder(parent)
                 VIEW_TYPE_ADD_PLACEHOLDER -> createAddPlaceholderViewHolder(parent)
+                VIEW_TYPE_SECTION_HEADER -> createSectionHeaderViewHolder(parent)
                 else -> throw IllegalArgumentException("Unknown view type: $viewType")
             }
+        }
+
+        private fun createSectionHeaderViewHolder(parent: ViewGroup): SectionHeaderViewHolder {
+            val title = TextView(parent.context).apply {
+                textSize = 16f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setPadding(dp(4), dp(8), dp(4), dp(4))
+            }
+            return SectionHeaderViewHolder(title)
         }
 
         private fun createAddPlaceholderViewHolder(parent: ViewGroup): AddPlaceholderViewHolder {
@@ -749,6 +833,17 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
             val item = items[position]
             when (holder) {
+                is SectionHeaderViewHolder -> {
+                    val header = item as ListItem.SectionHeader
+                    holder.title.setText(
+                        when (header.section) {
+                            Section.KawaiiBar -> R.string.kawaii_bar_section
+                            Section.StatusArea -> R.string.status_area_section
+                            Section.AddButtons -> R.string.available_buttons_section
+                        }
+                    )
+                }
+
                 is AddPlaceholderViewHolder -> {
                     val isKawaiiBar = item is ListItem.AddButtonPlaceholder
                     // Use empty label, "+" as circle text
@@ -800,20 +895,20 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     val buttonDef = availableButtons.find { it.id == buttonItem.button.id }
                     val label =
                         buttonItem.button.label ?: buttonDef?.let { getString(it.labelRes) } ?: buttonItem.button.id
-                    val iconRes = buttonDef?.iconRes ?: 0
-                    val isBuiltIn = buttonItem.button.id in builtInButtonIds
+                    val iconRes = ButtonIconSpec.drawableResource(
+                        this@ButtonsCustomizerActivity,
+                        buttonItem.button.icon,
+                        buttonDef?.iconRes ?: 0
+                    )
+                    val iconText = ButtonIconSpec.glyph(buttonItem.button.icon)
 
-                    holder.ui.setButton(label, iconRes)
-                    if (isBuiltIn) {
-                        holder.ui.root.setOnClickListener(null)
-                    } else {
-                        holder.ui.root.setOnClickListener {
-                            val currentPosition = holder.bindingAdapterPosition
-                            if (currentPosition == RecyclerView.NO_POSITION) return@setOnClickListener
-                            val currentItem = items.getOrNull(currentPosition) as? ListItem.ButtonItem
-                                ?: return@setOnClickListener
-                            openButtonEditor(currentItem.button, currentItem.section)
-                        }
+                    holder.ui.setButton(label, iconRes, iconText = iconText)
+                    holder.ui.root.setOnClickListener {
+                        val currentPosition = holder.bindingAdapterPosition
+                        if (currentPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                        val currentItem = items.getOrNull(currentPosition) as? ListItem.ButtonItem
+                            ?: return@setOnClickListener
+                        openButtonEditor(currentItem.button, currentItem.section)
                     }
                     holder.ui.root.setOnLongClickListener(null)
                 }
@@ -834,6 +929,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private class AddPlaceholderViewHolder(val ui: ButtonEntryUi) : RecyclerView.ViewHolder(ui.root)
     private class ButtonViewHolder(val ui: ButtonEntryUi) : RecyclerView.ViewHolder(ui.root)
     private class AddButtonViewHolder(val ui: ButtonEntryUi) : RecyclerView.ViewHolder(ui.root)
+    private class SectionHeaderViewHolder(val title: TextView) : RecyclerView.ViewHolder(title)
 }
 
 /**
@@ -844,7 +940,8 @@ class ButtonEntryUi(
     private val theme: Theme,
     private var label: String,
     private var iconRes: Int,
-    private var circleText: String? = null // Text to display in the circular button (e.g., "+")
+    private var circleText: String? = null,
+    private var iconText: String? = null
 ) : Ui {
 
     private val bkgDrawable = ShapeDrawable(OvalShape())
@@ -859,8 +956,9 @@ class ButtonEntryUi(
     }
 
     val textIcon = view(::AutoScaleTextView) {
-        setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 20f)
+        setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 24f)
         gravity = android.view.Gravity.CENTER
+        includeFontPadding = false
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             typeface = Typeface.create(typeface, 600, false)
         } else {
@@ -904,10 +1002,16 @@ class ButtonEntryUi(
         updateIcon()
     }
 
-    fun setButton(newLabel: String, newIconRes: Int, newCircleText: String? = null) {
+    fun setButton(
+        newLabel: String,
+        newIconRes: Int,
+        newCircleText: String? = null,
+        iconText: String? = null
+    ) {
         label = newLabel
         iconRes = newIconRes
         circleText = newCircleText
+        this.iconText = iconText
         labelView.text = label
         labelView.visibility = if (label.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
         updateColors()
@@ -927,8 +1031,23 @@ class ButtonEntryUi(
     private fun updateIcon() {
         bkg.removeAllViews()
         val contentColor = ctx.styledColor(android.R.attr.textColorPrimary)
+        val customIconText = iconText
 
-        if (iconRes != 0) {
+        if (customIconText != null) {
+            icon.visibility = android.view.View.GONE
+            textIcon.visibility = android.view.View.VISIBLE
+            textIcon.text = customIconText
+            textIcon.typeface = ButtonIconFont.typeface(ctx)
+            textIcon.setTextColor(contentColor)
+            bkg.addView(
+                textIcon,
+                android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                ).apply {
+                    gravity = android.view.Gravity.CENTER
+                })
+        } else if (iconRes != 0) {
             icon.visibility = android.view.View.VISIBLE
             textIcon.visibility = android.view.View.GONE
             icon.setImageDrawable(AppCompatResources.getDrawable(ctx, iconRes))
