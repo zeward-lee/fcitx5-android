@@ -14,21 +14,19 @@ This fork mainly strengthens two areas:
 
 After consolidating the latest 10 commits, this round of updates mainly falls into the following areas:
 
-- Keyboard layout and candidate-bar capabilities keep expanding:
-  - Text keyboard layouts can now override keyboard height separately in portrait and landscape instead of relying only on global settings.
-  - When AI candidates use expanded display mode, the full candidate window opens automatically for easier browsing.
-  - Popup gestures, key styling, and candidate-list binding continue to be refined to reduce stale displays caused by view reuse.
-- Clipboard sync and file handling are more reliable:
-  - OneClip pull, push, image, and file downloads now consistently use access tokens.
-  - OneClip file entries can be downloaded to the configured directory while continuing to respect extension and size filters.
-  - Clipboard filenames preserve Unicode characters such as Chinese text and only replace characters disallowed by the filesystem.
-- Prediction and runtime maintenance:
-  - AI provider support continues to include options such as Moonshot, with expanded AI candidate display.
-  - Text clipboard tokenization now uses Android platform ICU, reducing extra dependencies and processing overhead.
-  - After updating ONNX Runtime components, the app minimum supported version is Android 7.0 (API 24).
-- Build and release workflow maintenance:
-  - CI builds no longer depend on third-party artifacts being published first, reducing timing issues between concurrent builds.
-  - GitHub Actions runtimes have been updated as part of the Node 24 migration.
+- Candidate-bar and input behavior keep improving:
+  - Horizontal candidate-item spacing is now independent from highlight rendering, and paged candidates re-bind correctly to reduce display shifts.
+  - Custom keyboards can toggle the number keyboard, and the layout editor can move a keyboard row upward.
+  - Alternate characters for custom keys preserve their original text, while popup preset editing can restore default values.
+- Toolbar and theme editing are more flexible:
+  - Toolbar buttons support custom icons from either drawable resources or iconfont characters.
+  - Theme editing actions are clearer, theme configurations can be shared and imported, and previews stay aligned with current keyboard behavior.
+- Localization and stability maintenance:
+  - Localized settings labels and popup-editor wording continue to be refined.
+  - Color lookup now falls back correctly when an Android theme does not provide `colorAccent`, and custom touch-event dispatching has been cleaned up.
+- Build and upstream maintenance:
+  - Personal build scripts and RIME patch handling have been improved.
+  - The fcitx5 Chinese add-ons component was updated to keep Chinese input-method compatibility.
 
 ## Highlights
 
@@ -82,6 +80,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - Prediction, suggestion, and language-model related capabilities from libime and the Chinese plugin stack are preserved.
 - The AI provider list now includes options such as Moonshot.
 - AI candidates support an expanded candidate window for browsing more prediction results.
+- Horizontal candidate bars support independent item-spacing and highlight styling, with correct refreshes when paging.
 - The keyboard layer also keeps gaining configurable features such as MacroKey support, Shift behavior switches, and popup gesture highlight improvements.
 
 ### 4. Keyboard layout and popup preset sharing
@@ -91,22 +90,33 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - QR images can be previewed before sharing so you can verify the content first.
 - Text keyboard layout JSON also supports direct key color configuration, making it easier to share complete visual layout presets.
 - Text keyboard layout JSON supports separate portrait and landscape keyboard-height settings for each layout.
+- The keyboard layout editor can move a complete row upward, and alternate characters for custom keys preserve their original text.
+- Toolbar and keyboard buttons can be configured to toggle the number keyboard.
+- Popup preset editing can restore default candidate content and continues to support QR import/export.
 
 ### 5. Toolbar and UI customization
 
 - Toolbar buttons support both icon-font and drawable-based icon sources, making style unification easier.
+- Toolbar button icons can be customized with iconfont code points for a consistent icon-font style.
 - The main settings page supports search, including cross-page navigation and automatic positioning of matched settings.
 - Layout, key, font, and popup editors use state-aware save icons.
 - The input bar includes a more semantic hide-keyboard icon for better visual clarity.
 - UI details such as the input method picker, keyboard adjustment overlay, and floating-keyboard state persistence continue to be refined, and layout refresh is more stable when themes change.
 
-### 6. Multi-theme switching
+### 6. In-app updates and version retrieval
+
+- The About page includes a `Check for updates` entry that compares against the latest stable GitHub Release.
+- When a new version is found, the app downloads an APK matching the current package name and device ABI, then lets the user start installation manually.
+- Locally built and CI artifacts use a date plus short commit hash in their version segment to make issue tracing easier.
+
+### 7. Multi-theme switching
 
 - Multiple themes can be selected for both light mode and dark mode.
 - Tapping the light/dark switch button cycles through the selected themes of the current mode.
 - Each mode can keep multiple themes for fast visual switching.
+- Theme editing provides explicit save, share, and import actions, while previews stay aligned with current keyboard behavior.
 
-### 7. Preserving the Fcitx5 plugin architecture
+### 8. Preserving the Fcitx5 plugin architecture
 
 - The main app still loads additional input engines or feature plugins through the plugin mechanism.
 - Beyond the main app, this repository also includes plugins/components such as RIME, Anthy, UniKey, Thai, Hangul, Sayura, and Jyutping.
