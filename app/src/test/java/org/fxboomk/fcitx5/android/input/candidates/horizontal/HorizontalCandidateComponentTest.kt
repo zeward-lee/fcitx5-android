@@ -99,6 +99,35 @@ class HorizontalCandidateComponentTest {
     }
 
     @Test
+    fun `advances candidate window by one visible row at a time`() {
+        val secondRowStart = nextCandidateRowStart(
+            currentStart = 0,
+            prefetchedCandidateCount = 24,
+            visibleRowCount = 4,
+        )
+        val thirdRowStart = nextCandidateRowStart(
+            currentStart = secondRowStart,
+            prefetchedCandidateCount = 20,
+            visibleRowCount = 3,
+        )
+
+        assertEquals(4, secondRowStart)
+        assertEquals(7, thirdRowStart)
+    }
+
+    @Test
+    fun `advances at least one candidate for a measured empty row`() {
+        assertEquals(
+            6,
+            nextCandidateRowStart(
+                currentStart = 5,
+                prefetchedCandidateCount = 8,
+                visibleRowCount = 0,
+            )
+        )
+    }
+
+    @Test
     fun `keeps whole ai suggestion in expanded area when it does not fit remaining row`() {
         val placement = placeAiCandidatesInRow(
             nativeCandidates = arrayOf("native"),

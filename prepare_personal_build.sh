@@ -23,6 +23,22 @@ RIME_SCHEMA_SELECTOR_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-schema-selec
 FCITX5_GLOBAL_OPTIONS_UI_PATCH="${PROJECT_ROOT}/lib/fcitx5/fcitx5-global-options-ui.patch"
 FCITX5_INSERT_SPACE_ZH_EN_PATCH="${PROJECT_ROOT}/lib/fcitx5/fcitx5-insert-space-zh-en.patch"
 
+apply_patch() {
+    local repository="$1"
+    local patch_file="$2"
+    local patch_name="$3"
+
+    if git -C "${repository}" apply --check --ignore-whitespace "${patch_file}"; then
+        git -C "${repository}" apply --ignore-whitespace "${patch_file}"
+        echo "✓ ${patch_name} patch applied successfully"
+    elif git -C "${repository}" apply --reverse --check --ignore-whitespace "${patch_file}"; then
+        echo "✓ ${patch_name} patch already applied"
+    else
+        echo "✗ ${patch_name} patch does not apply" >&2
+        return 1
+    fi
+}
+
 # update fcitx5-rime
 echo "updating fcitx5-rime from ${FCITX5_RIME_REPO}"
 git -C "${RIME_DIR}" remote add gh "${FCITX5_RIME_REPO}" 2>/dev/null || \
@@ -31,40 +47,16 @@ git -C "${RIME_DIR}" fetch -v gh master
 git -C "${RIME_DIR}" checkout gh/master
 # apply patches for fcitx5-rime
 echo "applying fcitx5-rime patches"
-if git -C "${RIME_DIR}" apply --ignore-whitespace "${RIME_SCHEMA_NAME_PATCH}"; then
-    echo "✓ schema name patch applied successfully"
-else
-    echo "✗ schema name patch failed or already applied"
-fi
-if git -C "${RIME_DIR}" apply --ignore-whitespace "${RIME_PREEDIT_LABEL_PATCH}"; then
-    echo "✓ preedit cursor label patch applied successfully"
-else
-    echo "✗ preedit cursor label patch failed or already applied"
-fi
-if git -C "${RIME_DIR}" apply --ignore-whitespace "${RIME_SCHEMA_SELECTOR_PATCH}"; then
-    echo "✓ schema selector patch applied successfully"
-else
-    echo "✗ schema selector patch failed or already applied"
-fi
+apply_patch "${RIME_DIR}" "${RIME_SCHEMA_NAME_PATCH}" "schema name"
+apply_patch "${RIME_DIR}" "${RIME_PREEDIT_LABEL_PATCH}" "preedit cursor label"
+apply_patch "${RIME_DIR}" "${RIME_SCHEMA_SELECTOR_PATCH}" "schema selector"
 
 # apply fcitx5 patches
 echo "applying fcitx5 patches"
 git -C "${FCITX5_DIR}" checkout -- .
-# if git -C "${FCITX5_DIR}" apply "${FCITX5_ALT_TRIGGER_PATCH}"; then
-#     echo "✓ alt-trigger patch applied successfully"
-# else
-#     echo "✗ alt-trigger patch failed or already applied"
-# fi
-if git -C "${FCITX5_DIR}" apply --ignore-whitespace "${FCITX5_GLOBAL_OPTIONS_UI_PATCH}"; then
-    echo "✓ global-options-ui patch applied successfully"
-else
-    echo "✗ global-options-ui patch failed or already applied"
-fi
-if git -C "${FCITX5_DIR}" apply --ignore-whitespace "${FCITX5_INSERT_SPACE_ZH_EN_PATCH}"; then
-    echo "✓ insert-space-zh-en patch applied successfully"
-else
-    echo "✗ insert-space-zh-en patch failed or already applied"
-fi
+# apply_patch "${FCITX5_DIR}" "${FCITX5_ALT_TRIGGER_PATCH}" "alt-trigger"
+apply_patch "${FCITX5_DIR}" "${FCITX5_GLOBAL_OPTIONS_UI_PATCH}" "global-options-ui"
+apply_patch "${FCITX5_DIR}" "${FCITX5_INSERT_SPACE_ZH_EN_PATCH}" "insert-space-zh-en"
 
 # update prebuilt
 echo "updating prebuilt from ${PREBUILT_REPO}"

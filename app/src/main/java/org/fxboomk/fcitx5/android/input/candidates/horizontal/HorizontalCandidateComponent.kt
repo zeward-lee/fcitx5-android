@@ -98,6 +98,12 @@ internal fun moveActiveCandidateIndex(
     return (base + delta).coerceIn(0, candidateCount - 1)
 }
 
+internal fun nextCandidateRowStart(
+    currentStart: Int,
+    prefetchedCandidateCount: Int,
+    visibleRowCount: Int,
+): Int = currentStart + visibleRowCount.coerceIn(1, prefetchedCandidateCount.coerceAtLeast(1))
+
 internal data class AiCandidateRowPlacement(
     val candidates: Array<String>,
     val visibleAiCount: Int,
@@ -391,8 +397,14 @@ class HorizontalCandidateComponent :
         withContext(Dispatchers.Main.immediate) {
             if (!hasRowSwipeCandidates()) return@withContext null
             val currentStart = nativeCandidateSnapshot.indexOffset
-            val currentCandidates = nativeCandidateSnapshot.candidates.copyOf()
-            val nextStart = currentStart + currentCandidates.size
+            val currentCandidates = normalizedSingleRowCandidates(
+                nativeCandidateSnapshot.candidates
+            ).copyOf()
+            val nextStart = nextCandidateRowStart(
+                currentStart,
+                nativeCandidateSnapshot.candidates.size,
+                currentCandidates.size,
+            )
             ForwardRowShiftSnapshot(
                 currentStart = currentStart,
                 currentCandidates = currentCandidates,
