@@ -128,7 +128,8 @@
       "Bash(./gradlew assembleMainlineDebug -PbuildABI=arm64-v8a)",
       "mcp__gitnexus__detect_changes",
       "Bash(git check-ignore *)",
-      "Bash(rtk stat *)"
+      "Bash(rtk stat *)",
+      "Bash(git submodule *)"
     ]
   }
 }

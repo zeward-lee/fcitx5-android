@@ -531,11 +531,11 @@
     <string name="main_program">main program</string>
     <string name="edit_theme">Edit Theme</string>
     <string name="show_voice_input_button">Show voice input button</string>
-    <string name="edit_fontset">Edit fontset</string>
+    <string name="edit_fontset">Font Settings</string>
     <string name="edit_fontset_summary">Edit fonts/fontset.json and preview font combinations</string>
-    <string name="edit_popup_preset">Edit popup preset</string>
+    <string name="edit_popup_preset">Popup Key Mapping</string>
     <string name="edit_popup_preset_summary">Edit popup key mapping (key -&gt; popup candidates)</string>
-    <string name="edit_buttons">Edit Toolbar Buttons</string>
+    <string name="edit_buttons">Toolbar Button Settings</string>
     <string name="edit_buttons_summary">Customize buttons on Kawaii Bar and Status Area</string>
     <string name="buttons_customizer_hint">Drag buttons to reorder or move between Kawaii Bar (top row) and Status Area (menu). Long press to start dragging.</string>
     <string name="kawaii_bar_section">Kawaii Bar (Top Row)</string>
@@ -704,10 +704,10 @@
     <string name="key_border_stroke">Enable stroke for key border</string>
 
     <!-- Text Keyboard Layout Editor -->
-    <string name="edit_text_keyboard_layout">Edit General Keyboard Layout</string>
+    <string name="edit_text_keyboard_layout">Keyboard Layout Settings</string>
     <string name="edit_text_keyboard_layout_summary">Edit general keyboard layout (GeneralKeyboardLayout.json)</string>
     <string name="edit_text_keyboard_layout_summary_with_file">Edit general keyboard layout (%1$s)</string>
-    <string name="text_keyboard_layout_file_select_title">General Keyboard Layout Profiles</string>
+    <string name="text_keyboard_layout_file_select_title">Keyboard Layout List</string>
     <string name="text_keyboard_layout_file_select_summary">Current profile: %1$s</string>
     <string name="text_keyboard_layout_file_switch">Switch layout</string>
     <string name="text_keyboard_layout_file_create">Create layout</string>

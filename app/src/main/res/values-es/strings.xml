@@ -129,9 +129,9 @@
     <string name="button_sound">Sonido al presionar teclas</string>
     <string name="button_sound_volume">Volumen de sonido al presionar teclas</string>
     <string name="disable_it">Desactivarlo</string>
-    <string name="edit_popup_preset">Editar preajuste de popup</string>
+    <string name="edit_popup_preset">Asignación de teclas emergentes</string>
     <string name="edit_popup_preset_summary">Editar asignación de teclas de popup (tecla -&gt; candidatos de popup)</string>
-    <string name="edit_buttons">Editar botones de la barra de herramientas</string>
+    <string name="edit_buttons">Configuración de los botones de la barra de herramientas</string>
     <string name="edit_buttons_summary">Personalizar botones en Kawaii Bar y area de estado</string>
     <string name="buttons_customizer_hint">Arrastre los botones para reordenar o mover entre Kawaii Bar (fila superior) y area de estado (menu). Mantenga presionado para comenzar a arrastrar.</string>
     <string name="kawaii_bar_section">Kawaii Bar (fila superior)</string>
@@ -160,7 +160,7 @@
     <string name="popup_editor_candidate_input_hint">Ingrese valor del candidato</string>
     <string name="popup_editor_qr_export">Compartir la configuración como código QR</string>
     <string name="edit_text_playground">Área de pruebas de EditText</string>
-    <string name="edit_text_keyboard_layout">Editar distribución general del teclado</string>
+    <string name="edit_text_keyboard_layout">Configuración de la distribución del teclado</string>
     <string name="text_keyboard_layout_preview">Vista previa</string>
     <string name="text_keyboard_layout_row_editor_title">Editar propiedades de la fila</string>
     <string name="text_keyboard_layout_row_editor_subtitle">Fila %1$d</string>
@@ -243,7 +243,7 @@
     <string name="text_keyboard_layout_display_text_mode_duplicate">El nombre del modo "%1$s" ya está en uso</string>
     <string name="cannot_resolve_text_keyboard_layout">No se puede localizar el archivo de distribución del teclado de texto</string>
     <string name="edit_text_keyboard_layout_summary_with_file">Editar distribución general del teclado (%1$s)</string>
-    <string name="text_keyboard_layout_file_select_title">Perfiles de distribución general del teclado</string>
+    <string name="text_keyboard_layout_file_select_title">Lista de distribuciones del teclado</string>
     <string name="text_keyboard_layout_file_select_summary">Archivo actual: %1$s</string>
     <string name="text_keyboard_layout_file_switch">Cambiar diseño</string>
     <string name="text_keyboard_layout_file_create">Crear diseño</string>
@@ -489,7 +489,7 @@
     <string name="disable_addon_warn_optdep">Se desactivaran algunas funciones en %1$s</string>
     <string name="disable_addon_warn_title">Desactivar complemento</string>
     <string name="duplicate_builtin_theme">Duplicar tema integrado…</string>
-    <string name="edit_fontset">Editar conjunto de fuentes</string>
+    <string name="edit_fontset">Configuración de fuentes</string>
     <string name="edit_fontset_summary">Editar fonts/fontset.json y previsualizar combinaciones de fuentes</string>
     <string name="edit_text_keyboard_layout_summary">Editar distribución general del teclado (GeneralKeyboardLayout.json)</string>
     <string name="edited_x">Se edito %1$s</string>
