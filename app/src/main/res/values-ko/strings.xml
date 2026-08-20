@@ -633,7 +633,7 @@
     <string name="keyboard_settings_candidates">후보 표시</string>
     <string name="keyboard_settings_advanced_customization">고급 사용자 지정</string>
     <string name="keyboard_settings_split_tools_section">분할 키보드 도구</string>
-    <string name="keyboard_advanced_customization_summary">글꼴, 팝업 프리셋, 레이아웃 파일 및 도구 모음 버튼</string>
+    <string name="keyboard_advanced_customization_summary">글꼴, 팝업 키 매핑, 레이아웃 파일 및 도구 모음 버튼</string>
     <string name="focus_change_reset_enabled_summary">포커스가 바뀌면 키보드로 돌아가기</string>
     <string name="focus_change_reset_disabled_summary">포커스가 바뀌어도 현재 패널 유지</string>
     <string name="inline_suggestions_enabled_summary">인라인 자동 완성 제안 표시</string>

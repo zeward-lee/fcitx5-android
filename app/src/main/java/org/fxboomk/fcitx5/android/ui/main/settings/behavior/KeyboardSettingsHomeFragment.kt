@@ -11,7 +11,6 @@ import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
-import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
 import org.fxboomk.fcitx5.android.utils.navigateWithAnim
 
@@ -31,60 +30,56 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
 
     private fun buildScreen(screen: PreferenceScreen) {
         val keyboardPrefs = AppPrefs.getInstance().keyboard
-        screen.addCategory(R.string.keyboard_settings_basic_section) {
-            addPreference(
-                R.string.keyboard_settings_basic_behavior,
-                buildBasicBehaviorSummary(keyboardPrefs)
-            ) {
-                navigateWithAnim(SettingsRoute.VirtualKeyboardBasic)
-            }
+        screen.addPreference(
+            R.string.keyboard_settings_basic_behavior,
+            buildBasicBehaviorSummary(keyboardPrefs)
+        ) {
+            navigateWithAnim(SettingsRoute.VirtualKeyboardBasic)
         }
-        screen.addCategory(R.string.keyboard_settings_sections) {
-            KeyboardSettingsSupport.run {
-                addDestinationPreference(
+        KeyboardSettingsSupport.run {
+            screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_touch_and_sound,
                 buildTouchAndSoundSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardTouchAndSound
             )
-                addDestinationPreference(
+            screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_toolbar_and_voice,
                 buildToolbarSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardToolbarAndInput
             )
-                addDestinationPreference(
+            screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_key_and_gesture,
                 buildKeyAndGestureSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardKeyAndGesture
             )
-                addDestinationPreference(
+            screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_layout_and_split,
                 buildLayoutSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardLayoutAndSplit
             )
-                addPreference(
-                    Preference(requireContext()).apply {
-                        setTitle(R.string.keyboard_settings_candidates)
-                        summary = buildCandidatesSummary()
-                        isIconSpaceReserved = false
-                        isSingleLineTitle = false
-                        setOnPreferenceClickListener {
-                            navigateWithAnim(SettingsRoute.VirtualKeyboardCandidates)
-                            true
-                        }
-                        candidatesPreference = this
+            screen.addPreference(
+                Preference(requireContext()).apply {
+                    setTitle(R.string.keyboard_settings_candidates)
+                    summary = buildCandidatesSummary()
+                    isIconSpaceReserved = false
+                    isSingleLineTitle = false
+                    setOnPreferenceClickListener {
+                        navigateWithAnim(SettingsRoute.VirtualKeyboardCandidates)
+                        true
                     }
-                )
-                addDestinationPreference(
+                    candidatesPreference = this
+                }
+            )
+            screen.addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_advanced_customization,
                 getString(R.string.keyboard_advanced_customization_summary),
                 SettingsRoute.VirtualKeyboardAdvancedCustomization
             )
-            }
         }
     }
 

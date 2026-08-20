@@ -648,7 +648,7 @@
     <string name="keyboard_settings_candidates">Visualizacion de candidatos</string>
     <string name="keyboard_settings_advanced_customization">Personalizacion avanzada</string>
     <string name="keyboard_settings_split_tools_section">Herramientas de teclado dividido</string>
-    <string name="keyboard_advanced_customization_summary">Fuentes, ajustes emergentes, archivos de diseno y botones de la barra</string>
+    <string name="keyboard_advanced_customization_summary">Fuentes, asignaciones de teclas emergentes, archivos de diseno y botones de la barra</string>
     <string name="focus_change_reset_enabled_summary">Volver al teclado al cambiar el foco</string>
     <string name="focus_change_reset_disabled_summary">Mantener el panel actual al cambiar el foco</string>
     <string name="inline_suggestions_enabled_summary">Mostrar sugerencias de autocompletado integradas</string>

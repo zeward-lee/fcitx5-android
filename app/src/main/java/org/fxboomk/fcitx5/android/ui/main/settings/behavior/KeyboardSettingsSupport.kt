@@ -7,7 +7,6 @@ package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
@@ -185,7 +184,7 @@ internal object KeyboardSettingsSupport {
             .show()
     }
 
-    fun PreferenceCategory.addDestinationPreference(
+    fun PreferenceGroup.addDestinationPreference(
         fragment: ManagedPreferenceFragment,
         @StringRes title: Int,
         summary: String,
