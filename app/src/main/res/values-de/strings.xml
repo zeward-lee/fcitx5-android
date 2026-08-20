@@ -530,6 +530,10 @@
     <string name="build_time">Build-Zeit</string>
     <string name="button_up_haptic_feedback">Vibration beim Loslassen</string>
     <string name="candidates_window">Kandidatenfenster</string>
+    <string name="candidate_display_mode">Kandidatenanzeige</string>
+    <string name="candidate_display_mode_horizontal">Horizontale Kandidatenleiste</string>
+    <string name="candidate_display_mode_floating">Schwebendes Fenster</string>
+    <string name="candidate_items_and_words">Kandidatenwörter und -einträge</string>
     <string name="candidates_window_radius">Eckradius des Kandidatenfensters</string>
     <string name="cannot_resolve_popup_preset">Popup-Voreinstellungsdatei kann nicht gefunden werden</string>
     <string name="capture_heap_dump">Heap-Dump erfassen</string>
@@ -662,7 +666,6 @@
     <string name="rotate">Drehen</string>
     <string name="copy">Kopieren</string>
     <string name="share">Teilen</string>
-    <string name="show_candidates_window">Kandidatenfenster anzeigen</string>
     <string name="space_behavior_enumerate">Eingabemethoden zyklisch wechseln</string>
     <string name="space_behavior_picker">Dialog zur Eingabemethodenauswahl anzeigen</string>
     <string name="space_behavior_voice_input">Zur Spracheingabe wechseln</string>

@@ -305,7 +305,10 @@
     <string name="flip_vertically">Перевернуть вертикально</string>
     <string name="crop">Обрезать</string>
     <string name="candidates_window">Окно кандидатов</string>
-    <string name="show_candidates_window">Показать окно кандидатов</string>
+    <string name="candidate_display_mode">Способ отображения кандидатов</string>
+    <string name="candidate_display_mode_horizontal">Горизонтальная панель кандидатов</string>
+    <string name="candidate_display_mode_floating">Плавающее окно</string>
+    <string name="candidate_items_and_words">Слова и элементы-кандидаты</string>
     <string name="candidates_window_radius">Радиус окна кандидатов</string>
     <string name="follow_input_device">Зависит от устройства ввода</string>
     <string name="candidates_orientation">Ориентация списка кандидатов</string>

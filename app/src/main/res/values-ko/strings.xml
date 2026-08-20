@@ -440,6 +440,10 @@
     <string name="button_vibration_milliseconds">키 진동 시간</string>
     <string name="candidate_highlight_radius">후보 강조 모서리 반경</string>
     <string name="candidates_window">후보 창</string>
+    <string name="candidate_display_mode">후보 표시 방식</string>
+    <string name="candidate_display_mode_horizontal">가로 후보 표시줄</string>
+    <string name="candidate_display_mode_floating">플로팅 창</string>
+    <string name="candidate_items_and_words">후보 단어 및 후보 항목</string>
     <string name="candidates_window_radius">후보 창 모서리 반경</string>
     <string name="cannot_resolve_popup_preset">팝업 프리셋 파일을 찾을 수 없습니다</string>
     <string name="capture_heap_dump">힙 덤프 캡처</string>
@@ -618,7 +622,6 @@
     <string name="saving">저장 중</string>
     <string name="copy">복사</string>
     <string name="share">공유</string>
-    <string name="show_candidates_window">후보 창 표시</string>
     <string name="show_lang_switch_key">언어 전환 키 표시</string>
     <string name="keyboard_settings_sections">설정 그룹</string>
     <string name="keyboard_settings_basic_section">기본</string>

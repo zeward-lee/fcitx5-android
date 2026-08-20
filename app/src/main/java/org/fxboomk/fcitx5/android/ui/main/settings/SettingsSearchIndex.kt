@@ -16,6 +16,7 @@ import org.fxboomk.fcitx5.android.core.RawConfig
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.input.predict.LlmPrefs
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsSupport
 import org.fxboomk.fcitx5.android.utils.AppUtil
@@ -171,21 +172,44 @@ object SettingsSearchIndex {
 
     fun androidItems(context: Context): List<SettingsSearchResult> {
         val prefs = AppPrefs.getInstance()
+        val candidateDisplayMode = prefs.candidates.mode.getValue()
+        val includeHorizontalCandidateSettings =
+            candidateDisplayMode == FloatingCandidatesMode.InputDevice
         return buildList {
             addPage(context, R.string.global_options, SettingsRoute.GlobalConfig)
             addPage(context, R.string.addons, SettingsRoute.AddonList)
             addPage(context, R.string.input_methods, SettingsRoute.InputMethodList)
             addPage(context, R.string.theme_appearance, SettingsRoute.Theme)
             addPage(context, R.string.virtual_keyboard, SettingsRoute.VirtualKeyboard)
-            addPage(context, R.string.candidates_window, SettingsRoute.CandidatesWindow)
             addPage(context, R.string.llm_settings_title, SettingsRoute.Llm)
             addPage(context, R.string.clipboard, SettingsRoute.Clipboard)
             addPage(context, R.string.plugins, SettingsRoute.Plugin)
             addPage(context, R.string.advanced, SettingsRoute.Advanced)
 
-            addAll(keyboardItems(context, prefs.keyboard))
+            addAll(
+                keyboardItems(
+                    context,
+                    prefs.keyboard,
+                    includeHorizontalCandidateSettings = includeHorizontalCandidateSettings
+                )
+            )
             addAll(managedItems(context, ThemeManager.prefs, SettingsRoute.Theme, R.string.theme_appearance))
-            addAll(managedItems(context, prefs.candidates, SettingsRoute.CandidatesWindow, R.string.candidates_window))
+            val candidateItems = managedItems(
+                context,
+                prefs.candidates,
+                SettingsRoute.VirtualKeyboardCandidates,
+                R.string.keyboard_settings_candidates
+            )
+            addAll(
+                when (candidateDisplayMode) {
+                    FloatingCandidatesMode.Always -> candidateItems
+                    FloatingCandidatesMode.InputDevice,
+                    FloatingCandidatesMode.SystemDefault,
+                    FloatingCandidatesMode.Disabled -> candidateItems.filter {
+                        it.preferenceKey == AppPrefs.CANDIDATE_DISPLAY_MODE_KEY
+                    }
+                }
+            )
             addAll(managedItems(context, prefs.clipboard, SettingsRoute.Clipboard, R.string.clipboard))
             addAll(managedItems(context, prefs.advanced, SettingsRoute.Advanced, R.string.advanced))
             addAll(advancedExtraItems(context))
@@ -242,7 +266,8 @@ object SettingsSearchIndex {
 
     private fun keyboardItems(
         context: Context,
-        keyboardPrefs: AppPrefs.Keyboard
+        keyboardPrefs: AppPrefs.Keyboard,
+        includeHorizontalCandidateSettings: Boolean
     ): List<SettingsSearchResult> = buildList {
         addKeyboardSection(
             context,
@@ -291,13 +316,15 @@ object SettingsSearchIndex {
                 context.getString(R.string.split_keyboard_calibration_summary)
             )
         )
-        addKeyboardSection(
-            context,
-            keyboardPrefs,
-            R.string.keyboard_settings_candidates,
-            SettingsRoute.VirtualKeyboardCandidates,
-            KeyboardSettingsSupport.candidatesKeys
-        )
+        if (includeHorizontalCandidateSettings) {
+            addKeyboardSection(
+                context,
+                keyboardPrefs,
+                R.string.keyboard_settings_candidates,
+                SettingsRoute.VirtualKeyboardCandidates,
+                KeyboardSettingsSupport.horizontalCandidateKeys
+            )
+        }
         addAdvancedKeyboardItem(context, R.string.edit_fontset, R.string.edit_fontset_summary)
         addAdvancedKeyboardItem(context, R.string.edit_popup_preset, R.string.edit_popup_preset_summary)
         addAdvancedKeyboardItem(context, R.string.edit_text_keyboard_layout, R.string.edit_text_keyboard_layout_summary)

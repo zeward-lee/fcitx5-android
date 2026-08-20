@@ -665,7 +665,7 @@ data object SettingsInputMethodsAction : ButtonAction() {
 data object SettingsCandidatesWindowAction : ButtonAction() {
     override val id = "settings_candidates_window"
     override val defaultIcon = R.drawable.ic_baseline_list_alt_24
-    override val defaultLabelRes = R.string.candidates_window
+    override val defaultLabelRes = R.string.keyboard_settings_candidates
 
     override fun execute(
         context: Context,
@@ -675,7 +675,7 @@ data object SettingsCandidatesWindowAction : ButtonAction() {
         view: View?,
         onActionComplete: (() -> Unit)?
     ) {
-        AppUtil.launchMainToRoute(context, SettingsRoute.CandidatesWindow)
+        AppUtil.launchMainToRoute(context, SettingsRoute.VirtualKeyboardCandidates)
     }
 }
 

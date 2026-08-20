@@ -382,7 +382,10 @@
     <string name="flip_vertically">垂直翻轉</string>
     <string name="crop">裁剪</string>
     <string name="candidates_window">候選詞視窗</string>
-    <string name="show_candidates_window">顯示候選詞視窗</string>
+    <string name="candidate_display_mode">候選詞顯示方式</string>
+    <string name="candidate_display_mode_horizontal">橫向候選欄</string>
+    <string name="candidate_display_mode_floating">浮動視窗</string>
+    <string name="candidate_items_and_words">候選詞與候選項目</string>
     <string name="candidates_window_radius">候選詞窗口半徑</string>
     <string name="follow_input_device">視輸入設備而定</string>
     <string name="candidates_orientation">候選詞列表方向</string>

@@ -31,6 +31,15 @@ import org.fxboomk.fcitx5.android.utils.DeviceUtil
 import org.fxboomk.fcitx5.android.utils.appContext
 import org.fxboomk.fcitx5.android.utils.vibrator
 
+internal fun normalizeCandidateDisplayMode(
+    mode: FloatingCandidatesMode?
+): FloatingCandidatesMode =
+    when (mode) {
+        FloatingCandidatesMode.Always -> FloatingCandidatesMode.Always
+        FloatingCandidatesMode.SystemDefault -> FloatingCandidatesMode.SystemDefault
+        else -> FloatingCandidatesMode.InputDevice
+    }
+
 class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     inner class Internal : ManagedPreferenceInternal(sharedPreferences) {
@@ -414,10 +423,39 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     inner class Candidates :
         ManagedPreferenceCategory(R.string.candidates_window, sharedPreferences) {
-        val mode = enumList(
-            R.string.show_candidates_window,
-            "show_candidates_window",
-            FloatingCandidatesMode.InputDevice
+        init {
+            if (sharedPreferences.contains(CANDIDATE_DISPLAY_MODE_KEY)) {
+                val storedMode = runCatching {
+                    sharedPreferences.getString(CANDIDATE_DISPLAY_MODE_KEY, null)
+                        ?.let(FloatingCandidatesMode::valueOf)
+                }.getOrNull()
+                val normalizedMode = normalizeCandidateDisplayMode(storedMode)
+                if (storedMode != normalizedMode) {
+                    sharedPreferences.edit {
+                        putString(CANDIDATE_DISPLAY_MODE_KEY, normalizedMode.name)
+                    }
+                }
+            }
+        }
+
+        val mode = list(
+            R.string.candidate_display_mode,
+            CANDIDATE_DISPLAY_MODE_KEY,
+            FloatingCandidatesMode.InputDevice,
+            object : ManagedPreference.StringLikeCodec<FloatingCandidatesMode> {
+                override fun decode(raw: String): FloatingCandidatesMode? =
+                    runCatching { FloatingCandidatesMode.valueOf(raw) }.getOrNull()
+            },
+            listOf(
+                FloatingCandidatesMode.InputDevice,
+                FloatingCandidatesMode.Always,
+                FloatingCandidatesMode.SystemDefault
+            ),
+            listOf(
+                R.string.candidate_display_mode_horizontal,
+                R.string.candidate_display_mode_floating,
+                R.string.system_default
+            )
         )
 
         val orientation = enumList(
@@ -598,6 +636,8 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
     }
 
     companion object {
+        const val CANDIDATE_DISPLAY_MODE_KEY = "show_candidates_window"
+
         private var instance: AppPrefs? = null
 
         /**

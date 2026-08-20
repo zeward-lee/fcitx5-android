@@ -26,7 +26,6 @@ import org.fxboomk.fcitx5.android.ui.main.PluginFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonConfigFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.addon.AddonListFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
-import org.fxboomk.fcitx5.android.ui.main.settings.behavior.CandidatesSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardAdvancedCustomizationFragment
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.KeyboardBasicSettingsFragment
@@ -274,8 +273,8 @@ sealed class SettingsRoute : Parcelable {
             fragment<KeyboardAdvancedCustomizationFragment, VirtualKeyboardAdvancedCustomization> {
                 label = ctx.getString(R.string.keyboard_settings_advanced_customization)
             }
-            fragment<CandidatesSettingsFragment, CandidatesWindow> {
-                label = ctx.getString(R.string.candidates_window)
+            fragment<KeyboardCandidatesSettingsFragment, CandidatesWindow> {
+                label = ctx.getString(R.string.keyboard_settings_candidates)
             }
             fragment<ClipboardSettingsFragment, Clipboard> {
                 label = ctx.getString(R.string.clipboard)

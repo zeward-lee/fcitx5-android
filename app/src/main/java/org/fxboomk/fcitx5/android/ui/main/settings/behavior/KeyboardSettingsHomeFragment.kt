@@ -4,10 +4,12 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
+import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
+import org.fxboomk.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
@@ -15,9 +17,16 @@ import org.fxboomk.fcitx5.android.utils.navigateWithAnim
 
 class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInstance().keyboard) {
 
+    private var candidatesPreference: Preference? = null
+
     override fun onPreferenceUiCreated(screen: PreferenceScreen) {
         screen.removeAll()
         buildScreen(screen)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        candidatesPreference?.summary = buildCandidatesSummary()
     }
 
     private fun buildScreen(screen: PreferenceScreen) {
@@ -56,12 +65,19 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
                 buildLayoutSummary(keyboardPrefs),
                 SettingsRoute.VirtualKeyboardLayoutAndSplit
             )
-                addDestinationPreference(
-                this@KeyboardSettingsHomeFragment,
-                R.string.keyboard_settings_candidates,
-                buildCandidatesSummary(keyboardPrefs),
-                SettingsRoute.VirtualKeyboardCandidates
-            )
+                addPreference(
+                    Preference(requireContext()).apply {
+                        setTitle(R.string.keyboard_settings_candidates)
+                        summary = buildCandidatesSummary()
+                        isIconSpaceReserved = false
+                        isSingleLineTitle = false
+                        setOnPreferenceClickListener {
+                            navigateWithAnim(SettingsRoute.VirtualKeyboardCandidates)
+                            true
+                        }
+                        candidatesPreference = this
+                    }
+                )
                 addDestinationPreference(
                 this@KeyboardSettingsHomeFragment,
                 R.string.keyboard_settings_advanced_customization,
@@ -130,10 +146,30 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
         return "$height，$split"
     }
 
-    private fun buildCandidatesSummary(keyboardPrefs: AppPrefs.Keyboard): String {
+    private fun buildCandidatesSummary(): String {
+        val prefs = AppPrefs.getInstance()
+        val keyboardPrefs = prefs.keyboard
+        val candidatesPrefs = prefs.candidates
+        when (candidatesPrefs.mode.getValue()) {
+            FloatingCandidatesMode.Always -> {
+                val mode = getString(R.string.candidate_display_mode_floating)
+                val orientation = getString(candidatesPrefs.orientation.getValue().stringRes)
+                val position = getString(candidatesPrefs.virtualKeyboardPosition.getValue().stringRes)
+                return "$mode，$orientation，$position"
+            }
+            FloatingCandidatesMode.SystemDefault -> {
+                return getString(R.string.system_default)
+            }
+            FloatingCandidatesMode.Disabled -> {
+                return getString(R.string.disabled)
+            }
+            FloatingCandidatesMode.InputDevice -> Unit
+        }
+
+        val mode = getString(R.string.candidate_display_mode_horizontal)
         val composition = getString(keyboardPrefs.compositionAreaStyle.getValue().stringRes)
         val horizontal = getString(keyboardPrefs.horizontalCandidateStyle.getValue().stringRes)
         val expanded = getString(keyboardPrefs.expandedCandidateStyle.getValue().stringRes)
-        return "$composition，$horizontal，$expanded"
+        return "$mode，$composition，$horizontal，$expanded"
     }
 }

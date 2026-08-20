@@ -165,11 +165,6 @@ class MainFragment : PaddingPreferenceFragment() {
                     SettingsRoute.VirtualKeyboard
                 )
                 addDestinationPreference(
-                    R.string.candidates_window,
-                    R.drawable.ic_baseline_list_alt_24,
-                    SettingsRoute.CandidatesWindow
-                )
-                addDestinationPreference(
                     R.string.llm_settings_title,
                     R.drawable.ic_baseline_auto_awesome_24,
                     SettingsRoute.Llm

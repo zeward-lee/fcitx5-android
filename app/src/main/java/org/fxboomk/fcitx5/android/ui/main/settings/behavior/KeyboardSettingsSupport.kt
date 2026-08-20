@@ -13,6 +13,7 @@ import androidx.preference.PreferenceScreen
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceFragment
+import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.UserConfigFiles
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
@@ -72,18 +73,33 @@ internal object KeyboardSettingsSupport {
         "split_keyboard_use_landscape_layout"
     )
 
-    val candidatesKeys = listOf(
+    val horizontalCandidateKeys = listOf(
         "preedit_style",
         "horizontal_candidate_style",
         "expanded_candidate_style",
         "expanded_candidate_grid_span_count_portrait"
     )
 
-    fun ManagedPreferenceFragment.addKeyboardPreference(
+    val candidateWindowKeys = listOf(
+        "candidates_window_orientation",
+        "virtual_keyboard_candidates_position",
+        "candidates_window_padding",
+        "candidates_window_radius",
+        "candidates_window_min_width"
+    )
+
+    val candidateItemKeys = listOf(
+        "candidates_item_padding_vertical",
+        "candidates_window_font_size",
+        "candidate_highlight_radius"
+    )
+
+    fun ManagedPreferenceFragment.addManagedPreference(
         parent: PreferenceGroup,
+        provider: ManagedPreferenceProvider,
         key: String
     ): Preference? {
-        val ui = AppPrefs.getInstance().keyboard.managedPreferencesUi.firstOrNull { it.key == key } ?: return null
+        val ui = provider.managedPreferencesUi.firstOrNull { it.key == key } ?: return null
         val preference = ui.createUi(parent.context).apply {
             isEnabled = ui.isEnabled()
         }
@@ -98,7 +114,7 @@ internal object KeyboardSettingsSupport {
     ) {
         screen.addCategory(title) {
             keys.forEach { key ->
-                addKeyboardPreference(this, key)
+                addManagedPreference(this, AppPrefs.getInstance().keyboard, key)
             }
         }
     }
