@@ -133,7 +133,7 @@
     <string name="edit_popup_preset_summary">Editar asignación de teclas de popup (tecla -&gt; candidatos de popup)</string>
     <string name="edit_buttons">Configuración de los botones de la barra de herramientas</string>
     <string name="edit_buttons_summary">Personalizar botones en Kawaii Bar y area de estado</string>
-    <string name="buttons_customizer_hint">Arrastre los botones para reordenar o mover entre Kawaii Bar (fila superior) y area de estado (menu). Mantenga presionado para comenzar a arrastrar.</string>
+    <string name="buttons_customizer_hint">Toque un botón visible para editar el estilo de su icono. Manténgalo pulsado y arrástrelo a «Botones disponibles» para ocultarlo, o entre Kawaii Bar (fila superior) y el área de estado (menú). Toque allí un botón para elegir su sección de destino.</string>
     <string name="kawaii_bar_section">Kawaii Bar (fila superior)</string>
     <string name="status_area_section">Area de estado (menu)</string>
     <string name="more_menu_items">Más elementos del menú</string>
@@ -142,11 +142,14 @@
     <string name="button_icon_code_point_hint">Por ejemplo: E141</string>
     <string name="button_icon_code_point_summary">Usa la fuente configurada para los iconos de botones o, de forma predeterminada, el archivo iconfont.ttf incluido. Déjalo vacío para usar el icono predeterminado.</string>
     <string name="button_icon_code_point_invalid">Introduce de 4 a 6 dígitos hexadecimales</string>
+    <string name="button_icon_code">Código de icono o SVG</string>
+    <string name="button_icon_code_hint">Punto de código Unicode del glyph o &lt;svg&gt;...</string>
+    <string name="button_icon_code_summary">Introduce un punto de código de glyph de iconfont o código SVG. Se muestra una vista previa de SVG y glyph durante la edición; déjalo vacío para restaurar el icono predeterminado.</string>
+    <string name="button_icon_code_invalid">Introduce un punto de código válido o código SVG que contenga un elemento path</string>
     <string name="language_switch">Cambiar idioma</string>
     <string name="all_buttons_added">Se han añadido todos los botones disponibles</string>
     <string name="add_button_to_section_title">Añadir a sección</string>
     <string name="custom_label_hint">Etiqueta personalizada (opcional)</string>
-    <string name="enable_long_press_menu">Activar mantenimiento para mostrar menú flotante</string>
     <string name="floating_keyboard">Teclado flotante</string>
     <string name="edit_button_title">Editar botón</string>
     <string name="delete_button_title">Eliminar botón</string>

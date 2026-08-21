@@ -77,7 +77,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
 
     private fun staticEntries(): Array<StatusAreaEntry> {
         val config = currentButtonsConfig.ifEmpty { loadButtonsConfig() }
-        // Filter out input_method_options as it's always added automatically at the end
+        // Render input_method_options separately so its position remains fixed at the end.
         val configurableEntries = config.filter { it.id != "input_method_options" }.mapNotNull { button ->
             // Find the corresponding ButtonAction
             val action = ButtonAction.fromId(button.id) ?: return@mapNotNull null
@@ -100,17 +100,30 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                 label = label,
                 icon = ButtonIconSpec.drawableResource(context, button.icon, action.defaultIcon),
                 iconText = ButtonIconSpec.glyph(button.icon),
+                customIcon = ButtonIconSpec.drawable(context, button.icon, action.defaultIcon)
+                    .takeIf { ButtonIconSpec.svg(button.icon) != null },
                 active = active,
                 longPressAction = longPressAction
             )
         }
 
-        // Always add input_method_options at the end (fixed, not configurable)
+        // Always add input_method_options at the end; its configured icon is still honored.
         val inputMethodOptionsAction = ButtonAction.allActions.find { it.id == "input_method_options" }!!
+        val inputMethodOptionsConfig = config.firstOrNull { it.id == "input_method_options" }
         val inputMethodOptionsEntry = StatusAreaEntry.ActionEntry(
             inputMethodOptionsAction,
-            context.getString(inputMethodOptionsAction.defaultLabelRes),
-            inputMethodOptionsAction.defaultIcon,
+            inputMethodOptionsConfig?.label ?: context.getString(inputMethodOptionsAction.defaultLabelRes),
+            ButtonIconSpec.drawableResource(
+                context,
+                inputMethodOptionsConfig?.icon,
+                inputMethodOptionsAction.defaultIcon
+            ),
+            iconText = ButtonIconSpec.glyph(inputMethodOptionsConfig?.icon),
+            customIcon = ButtonIconSpec.drawable(
+                context,
+                inputMethodOptionsConfig?.icon,
+                inputMethodOptionsAction.defaultIcon
+            ).takeIf { ButtonIconSpec.svg(inputMethodOptionsConfig?.icon) != null },
             active = false,
             longPressAction = null
         )

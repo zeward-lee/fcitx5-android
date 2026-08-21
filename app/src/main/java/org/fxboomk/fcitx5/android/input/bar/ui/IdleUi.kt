@@ -79,7 +79,13 @@ class IdleUi(
         ),
         theme
     ).apply {
-        ButtonIconSpec.glyph(menuButtonConfig?.icon)?.let(::setIconText)
+        when {
+            ButtonIconSpec.glyph(menuButtonConfig?.icon) != null ->
+                setIconText(ButtonIconSpec.glyph(menuButtonConfig?.icon)!!)
+            ButtonIconSpec.svg(menuButtonConfig?.icon) != null ->
+                ButtonIconSpec.drawable(ctx, menuButtonConfig?.icon, R.drawable.ic_baseline_apps_24)
+                    ?.let(::setIconDrawable)
+        }
     }
 
     val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_keyboard_hide_24, theme)
@@ -164,6 +170,12 @@ class IdleUi(
                 val iconText = ButtonIconSpec.glyph(menuButtonConfig?.icon)
                 if (iconText != null) {
                     menuButton.setIconText(iconText)
+                } else if (ButtonIconSpec.svg(menuButtonConfig?.icon) != null) {
+                    ButtonIconSpec.drawable(
+                        ctx,
+                        menuButtonConfig?.icon,
+                        R.drawable.ic_baseline_apps_24
+                    )?.let(menuButton::setIconDrawable)
                 } else {
                     menuButton.setIcon(
                         ButtonIconSpec.drawableResource(

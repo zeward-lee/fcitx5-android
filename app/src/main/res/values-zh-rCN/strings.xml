@@ -382,7 +382,7 @@
     <string name="edit_popup_preset_summary">编辑按键弹出映射（key -&gt; 候选列表）</string>
     <string name="edit_buttons">工具栏按钮设定</string>
     <string name="edit_buttons_summary">自定义 Kawaii Bar 和 Status Area 中的按钮</string>
-    <string name="buttons_customizer_hint">拖动按钮重新排序或在 Kawaii Bar（顶行）和 Status Area（菜单）之间移动。长按开始拖动。</string>
+    <string name="buttons_customizer_hint">点击可见按钮可编辑图标样式；长按并拖动按钮到“可添加按钮”即可隐藏，也可在 Kawaii Bar（顶行）和 Status Area（菜单）之间移动。点击“可添加按钮”中的按钮可选择目标分组。</string>
     <string name="kawaii_bar_section">Kawaii Bar（顶行）</string>
     <string name="status_area_section">Status Area（菜单）</string>
     <string name="more_menu_items">更多菜单项</string>
@@ -391,11 +391,14 @@
     <string name="button_icon_code_point_hint">例如：E141</string>
     <string name="button_icon_code_point_summary">优先使用已设定的按钮图标字体，否则使用内置 iconfont.ttf；留空则恢复默认图标。</string>
     <string name="button_icon_code_point_invalid">请输入 4 至 6 位十六进制码点</string>
+    <string name="button_icon_code">图标代码或 SVG</string>
+    <string name="button_icon_code_hint">Glyph Unicode 码点或 &lt;svg&gt;...</string>
+    <string name="button_icon_code_summary">支持 Iconfont glyph 码点或 SVG 代码，编辑时均可实时预览；留空可恢复默认图标。</string>
+    <string name="button_icon_code_invalid">请输入有效的码点，或包含 path 的 SVG 代码</string>
     <string name="language_switch">语言切换</string>
     <string name="all_buttons_added">所有可用按钮已添加</string>
     <string name="add_button_to_section_title">添加到区域</string>
     <string name="custom_label_hint">自定义标签（可选）</string>
-    <string name="enable_long_press_menu">启用长按显示浮动菜单</string>
     <string name="floating_keyboard">浮动键盘</string>
     <string name="edit_button_title">编辑按钮</string>
     <string name="delete_button_title">删除按钮</string>

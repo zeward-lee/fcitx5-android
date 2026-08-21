@@ -78,7 +78,7 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
                 centerHorizontally()
                 above(label)
             })
-            add(icon, lParams {
+            add(icon, lParams(dp(32), dp(32)) {
                 centerOn(bkg)
             })
             add(textIcon, lParams(wrapContent, wrapContent) {
@@ -105,6 +105,11 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
             textIcon.text = entry.iconText
             textIcon.typeface = ButtonIconFont.typeface(ctx)
             textIcon.setTextColor(contentColor)
+        } else if (entry.customIcon != null) {
+            icon.visibility = android.view.View.VISIBLE
+            textIcon.visibility = android.view.View.GONE
+            icon.imageDrawable = entry.customIcon
+            icon.imageDrawable?.setTint(theme.altKeyTextColor)
         } else if (entry.icon != 0) {
             icon.visibility = View.VISIBLE
             textIcon.visibility = View.GONE

@@ -5,6 +5,7 @@
 package org.fxboomk.fcitx5.android.input.status
 
 import androidx.annotation.DrawableRes
+import android.graphics.drawable.Drawable
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.core.Action
 import org.fxboomk.fcitx5.android.input.action.ButtonAction
@@ -14,7 +15,8 @@ sealed class StatusAreaEntry(
     @DrawableRes
     val icon: Int,
     val iconText: String? = null,
-    val active: Boolean
+    val active: Boolean,
+    val customIcon: Drawable? = null
 ) {
     /**
      * Status Area entry backed by a ButtonAction
@@ -24,9 +26,10 @@ sealed class StatusAreaEntry(
         label: String,
         icon: Int,
         iconText: String? = null,
+        customIcon: Drawable? = null,
         active: Boolean = false,
         val longPressAction: LongPressActionType? = null
-    ) : StatusAreaEntry(label, icon, iconText, active) {
+    ) : StatusAreaEntry(label, icon, iconText, active, customIcon) {
         enum class LongPressActionType {
             EnterAdjustingMode
         }

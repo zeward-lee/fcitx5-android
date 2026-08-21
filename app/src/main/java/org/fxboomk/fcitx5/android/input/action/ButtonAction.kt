@@ -6,6 +6,8 @@ package org.fxboomk.fcitx5.android.input.action
 
 import android.content.Intent
 import android.content.Context
+import android.app.SearchManager
+import android.net.Uri
 import android.view.KeyEvent
 import android.view.View
 import androidx.annotation.DrawableRes
@@ -130,6 +132,7 @@ sealed class ButtonAction {
                 ReloadConfigAction,
                 VirtualKeyboardAction,
                 OneHandedKeyboardAction,
+                SearchAction,
                 BrowseUserDataDirAction,
                 SettingsGlobalOptionsAction,
                 SettingsInputMethodsAction,
@@ -195,7 +198,8 @@ sealed class ButtonAction {
                 AiCandidatesAction,
                 ClipboardAction,
                 ThemeToggleAction,
-                NumberKeyboardAction
+                NumberKeyboardAction,
+                SearchAction
             )
         }
 
@@ -210,7 +214,8 @@ sealed class ButtonAction {
                 ReloadConfigAction,
                 VirtualKeyboardAction,
                 OneHandedKeyboardAction,
-                MoreAction
+                MoreAction,
+                SearchAction
             )
         }
 
@@ -219,6 +224,35 @@ sealed class ButtonAction {
          */
         val allConfigurableActions: List<ButtonAction> by lazy {
             kawaiiBarActions + statusAreaActions
+        }
+    }
+}
+
+data object SearchAction : ButtonAction() {
+    override val id = "search"
+    override val defaultIcon = R.drawable.ic_baseline_search_24
+    override val defaultLabelRes = R.string.search
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        val webSearch = Intent(Intent.ACTION_WEB_SEARCH).apply {
+            putExtra(SearchManager.QUERY, "")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (webSearch.resolveActivity(context.packageManager) != null) {
+            context.startActivity(webSearch)
+        } else {
+            val browser = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://www.google.com/search?q=")
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(browser)
         }
     }
 }

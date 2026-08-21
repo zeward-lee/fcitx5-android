@@ -133,7 +133,10 @@ class ButtonsBarUi(
             val config = buttons[viewType]
             val iconRes = getIconResForButton(config.id, config.icon)
             val button = ToolButton(ctx, iconRes, theme).apply {
-                ButtonIconSpec.glyph(config.icon)?.let(::setIconText)
+                when {
+                    ButtonIconSpec.glyph(config.icon) != null -> setIconText(ButtonIconSpec.glyph(config.icon)!!)
+                    ButtonIconSpec.svg(config.icon) != null -> ButtonIconSpec.drawable(ctx, config.icon, iconRes)?.let(::setIconDrawable)
+                }
                 contentDescription = config.label ?: getDefaultLabel(config.id)
                 tag = config.id
                 // Ensure button always fills KawaiiBar height

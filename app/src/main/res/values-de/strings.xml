@@ -212,7 +212,7 @@
     <string name="edit_popup_preset_summary">Popup-Tastenzuordnung bearbeiten (Taste -&gt; Popup-Kandidaten)</string>
     <string name="edit_buttons">Einstellungen für Werkzeugleisten-Schaltflächen</string>
     <string name="edit_buttons_summary">Schaltflächen in Kawaii Bar und Status Area anpassen</string>
-    <string name="buttons_customizer_hint">Schaltflächen ziehen zum Umordnen oder Verschieben zwischen Kawaii Bar (obere Zeile) und Status Area (Menü). Lange drücken zum Starten des Ziehens.</string>
+    <string name="buttons_customizer_hint">Tippen Sie auf eine sichtbare Schaltfläche, um ihren Symbolstil zu bearbeiten. Halten und ziehen Sie eine Schaltfläche zu „Verfügbare Schaltflächen“, um sie auszublenden, oder zwischen Kawaii Bar (obere Zeile) und Status Area (Menü). Tippen Sie dort auf eine Schaltfläche, um den Zielbereich auszuwählen.</string>
     <string name="kawaii_bar_section">Kawaii Bar (obere Zeile)</string>
     <string name="status_area_section">Status Area (Menü)</string>
     <string name="more_menu_items">Weitere Menüeinträge</string>
@@ -221,11 +221,14 @@
     <string name="button_icon_code_point_hint">Zum Beispiel: E141</string>
     <string name="button_icon_code_point_summary">Verwendet die konfigurierte Schrift für Schaltflächensymbole oder standardmäßig die integrierte iconfont.ttf. Leer lassen, um das Standardsymbol zu verwenden.</string>
     <string name="button_icon_code_point_invalid">Geben Sie 4 bis 6 Hexadezimalziffern ein</string>
+    <string name="button_icon_code">Symbolcode oder SVG</string>
+    <string name="button_icon_code_hint">Glyph-Unicode-Codepunkt oder &lt;svg&gt;...</string>
+    <string name="button_icon_code_summary">Geben Sie einen Iconfont-Glyph-Codepunkt oder SVG-Code ein. SVG und Glyph werden während der Bearbeitung als Vorschau angezeigt; leer lassen, um das Standardsymbol wiederherzustellen.</string>
+    <string name="button_icon_code_invalid">Geben Sie einen gültigen Codepunkt oder SVG-Code mit einem path-Element ein</string>
     <string name="language_switch">Sprache wechseln</string>
     <string name="all_buttons_added">Alle verfügbaren Schaltflächen wurden hinzugefügt</string>
     <string name="add_button_to_section_title">Zu Abschnitt hinzufügen</string>
     <string name="custom_label_hint">Benutzerdefiniertes Label (optional)</string>
-    <string name="enable_long_press_menu">Langes Drücken aktivieren, um schwebendes Menü anzuzeigen</string>
     <string name="floating_keyboard">Schwebende Tastatur</string>
     <string name="edit_button_title">Schaltfläche bearbeiten</string>
     <string name="delete_button_title">Schaltfläche löschen</string>

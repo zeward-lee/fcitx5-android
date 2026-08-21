@@ -69,6 +69,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private val bottomButtons = mutableListOf<ConfigurableButton>()
     private val availableButtons = mutableListOf<ConfigurableButton>()
     private var moreButtonConfig = ButtonsLayoutConfig.defaultMoreButton()
+    private var inputMethodOptionsConfig = ConfigurableButton("input_method_options")
     private var originalTop = listOf<ConfigurableButton>()
     private var originalBottom = listOf<ConfigurableButton>()
     private var dragInProgress = false
@@ -152,6 +153,9 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         val glyph = ButtonIconSpec.glyph(config?.icon)
         if (glyph != null) {
             moreButton.setIconText(glyph)
+        } else if (ButtonIconSpec.svg(config?.icon) != null) {
+            ButtonIconSpec.drawable(context, config?.icon, R.drawable.ic_baseline_arrow_drop_down_24)
+                ?.let(moreButton::setIconDrawable)
         } else {
             moreButton.setIcon(
                 ButtonIconSpec.drawableResource(
@@ -211,13 +215,25 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, context.dp(72))
         }
 
-        fun bind(iconRes: Int, iconText: String?, text: String, disabled: Boolean, theme: Theme) {
+        fun bind(
+            iconRes: Int,
+            iconText: String?,
+            iconDrawable: android.graphics.drawable.Drawable?,
+            text: String,
+            disabled: Boolean,
+            theme: Theme
+        ) {
             if (iconText != null) {
                 icon.visibility = View.GONE
                 textIcon.visibility = View.VISIBLE
                 textIcon.text = iconText
                 textIcon.typeface = ButtonIconFont.typeface(context)
                 textIcon.setTextColor(theme.keyTextColor)
+            } else if (iconDrawable != null) {
+                icon.visibility = View.VISIBLE
+                textIcon.visibility = View.GONE
+                icon.setImageDrawable(iconDrawable)
+                icon.drawable?.setTint(theme.keyTextColor)
             } else {
                 icon.visibility = View.VISIBLE
                 textIcon.visibility = View.GONE
@@ -273,6 +289,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                         fallbackIcon
                     ),
                     iconText = ButtonIconSpec.glyph(button.icon),
+                    iconDrawable = ButtonIconSpec.drawable(context, button.icon, fallbackIcon)
+                        .takeIf { ButtonIconSpec.svg(button.icon) != null },
                     text = label,
                     disabled = false,
                     theme = theme
@@ -349,7 +367,14 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                 val action = ButtonAction.fromId("input_method_options")
                 val icon = action?.defaultIcon ?: R.drawable.ic_baseline_language_24
                 val label = action?.let { holder.itemView.context.getString(it.defaultLabelRes) } ?: "IME"
-                ui.bind(icon, null, label, disabled = true, theme = theme)
+                ui.bind(
+                    iconRes = icon,
+                    iconText = null,
+                    iconDrawable = null,
+                    text = label,
+                    disabled = true,
+                    theme = theme
+                )
             }
         }
     }
@@ -656,6 +681,9 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         val config = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
             ?: ButtonsLayoutConfig.default()
         moreButtonConfig = ButtonsLayoutConfig.moreButtonOrDefault(config.kawaiiBarButtons)
+        inputMethodOptionsConfig = config.statusAreaButtons
+            .firstOrNull { it.id == "input_method_options" }
+            ?: ConfigurableButton("input_method_options")
         applyMoreButtonIcon(moreButtonConfig)
         val reservedIds = setOf("more", "input_method_options")
         val configurableIds = ButtonAction.allConfigurableActions
@@ -674,6 +702,11 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             }
         }
         availableButtons.clear()
+        config.optionalButtons.forEach { button ->
+            if (button.id in configurableIds && seen.add(button.id)) {
+                availableButtons.add(button)
+            }
+        }
         ButtonAction.allConfigurableActions
             .filterNot { it.id in reservedIds }
             .forEach { action ->
@@ -708,7 +741,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             file.parentFile?.mkdirs()
             val config = ButtonsLayoutConfig(
                 kawaiiBarButtons = listOf(moreButtonConfig) + topButtons,
-                statusAreaButtons = bottomButtons.toList()
+                statusAreaButtons = bottomButtons.toList() + inputMethodOptionsConfig,
+                optionalButtons = availableButtons.toList()
             )
             file.writeText(prettyJson.encodeToString(config) + "\n")
         }.onFailure {

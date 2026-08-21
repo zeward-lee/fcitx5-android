@@ -18,16 +18,14 @@ class ButtonsCustomizerActivityTest {
                 ConfigurableButton("undo"),
                 ButtonsCustomizerActivity.Section.KawaiiBar,
             ),
-            ButtonsCustomizerActivity.ListItem.AddButtonPlaceholder,
             ButtonsCustomizerActivity.ListItem.ButtonItem(
                 ConfigurableButton("clipboard"),
                 ButtonsCustomizerActivity.Section.StatusArea,
             ),
-            ButtonsCustomizerActivity.ListItem.StatusAreaAddButtonPlaceholder,
         )
 
         assertEquals(
-            2,
+            1,
             items.findCurrentButtonPosition(
                 buttonId = "clipboard",
                 section = ButtonsCustomizerActivity.Section.StatusArea,
@@ -42,7 +40,6 @@ class ButtonsCustomizerActivityTest {
                 ConfigurableButton("undo"),
                 ButtonsCustomizerActivity.Section.KawaiiBar,
             ),
-            ButtonsCustomizerActivity.ListItem.AddButtonPlaceholder,
         )
 
         assertEquals(
@@ -64,7 +61,6 @@ class ButtonsCustomizerActivityTest {
                 ConfigurableButton("undo"),
                 ButtonsCustomizerActivity.Section.KawaiiBar,
             ),
-            ButtonsCustomizerActivity.ListItem.AddButtonPlaceholder,
             ButtonsCustomizerActivity.ListItem.SectionHeader(
                 ButtonsCustomizerActivity.Section.StatusArea
             ),
@@ -72,7 +68,6 @@ class ButtonsCustomizerActivityTest {
                 ConfigurableButton("clipboard"),
                 ButtonsCustomizerActivity.Section.StatusArea,
             ),
-            ButtonsCustomizerActivity.ListItem.StatusAreaAddButtonPlaceholder,
         )
 
         val destination = items.moveButton(
@@ -92,12 +87,12 @@ class ButtonsCustomizerActivityTest {
             ButtonsCustomizerActivity.ListItem.SectionHeader(
                 ButtonsCustomizerActivity.Section.StatusArea
             ),
-            items[2],
+            items[1],
         )
         val moved = items[3] as ButtonsCustomizerActivity.ListItem.ButtonItem
         assertEquals("undo", moved.button.id)
         assertEquals(ButtonsCustomizerActivity.Section.StatusArea, moved.section)
-        assertTrue(items[4] is ButtonsCustomizerActivity.ListItem.ButtonItem)
+        assertTrue(items[2] is ButtonsCustomizerActivity.ListItem.ButtonItem)
     }
 
     @Test
@@ -110,7 +105,6 @@ class ButtonsCustomizerActivityTest {
                 ConfigurableButton("undo"),
                 ButtonsCustomizerActivity.Section.KawaiiBar,
             ),
-            ButtonsCustomizerActivity.ListItem.AddButtonPlaceholder,
             ButtonsCustomizerActivity.ListItem.SectionHeader(
                 ButtonsCustomizerActivity.Section.StatusArea
             ),
@@ -118,7 +112,6 @@ class ButtonsCustomizerActivityTest {
                 ConfigurableButton("clipboard"),
                 ButtonsCustomizerActivity.Section.StatusArea,
             ),
-            ButtonsCustomizerActivity.ListItem.StatusAreaAddButtonPlaceholder,
         )
 
         items.moveButton(
@@ -152,7 +145,6 @@ class ButtonsCustomizerActivityTest {
                 ConfigurableButton("undo"),
                 ButtonsCustomizerActivity.Section.KawaiiBar,
             ),
-            ButtonsCustomizerActivity.ListItem.AddButtonPlaceholder,
         )
 
         val destination = items.moveButton(

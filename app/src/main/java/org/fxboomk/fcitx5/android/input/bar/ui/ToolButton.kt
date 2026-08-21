@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.ViewPropertyAnimator
 import android.widget.ImageView
 import android.widget.TextView
+import android.graphics.drawable.Drawable
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
@@ -82,6 +83,12 @@ class ToolButton(context: Context) : CustomGestureView(context) {
         text.visibility = VISIBLE
         text.text = iconText
         text.typeface = ButtonIconFont.typeface(context)
+    }
+
+    fun setIconDrawable(drawable: Drawable) {
+        image.visibility = VISIBLE
+        text.visibility = GONE
+        image.setImageDrawable(drawable)
     }
 
     fun setPressHighlightColor(@ColorInt color: Int) {

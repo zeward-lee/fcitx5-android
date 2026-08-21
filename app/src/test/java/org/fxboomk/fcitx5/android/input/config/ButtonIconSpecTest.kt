@@ -6,6 +6,7 @@ package org.fxboomk.fcitx5.android.input.config
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ButtonIconSpecTest {
@@ -43,4 +44,22 @@ class ButtonIconSpecTest {
         assertNull(ButtonIconSpec.codePoint("D800"))
         assertNull(ButtonIconSpec.codePoint("110000"))
     }
+
+    @Test
+    fun recognizesAndCanonicalizesSvgIconCode() {
+        val svg = "<svg viewBox=\"0 0 24 24\"><path d=\"M0 0h24v24H0z\"/></svg>"
+
+        assertEquals("svg:$svg", ButtonIconSpec.canonicalSvg("svg:  $svg  "))
+        assertNull(ButtonIconSpec.svg(svg))
+    }
+
+    @Test
+    fun searchStartsInOptionalButtonsByDefault() {
+        val config = ButtonsLayoutConfig.default()
+
+        assertTrue(config.optionalButtons.any { it.id == "search" })
+        assertTrue(config.kawaiiBarButtons.none { it.id == "search" })
+        assertTrue(config.statusAreaButtons.none { it.id == "search" })
+    }
+
 }

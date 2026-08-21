@@ -371,7 +371,7 @@
     <string name="edit_popup_preset_summary">Редактировать сопоставление клавиш всплывающих окон (клавиша -&gt; кандидаты всплывающих окон)</string>
     <string name="edit_buttons">Настройки кнопок панели инструментов</string>
     <string name="edit_buttons_summary">Настройка кнопок в Kawaii Bar и Status Area</string>
-    <string name="buttons_customizer_hint">Перетаскивайте кнопки для изменения порядка или перемещения между Kawaii Bar (верхняя строка) и Status Area (меню). Долгое нажатие для начала перетаскивания.</string>
+    <string name="buttons_customizer_hint">Нажмите видимую кнопку, чтобы изменить стиль значка. Удерживайте и перетащите кнопку в «Доступные кнопки», чтобы скрыть её, или переместите между Kawaii Bar (верхняя строка) и Status Area (меню). Нажмите кнопку в «Доступных кнопках», чтобы выбрать целевой раздел.</string>
     <string name="kawaii_bar_section">Kawaii Bar (верхняя строка)</string>
     <string name="status_area_section">Status Area (меню)</string>
     <string name="more_menu_items">Дополнительные пункты меню</string>
@@ -380,11 +380,14 @@
     <string name="button_icon_code_point_hint">Например: E141</string>
     <string name="button_icon_code_point_summary">Используется настроенный шрифт значков кнопок или встроенный iconfont.ttf по умолчанию. Оставьте поле пустым, чтобы использовать значок по умолчанию.</string>
     <string name="button_icon_code_point_invalid">Введите от 4 до 6 шестнадцатеричных цифр</string>
+    <string name="button_icon_code">Код значка или SVG</string>
+    <string name="button_icon_code_hint">Кодовая точка Unicode glyph или &lt;svg&gt;...</string>
+    <string name="button_icon_code_summary">Введите кодовую точку glyph из Iconfont или код SVG. Во время редактирования доступен предварительный просмотр SVG и glyph; оставьте поле пустым, чтобы восстановить значок по умолчанию.</string>
+    <string name="button_icon_code_invalid">Введите допустимую кодовую точку или код SVG с элементом path</string>
     <string name="language_switch">Смена языка</string>
     <string name="all_buttons_added">Все доступные кнопки добавлены</string>
     <string name="add_button_to_section_title">Добавить в раздел</string>
     <string name="custom_label_hint">Пользовательская метка (необязательно)</string>
-    <string name="enable_long_press_menu">Включить долгое нажатие для отображения плавающего меню</string>
     <string name="floating_keyboard">Плавающая клавиатура</string>
     <string name="edit_button_title">Редактировать кнопку</string>
     <string name="delete_button_title">Удалить кнопку</string>

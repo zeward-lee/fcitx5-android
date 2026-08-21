@@ -296,7 +296,7 @@
     <string name="edit_popup_preset_summary">ポップアップキーマッピングを編集 (キー -&gt; ポップアップ候補)</string>
     <string name="edit_buttons">ツールバーボタン設定</string>
     <string name="edit_buttons_summary">Kawaii Bar と Status Area のボタンをカスタマイズ</string>
-    <string name="buttons_customizer_hint">ボタンをドラッグして並べ替えたり、Kawaii Bar（上段）と Status Area（メニュー）間を移動できます。長押しでドラッグ開始。</string>
+    <string name="buttons_customizer_hint">表示中のボタンをタップするとアイコンのスタイルを編集できます。長押しして「利用可能なボタン」へドラッグすると非表示にでき、Kawaii Bar（上段）と Status Area（メニュー）間も移動できます。そこにあるボタンをタップして移動先を選択します。</string>
     <string name="kawaii_bar_section">Kawaii Bar（上段）</string>
     <string name="status_area_section">Status Area（メニュー）</string>
     <string name="more_menu_items">その他のメニュー項目</string>
@@ -305,11 +305,14 @@
     <string name="button_icon_code_point_hint">例: E141</string>
     <string name="button_icon_code_point_summary">設定されたボタンアイコンフォントを使用し、未設定の場合は内蔵の iconfont.ttf を使用します。空欄にすると既定のアイコンを使用します。</string>
     <string name="button_icon_code_point_invalid">4～6 桁の 16 進数を入力してください</string>
+    <string name="button_icon_code">アイコンコードまたは SVG</string>
+    <string name="button_icon_code_hint">Glyph の Unicode コードポイントまたは &lt;svg&gt;...</string>
+    <string name="button_icon_code_summary">Iconfont glyph のコードポイントまたは SVG コードを入力します。編集中は SVG と glyph の両方をプレビューできます。空欄にすると既定のアイコンに戻ります。</string>
+    <string name="button_icon_code_invalid">有効なコードポイント、または path を含む SVG コードを入力してください</string>
     <string name="language_switch">言語切替</string>
     <string name="all_buttons_added">利用可能なボタンはすべて追加済みです</string>
     <string name="add_button_to_section_title">セクションに追加</string>
     <string name="custom_label_hint">カスタムラベル（オプション）</string>
-    <string name="enable_long_press_menu">長押しでフローティングメニューを表示</string>
     <string name="floating_keyboard">フローティングキーボード</string>
     <string name="edit_button_title">ボタンを編集</string>
     <string name="delete_button_title">ボタンを削除</string>
