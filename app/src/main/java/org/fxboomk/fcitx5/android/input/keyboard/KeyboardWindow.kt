@@ -219,7 +219,14 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         preeditEmpty = true
         hasVisibleCandidates = false
         currentInputMethod = fcitx.runImmediately { inputMethodEntryCached }
-        composingState = false
+        // Reset composition visuals even when the target layout is unchanged,
+        // because switchLayout skips re-attach for the same layout and
+        // updateCompositionState would early-return on equal state.
+        if (composingState) {
+            composingState = false
+            currentKeyboard?.onCompositionStateChanged(false)
+            service.inputView?.requestBlurRefresh(retryFrames = 2, hierarchyChanged = true)
+        }
         val targetLayout = when (info.inputType and InputType.TYPE_MASK_CLASS) {
             InputType.TYPE_CLASS_NUMBER -> NumberKeyboard.Name
             InputType.TYPE_CLASS_PHONE -> NumberKeyboard.Name

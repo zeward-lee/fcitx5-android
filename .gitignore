@@ -112,5 +112,5 @@ lint/tmp/
 .omx/
 .claude/
 .gitnexus
+.codegraph
 .local-thirdparty-artifacts/
-.clauge-worktrees/
