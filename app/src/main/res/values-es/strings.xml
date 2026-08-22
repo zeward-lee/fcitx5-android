@@ -328,7 +328,7 @@
     <string name="restart_fcitx_instance_confirm">La instancia de fcitx será destruida y reinicializada. ¿Continuar?</string>
     <string name="ignore_system_window_insets">Ignorar WindowInsets del sistema</string>
     <string name="browse_user_data_dir">Explorar directorio de datos de usuario</string>
-    <string name="haptic_on_repeat">Retroalimentación háptica al repetir tecla</string>
+    <string name="haptic_on_repeat">Vibración al repetir tecla</string>
     <string name="generic_multiselect_min">Debe seleccionar al menos %1$d elemento(s).</string>
     <string name="text_keyboard_layout_switch_submode_failed">Error al cambiar al submodo "%1$s"</string>
     <string name="text_keyboard_layout_discard_changes_title">¿Descartar cambios no guardados?</string>
@@ -590,7 +590,7 @@
     <string name="key_ripple_effect">Habilitar efecto ondulado de tecla</string>
     <string name="key_vertical_margin">Margen vertical de tecla</string>
     <string name="keyboard_bottom_padding">Relleno inferior del teclado</string>
-    <string name="keyboard_long_press_delay">Retardo de pulsacion larga</string>
+    <string name="keyboard_long_press_delay">Duración del retardo de pulsación larga</string>
     <string name="keyboard_side_padding">Relleno lateral del teclado</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Mantener barra de herramientas/candidatos con teclado fisico</string>
     <string name="physical_keyboard_horizontal_candidate_bar_summary">Mantener la barra de herramientas y la barra horizontal de candidatos abajo al escribir con un teclado fisico</string>

@@ -93,7 +93,7 @@
     <string name="added_x">%1$s を追加しました</string>
     <string name="edited_x">%1$s を編集しました</string>
     <string name="invalid_value">無効な値</string>
-    <string name="keyboard_long_press_delay">キーの長押しの期間</string>
+    <string name="keyboard_long_press_delay">キーの長押しの遅延時間</string>
     <string name="quickphrase_editor">クイックフレーズエディター</string>
     <string name="quickphrase_already_exists">クイックフレーズはすでに存在します</string>
     <string name="create_new">新規作成</string>
@@ -504,7 +504,7 @@
     <string name="restart_fcitx_instance_confirm">Fcitx インスタンスを破棄して再初期化します。続行しますか？</string>
     <string name="ignore_system_window_insets">システムの WindowInsets を無視</string>
     <string name="browse_user_data_dir">ユーザーデータディレクトリを閲覧</string>
-    <string name="haptic_on_repeat">キーリピート時に触覚フィードバック</string>
+    <string name="haptic_on_repeat">キーリピート時に振動</string>
     <string name="redo">やり直し</string>
     <string name="text_keyboard_layout_switch_submode_failed">サブモード"%1$s"への切り替えに失敗しました</string>
     <string name="text_keyboard_layout_discard_changes_title">未保存のレイアウト変更を破棄しますか？</string>

@@ -120,7 +120,7 @@
     <string name="added_x">已添加 %1$s</string>
     <string name="edited_x">已编辑 %1$s</string>
     <string name="invalid_value">无效的值</string>
-    <string name="keyboard_long_press_delay">长按延迟</string>
+    <string name="keyboard_long_press_delay">长按延迟时长</string>
     <string name="quickphrase_editor">快速输入编辑器</string>
     <string name="quickphrase_already_exists">快速输入已存在</string>
     <string name="create_new">新建</string>
@@ -502,7 +502,7 @@
     <string name="restart_fcitx_instance_confirm">Fcitx 实例将被销毁并重新初始化。继续吗？</string>
     <string name="ignore_system_window_insets">忽略系统窗口边衬区 (WindowInsets)</string>
     <string name="browse_user_data_dir">浏览用户数据目录</string>
-    <string name="haptic_on_repeat">重复按键时的振动反馈</string>
+    <string name="haptic_on_repeat">重复按键时振动</string>
     <string name="redo">重做</string>
     <string name="status_area">状态区域</string>
     <string name="expand_candidates_list">展开候选词列表</string>

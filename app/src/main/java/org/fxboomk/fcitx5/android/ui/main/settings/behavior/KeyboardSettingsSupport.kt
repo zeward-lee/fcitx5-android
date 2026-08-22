@@ -29,8 +29,9 @@ internal object KeyboardSettingsSupport {
         "haptic_on_keypress",
         "haptic_on_keyup",
         "haptic_on_repeat",
-        "button_vibration_press_milliseconds",
         "button_vibration_press_amplitude",
+        "button_vibration_press_milliseconds",
+        "keyboard_long_press_delay",
         "sound_on_keypress",
         "button_sound_volume"
     )
@@ -55,7 +56,6 @@ internal object KeyboardSettingsSupport {
         "expand_keypress_area",
         "show_lang_switch_key",
         "swipe_symbol_behavior",
-        "keyboard_long_press_delay",
         "lang_switch_key_behavior",
         "space_key_label_mode",
         "space_long_press_behavior",

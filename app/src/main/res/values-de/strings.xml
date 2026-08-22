@@ -86,7 +86,7 @@
     <string name="added_x">%1$s hinzugefügt</string>
     <string name="edited_x">%1$s bearbeitet</string>
     <string name="invalid_value">Ungültiger Wert</string>
-    <string name="keyboard_long_press_delay">Verzögerung bei langem Tastendruck</string>
+    <string name="keyboard_long_press_delay">Dauer der Verzögerung bei langem Tastendruck</string>
     <string name="create_new">Neu erstellen</string>
     <string name="name">Name</string>
     <string name="reset">Zurücksetzen</string>
@@ -410,7 +410,7 @@
     <string name="restart_fcitx_instance_confirm">Fcitx-Instanz wird zerstört und neu initialisiert. Fortfahren?</string>
     <string name="ignore_system_window_insets">System WindowInsets ignorieren</string>
     <string name="browse_user_data_dir">Benutzerverzeichnis durchsuchen</string>
-    <string name="haptic_on_repeat">Haptisches Feedback bei Wiederholung</string>
+    <string name="haptic_on_repeat">Vibration bei Tastenwiederholung</string>
     <string name="generic_multiselect_min">Mindestens %1$d Eintrag(e) müssen ausgewählt werden.</string>
     <string name="text_keyboard_layout_switch_submode_failed">Wechsel zum Submodus "%1$s" fehlgeschlagen</string>
     <string name="text_keyboard_layout_discard_changes_title">Ungespeicherte Layout-Änderungen verwerfen?</string>
