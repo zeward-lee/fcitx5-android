@@ -612,6 +612,11 @@
     <string name="preferred_voice_input">선호 음성 입력</string>
     <string name="private_mode">개인정보 모드 (눌러서 툴바 전환)</string>
     <string name="punctuation_pos_bottom">하단</string>
+    <string name="punctuation_pos_top">상단</string>
+    <string name="uppercase_position">대문자 위치</string>
+    <string name="uppercase_pos_none">없음</string>
+    <string name="uppercase_pos_top">상단</string>
+    <string name="uppercase_pos_bottom">하단</string>
     <string name="punctuation_pos_none">없음</string>
     <string name="punctuation_pos_top_right">오른쪽 위</string>
     <string name="punctuation_position">구두점 위치</string>
@@ -670,7 +675,7 @@
     <string name="split_keyboard_use_landscape_layout_summary">활성화되고 분할 키보드가 켜져 있으면 가로 레이아웃 매개변수(높이, 여백 등)를 사용합니다. 이 옵션은 자동 분할 키보드가 켜져 있을 때만 사용할 수 있습니다.</string>
     <string name="status_area">상태 영역</string>
     <string name="swipe_down">아래로 스와이프</string>
-    <string name="swipe_symbol_behavior">기호 스와이프 방향</string>
+    <string name="swipe_symbol_behavior">구두점 스와이프 방향</string>
     <string name="swipe_up">위로 스와이프</string>
     <string name="switch_to_voice_input">음성 입력으로 전환</string>
     <string name="toggle_number_keyboard">숫자 키보드 전환</string>

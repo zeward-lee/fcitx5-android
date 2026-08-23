@@ -134,6 +134,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     enum class PunctuationPosition(override val stringRes: Int) : ManagedPreferenceEnum {
         None(R.string.punctuation_pos_none),
         Bottom(R.string.punctuation_pos_bottom),
+        Top(R.string.punctuation_pos_top),
         TopRight(R.string.punctuation_pos_top_right);
     }
 
@@ -141,6 +142,18 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         R.string.punctuation_position,
         "punctuation_position",
         PunctuationPosition.Bottom
+    )
+
+    enum class UppercasePosition(override val stringRes: Int) : ManagedPreferenceEnum {
+        None(R.string.uppercase_pos_none),
+        Top(R.string.uppercase_pos_top),
+        Bottom(R.string.uppercase_pos_bottom);
+    }
+
+    val uppercasePosition = enumList(
+        R.string.uppercase_position,
+        "uppercase_position",
+        UppercasePosition.None
     )
 
     enum class NavbarBackground(override val stringRes: Int) : ManagedPreferenceEnum {

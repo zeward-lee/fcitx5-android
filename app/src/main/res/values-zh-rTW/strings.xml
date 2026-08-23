@@ -134,10 +134,15 @@
     <string name="navbar_bkg_none">無背景</string>
     <string name="navbar_bkg_color_only">與鍵盤背景色相符</string>
     <string name="navbar_bkg_full">鍵盤背景圖片</string>
-    <string name="punctuation_position">標點符號的位置</string>
+    <string name="punctuation_position">標點符號位置</string>
     <string name="punctuation_pos_bottom">底部</string>
+    <string name="punctuation_pos_top">頂部</string>
     <string name="punctuation_pos_top_right">右上</string>
     <string name="punctuation_pos_none">無</string>
+    <string name="uppercase_position">大寫字母位置</string>
+    <string name="uppercase_pos_none">無</string>
+    <string name="uppercase_pos_top">頂部</string>
+    <string name="uppercase_pos_bottom">底部</string>
     <string name="expand_toolbar_by_default">預設展開工具列</string>
     <string name="toolbar_manually_toggled">工具列手動切換狀態</string>
     <string name="popup_on_key_press">按鍵時彈出顯示字元</string>
@@ -186,7 +191,7 @@
     <string name="disable_addon_warn_dep">停用%1$s</string>
     <string name="disable_addon_warn_optdep">停用%1$s中的某些功能</string>
     <string name="disable_addon_warn_confirm">確實要停用它嗎？</string>
-    <string name="swipe_symbol_behavior">符號滑動方向</string>
+    <string name="swipe_symbol_behavior">標點符號滑動方向</string>
     <string name="swipe_down">下划</string>
     <string name="swipe_up">上划</string>
     <string name="disabled">已停用</string>

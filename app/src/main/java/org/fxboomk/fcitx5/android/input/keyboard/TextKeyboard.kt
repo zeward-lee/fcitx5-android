@@ -19,7 +19,6 @@ import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreference
 import org.fxboomk.fcitx5.android.data.theme.Theme
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
-import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition
 import org.fxboomk.fcitx5.android.input.popup.PopupAction
 import splitties.views.imageResource
 import kotlinx.serialization.json.*
@@ -309,6 +308,7 @@ class TextKeyboard(
     private val showLangSwitchKey = AppPrefs.getInstance().keyboard.showLangSwitchKey
     private val spaceKeyLabelMode = AppPrefs.getInstance().keyboard.spaceKeyLabelMode
     private val punctuationPosition = ThemeManager.prefs.punctuationPosition
+    private val uppercasePosition = ThemeManager.prefs.uppercasePosition
     private var currentIme: InputMethodEntry? = null
 
     @Keep
@@ -325,7 +325,7 @@ class TextKeyboard(
     }
 
     @Keep
-    private val punctuationPositionListener = ManagedPreference.OnChangeListener<PunctuationPosition> { _, _ ->
+    private val altTextPositionListener = ManagedPreference.OnChangeListener<Any> { _, _ ->
         post { refreshAltTextLayouts() }
     }
 
@@ -552,7 +552,8 @@ class TextKeyboard(
         registerKeyboard(this)
         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
         spaceKeyLabelMode.registerOnChangeListener(spaceKeyLabelModeListener)
-        punctuationPosition.registerOnChangeListener(punctuationPositionListener)
+        punctuationPosition.registerOnChangeListener(altTextPositionListener)
+        uppercasePosition.registerOnChangeListener(altTextPositionListener)
         refreshDynamicState()
     }
 
@@ -560,7 +561,8 @@ class TextKeyboard(
         unregisterKeyboard(this)
         showLangSwitchKey.unregisterOnChangeListener(showLangSwitchKeyListener)
         spaceKeyLabelMode.unregisterOnChangeListener(spaceKeyLabelModeListener)
-        punctuationPosition.unregisterOnChangeListener(punctuationPositionListener)
+        punctuationPosition.unregisterOnChangeListener(altTextPositionListener)
+        uppercasePosition.unregisterOnChangeListener(altTextPositionListener)
         super.onDetachedFromWindow()
     }
 

@@ -193,6 +193,7 @@ abstract class BaseKeyboard(
                             keyView.mainText.setFontTypeFace("key_main_font")
                             keyView.altText.setFontTypeFace("key_alt_font")
                             keyView.altText1.setFontTypeFace("key_alt_font")
+                            keyView.upperText.setFontTypeFace("key_alt_font")
                         }
                         is TextKeyView -> keyView.mainText.setFontTypeFace("key_main_font")
                     }
@@ -921,6 +922,7 @@ abstract class BaseKeyboard(
                 newView.mainText.setFontTypeFace("key_main_font")
                 newView.altText.setFontTypeFace("key_alt_font")
                 newView.altText1.setFontTypeFace("key_alt_font")
+                newView.upperText.setFontTypeFace("key_alt_font")
             }
             is TextKeyView -> newView.mainText.setFontTypeFace("key_main_font")
         }
@@ -1499,7 +1501,8 @@ abstract class BaseKeyboard(
             SwipeSymbolDirection.Up ->
                 AltTextSwipeTarget.Primary.takeIf { totalY < 0 }
             SwipeSymbolDirection.Down ->
-                AltTextSwipeTarget.Secondary.takeIf { totalY > 0 }
+                ((view as? SwipeHintAwareKeyView)?.secondarySwipeTarget()
+                    ?: AltTextSwipeTarget.Secondary).takeIf { totalY > 0 }
             SwipeSymbolDirection.Disabled -> null
             SwipeSymbolDirection.Auto ->
                 (view as? SwipeHintAwareKeyView)?.selectAltTextSwipeTarget(totalY)
@@ -1514,6 +1517,10 @@ abstract class BaseKeyboard(
         return when (selectSwipeAltTarget(view, totalY)) {
             AltTextSwipeTarget.Primary -> behavior.action
             AltTextSwipeTarget.Secondary -> behavior.downAction ?: behavior.action
+            AltTextSwipeTarget.Uppercase ->
+                (view as? AltTextKeyView)?.uppercaseSwipeAction()
+                    ?: behavior.downAction
+                    ?: behavior.action
             null -> null
         }
     }
@@ -1526,6 +1533,10 @@ abstract class BaseKeyboard(
         return when (selectSwipeAltTarget(view, totalY)) {
             AltTextSwipeTarget.Primary -> popup.alternative
             AltTextSwipeTarget.Secondary -> popup.alternative1 ?: popup.alternative
+            AltTextSwipeTarget.Uppercase ->
+                (view as? AltTextKeyView)?.upperText?.text?.toString()
+                    ?.takeIf { it.isNotEmpty() }
+                    ?: popup.content.uppercase()
             null -> popup.content
         }
     }

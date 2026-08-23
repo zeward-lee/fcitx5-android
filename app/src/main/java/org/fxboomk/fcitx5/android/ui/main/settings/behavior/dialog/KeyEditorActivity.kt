@@ -34,6 +34,7 @@ import kotlinx.serialization.json.JsonObject
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.theme.SystemColorResourceId
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.data.theme.ThemePrefs
 import org.fxboomk.fcitx5.android.data.theme.ThemeMonet
 import org.fxboomk.fcitx5.android.data.theme.THEME_COLOR_REF_PREFIX
 import org.fxboomk.fcitx5.android.data.theme.resolveThemeColorReference
@@ -408,7 +409,7 @@ class KeyEditorActivity : AppCompatActivity() {
                 )
                 val alt1Edit = uiBuilder.createEditField(
                     getString(R.string.text_keyboard_layout_key_alt_one),
-                    keyData["alt1"] as? String ?: ""
+                    (keyData["alt1"] as? String).orEmpty().ifEmpty { autoUppercaseAlt1(keyData) }
                 )
                 fieldsContainer.addView(mainEdit.first)
                 fieldsContainer.addView(altEdit.first)
@@ -430,6 +431,24 @@ class KeyEditorActivity : AppCompatActivity() {
                 alphabetMainEdit = mainEdit.second
                 alphabetAltEdit = altEdit.second
                 alphabetAlt1Edit = alt1Edit.second
+
+                // Auto-fill "Alt Character 1" with the uppercase letter while creating
+                // a new letter key with uppercase labels enabled
+                mainEdit.second.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                    override fun afterTextChanged(s: Editable?) {
+                        if (isUppercaseLabelEnabled()) {
+                            val main = s?.toString().orEmpty()
+                            val alt1EditText = alphabetAlt1Edit ?: return
+                            if (alt1EditText.text?.toString().isNullOrEmpty() &&
+                                main.length == 1 && main[0].isLetter()
+                            ) {
+                                alt1EditText.setText(main.uppercase())
+                            }
+                        }
+                    }
+                })
 
                 uiBuilder.renderDisplayTextEditor(
                     displayTextContainer,
@@ -1123,6 +1142,20 @@ class KeyEditorActivity : AppCompatActivity() {
 
     private fun hasChanges(): Boolean {
         return snapshotOf(buildDraftKeyData()) != baselineKeySnapshot
+    }
+
+    private fun isUppercaseLabelEnabled(): Boolean =
+        ThemeManager.prefs.uppercasePosition.getValue() != ThemePrefs.UppercasePosition.None
+
+    /**
+     * Default value for the "Alt Character 1" field of a letter key: the uppercase
+     * form of its main character, used when uppercase labels are enabled.
+     */
+    private fun autoUppercaseAlt1(keyData: Map<String, Any?>): String {
+        if (!isUppercaseLabelEnabled()) return ""
+        val main = keyData["main"] as? String ?: return ""
+        if (main.length != 1 || !main[0].isLetter()) return ""
+        return main.uppercase()
     }
 
     private fun buildDraftKeyData(): MutableMap<String, Any?> {
