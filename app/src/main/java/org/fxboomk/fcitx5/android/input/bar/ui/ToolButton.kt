@@ -88,7 +88,9 @@ class ToolButton(context: Context) : CustomGestureView(context) {
     fun setIconDrawable(drawable: Drawable) {
         image.visibility = VISIBLE
         text.visibility = GONE
-        image.setImageDrawable(drawable)
+        image.setImageDrawable(drawable.mutate().apply {
+            currentIconColor()?.let(::setTint)
+        })
     }
 
     fun setPressHighlightColor(@ColorInt color: Int) {
@@ -117,5 +119,9 @@ class ToolButton(context: Context) : CustomGestureView(context) {
 
         image.imageTintList = ColorStateList.valueOf(iconColor)
         text.setTextColor(iconColor)
+    }
+
+    private fun currentIconColor(): Int? = theme?.let {
+        if (isActive) it.accentKeyBackgroundColor else it.altKeyTextColor
     }
 }

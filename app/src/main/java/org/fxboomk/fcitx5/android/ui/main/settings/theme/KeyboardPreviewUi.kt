@@ -45,6 +45,7 @@ import org.fxboomk.fcitx5.android.data.theme.ThemeManager
 import org.fxboomk.fcitx5.android.data.theme.ThemePrefs.NavbarBackground
 import org.fxboomk.fcitx5.android.input.bar.ui.ToolButton
 import org.fxboomk.fcitx5.android.input.bar.ui.idle.ButtonsBarUi
+import org.fxboomk.fcitx5.android.input.config.ButtonIconSpec
 import org.fxboomk.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.config.ConfigurableButton
@@ -452,7 +453,23 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     }
 
     private fun buildToolbarPreview(theme: Theme): ConstraintLayout {
-        val menuButton = ToolButton(ctx, R.drawable.ic_baseline_apps_24, theme)
+        val config = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
+            ?: ButtonsLayoutConfig.default()
+        val menuButtonConfig = ButtonsLayoutConfig.moreButtonOrDefault(config.kawaiiBarButtons)
+        val menuButtonIcon = ButtonIconSpec.drawableResource(
+            ctx,
+            menuButtonConfig.icon,
+            R.drawable.ic_baseline_apps_24
+        )
+        val menuButton = ToolButton(ctx, menuButtonIcon, theme).apply {
+            when {
+                ButtonIconSpec.glyph(menuButtonConfig.icon) != null ->
+                    setIconText(ButtonIconSpec.glyph(menuButtonConfig.icon)!!)
+                ButtonIconSpec.svg(menuButtonConfig.icon) != null ->
+                    ButtonIconSpec.drawable(ctx, menuButtonConfig.icon, menuButtonIcon)
+                        ?.let(::setIconDrawable)
+            }
+        }
         val hideButton = ToolButton(ctx, R.drawable.ic_keyboard_hide_24, theme)
         val buttonsUi = ButtonsBarUi(ctx, theme, loadToolbarButtonsConfig())
 

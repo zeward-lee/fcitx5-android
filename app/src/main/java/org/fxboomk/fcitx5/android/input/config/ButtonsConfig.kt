@@ -5,6 +5,7 @@
 package org.fxboomk.fcitx5.android.input.config
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -102,9 +103,11 @@ private class SvgPathDrawable(
     private val density: Float
 ) : Drawable() {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private var tintList: ColorStateList? = null
+    private var tintColor: Int? = null
 
     override fun draw(canvas: Canvas) {
-        paint.color = fillColor
+        paint.color = tintColor ?: fillColor
         val scale = minOf(bounds.width() / viewBoxWidth, bounds.height() / viewBoxHeight)
         canvas.save()
         canvas.translate(
@@ -117,7 +120,32 @@ private class SvgPathDrawable(
     }
 
     override fun setAlpha(alpha: Int) { paint.alpha = alpha }
-    override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) { paint.colorFilter = colorFilter }
+    override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {
+        paint.colorFilter = colorFilter
+    }
+
+    override fun setTint(tintColor: Int) {
+        tintList = null
+        this.tintColor = tintColor
+        invalidateSelf()
+    }
+
+    override fun setTintList(tint: ColorStateList?) {
+        tintList = tint
+        tintColor = tint?.getColorForState(state, tint.defaultColor)
+        invalidateSelf()
+    }
+
+    override fun isStateful(): Boolean = tintList?.isStateful == true
+
+    override fun onStateChange(state: IntArray): Boolean {
+        val tint = tintList ?: return false
+        val newColor = tint.getColorForState(state, tint.defaultColor)
+        if (newColor == tintColor) return false
+        tintColor = newColor
+        invalidateSelf()
+        return true
+    }
     override fun getIntrinsicWidth(): Int = (24f * density + 0.5f).toInt()
     override fun getIntrinsicHeight(): Int = getIntrinsicWidth()
     @Suppress("OVERRIDE_DEPRECATION")
