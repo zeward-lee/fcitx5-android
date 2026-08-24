@@ -154,7 +154,11 @@ abstract class BaseKeyboard(
     private val touchTargets = hashMapOf<Int, TouchTarget>()
 
     private fun releaseAllTouchTargets() {
-        touchTargets.forEach { it.value.view.cancelGestures() }
+        touchTargets.forEach {
+            val keyView = it.value.view
+            keyView.cancelGestures()
+            onPopupAction(PopupAction.DismissAction(keyView.id))
+        }
         touchTargets.clear()
     }
 
