@@ -174,9 +174,10 @@ object AppUpdateManager {
         context: Context,
         asset: RemoteAsset,
         cancellationSignal: CancellationSignal? = null,
-        useMirror: Boolean = false
+        useMirror: Boolean = false,
+        onProgress: ((bytesRead: Long, totalBytes: Long) -> Unit)? = null,
     ): File {
-        return downloadReleaseAsset(context, asset, cancellationSignal, useMirror)
+        return downloadReleaseAsset(context, asset, cancellationSignal, useMirror, onProgress)
     }
 
     @Throws(IOException::class)
@@ -184,12 +185,19 @@ object AppUpdateManager {
         context: Context,
         asset: RemoteAsset,
         cancellationSignal: CancellationSignal? = null,
-        useMirror: Boolean = false
+        useMirror: Boolean = false,
+        onProgress: ((bytesRead: Long, totalBytes: Long) -> Unit)? = null,
     ): File {
         val cacheDir = File(context.cacheDir, UPDATE_CACHE_DIR).apply { mkdirs() }
         val target = File(cacheDir, asset.name)
         val temp = File(cacheDir, "${asset.name}.download")
         val connection = openConnection(downloadUrl(asset.downloadUrl, useMirror), cancellationSignal)
+        val totalBytes = when {
+            asset.size > 0 -> asset.size
+            connection.contentLengthLong > 0 -> connection.contentLengthLong
+            else -> 0L
+        }
+        var bytesRead = 0L
         try {
             connection.inputStream.use { input ->
                 temp.outputStream().use { output ->
@@ -199,6 +207,8 @@ object AppUpdateManager {
                         val read = input.read(buffer)
                         if (read < 0) break
                         output.write(buffer, 0, read)
+                        bytesRead += read
+                        onProgress?.invoke(bytesRead, totalBytes)
                     }
                 }
             }

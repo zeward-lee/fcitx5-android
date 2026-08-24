@@ -738,6 +738,7 @@
     <string name="update_download_background">Hintergrund</string>
     <string name="update_download_background_running">Update läuft im Hintergrund...</string>
     <string name="update_mirror_accelerate">Spiegelserver nutzen</string>
+    <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">Sie verwenden bereits die neueste stabile Version</string>
     <string name="update_canceled">Update abgebrochen</string>
     <string name="enable_unknown_apps_install">Erlauben Sie zuerst die Installation aus unbekannten Quellen für diese App und versuchen Sie es dann erneut</string>

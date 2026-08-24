@@ -66,6 +66,7 @@
     <string name="update_download_background">后台</string>
     <string name="update_download_background_running">后台更新中……</string>
     <string name="update_mirror_accelerate">镜像加速</string>
+    <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">当前已是最新正式版本</string>
     <string name="update_canceled">已取消更新</string>
     <string name="enable_unknown_apps_install">请先允许本应用安装未知来源应用，然后再重试</string>

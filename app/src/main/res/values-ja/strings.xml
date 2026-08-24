@@ -740,6 +740,7 @@
     <string name="update_download_background">バックグラウンド</string>
     <string name="update_download_background_running">バックグラウンドで更新中...</string>
     <string name="update_mirror_accelerate">ミラーで高速化</string>
+    <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">現在、最新の安定版です</string>
     <string name="update_canceled">更新をキャンセルしました</string>
     <string name="enable_unknown_apps_install">まずこのアプリに不明な提供元のアプリのインストールを許可してから、もう一度お試しください</string>

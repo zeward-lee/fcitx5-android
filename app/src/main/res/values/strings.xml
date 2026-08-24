@@ -68,6 +68,7 @@
     <string name="update_download_background">Background</string>
     <string name="update_download_background_running">Updating in background...</string>
     <string name="update_mirror_accelerate">Mirror acceleration</string>
+    <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">You are already on the latest release</string>
     <string name="update_canceled">Update canceled</string>
     <string name="enable_unknown_apps_install">Allow this app to install unknown apps, then try again</string>

@@ -3,6 +3,7 @@ package org.fxboomk.fcitx5.android.input.predict
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import java.text.Normalizer
 
 internal const val LOCAL_SUGGESTION_MAX_OUTPUT_TOKENS = 96
 internal const val FULL_TEXT_MODE_MIN_OUTPUT_TOKENS = 1024
@@ -10,6 +11,32 @@ private const val LOCAL_SUGGESTION_CONTEXT_CHARS = 24
 private const val LOCAL_WARMUP_MAX_OUTPUT_TOKENS = 8
 private const val LOCAL_WARMUP_PROMPT = "你好"
 internal const val MAX_PREDICTION_CANDIDATE_LIMIT = 8
+
+internal fun normalizeTranslationCandidate(
+    sourceText: String,
+    candidate: String,
+): String {
+    val normalizedCandidate = LlmSuggestionParser.normalizeSingleTextDisplay(candidate)
+    if (normalizedCandidate.isBlank()) return ""
+    val comparableSource = Normalizer.normalize(sourceText.trim(), Normalizer.Form.NFKC)
+    val comparableCandidate = Normalizer.normalize(normalizedCandidate, Normalizer.Form.NFKC)
+    return normalizedCandidate.takeUnless { comparableCandidate == comparableSource }.orEmpty()
+}
+
+internal fun normalizeTranslationPartialCandidate(
+    sourceText: String,
+    candidate: String,
+): String {
+    val normalizedCandidate = LlmSuggestionParser.normalizeSingleTextDisplay(candidate)
+    if (normalizedCandidate.isBlank()) return ""
+    val comparableSource = Normalizer.normalize(sourceText.trim(), Normalizer.Form.NFKC)
+    val comparableCandidate = Normalizer.normalize(normalizedCandidate, Normalizer.Form.NFKC)
+    return normalizedCandidate.takeUnless {
+        comparableCandidate == comparableSource ||
+            (comparableCandidate.length < comparableSource.length &&
+                comparableSource.startsWith(comparableCandidate))
+    }.orEmpty()
+}
 
 internal interface LlmPredictionBackend {
     suspend fun predict(
@@ -162,8 +189,14 @@ internal class RemoteLlmPredictionBackend(
         val rawContent = buildString {
             responses.forEachIndexed { index, (plan, response) ->
                 response.suggestions.forEachIndexed { candidateIndex, suggestion ->
+                    val rankedSuggestion = if (request.taskMode == LlmTaskMode.Translate) {
+                        normalizeTranslationCandidate(request.beforeCursor, suggestion)
+                    } else {
+                        suggestion
+                    }
+                    if (rankedSuggestion.isBlank()) return@forEachIndexed
                     val score = plan.weight * 10 - candidateIndex
-                    ranked[suggestion] = (ranked[suggestion] ?: 0) + score
+                    ranked[rankedSuggestion] = (ranked[rankedSuggestion] ?: 0) + score
                 }
                 if (response.rawContent.isNotBlank()) {
                     if (index > 0) append(" | ")
@@ -241,7 +274,7 @@ internal class LocalLlmPredictionBackend(
         val maxOutputTokens = optimizedLocalMaxOutputTokens(config, request)
         val contextPayload = optimizedLocalContextPayload(request)
         val candidateLimit = normalizedPredictionCandidateLimit(config.maxPredictionCandidates)
-        val suggestions = runtime.predict(
+        val runtimeSuggestions = runtime.predict(
             LocalLlmPredictionRequest(
                 modelPath = resources.model.absolutePath,
                 companionDirectory = resources.directory.absolutePath,
@@ -256,7 +289,16 @@ internal class LocalLlmPredictionBackend(
                 personaPreset = config.personaPreset,
                 customPersona = config.customPersona,
             )
-        ).take(
+        )
+        val suggestions = runtimeSuggestions
+            .mapNotNull { suggestion ->
+                if (request.taskMode == LlmTaskMode.Translate) {
+                    normalizeTranslationCandidate(request.beforeCursor, suggestion).takeIf(String::isNotBlank)
+                } else {
+                    suggestion
+                }
+            }
+            .take(
             if (
                 request.outputMode == LlmOutputMode.LongForm ||
                 request.taskMode == LlmTaskMode.QuestionAnswer ||

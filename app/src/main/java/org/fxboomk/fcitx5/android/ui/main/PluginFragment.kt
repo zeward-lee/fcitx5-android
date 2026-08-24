@@ -41,7 +41,7 @@ import org.fxboomk.fcitx5.android.core.data.PluginLoadFailed
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.daemon.FcitxDaemon
 import org.fxboomk.fcitx5.android.ui.common.PaddingPreferenceFragment
-import org.fxboomk.fcitx5.android.ui.common.withLoadingDialog
+import org.fxboomk.fcitx5.android.ui.common.withDeterminateProgressDialog
 import org.fxboomk.fcitx5.android.utils.LongClickPreference
 import org.fxboomk.fcitx5.android.utils.addCategory
 import org.fxboomk.fcitx5.android.utils.addPreference
@@ -450,13 +450,13 @@ class PluginFragment : PaddingPreferenceFragment() {
             return
         }
         val cancellationSignal = AppUpdateManager.CancellationSignal()
-        lifecycleScope.withLoadingDialog(
+        lifecycleScope.withDeterminateProgressDialog(
             context = ctx,
             title = R.string.upgrading_plugins,
             cancellable = true,
             negativeButton = android.R.string.cancel,
             onCancel = { cancellationSignal.cancel() }
-        ) {
+        ) { setProgressPercent ->
             try {
                 val updates = withContext(Dispatchers.IO) {
                     AppUpdateManager.findPluginUpdates(selected, cancellationSignal)
@@ -465,11 +465,23 @@ class PluginFragment : PaddingPreferenceFragment() {
                     withContext(Dispatchers.Main) {
                         ctx.toast(R.string.no_plugin_updates_available)
                     }
-                    return@withLoadingDialog
+                    return@withDeterminateProgressDialog
                 }
                 val apkFiles = withContext(Dispatchers.IO) {
-                    updates.map { update ->
-                        AppUpdateManager.downloadReleaseAsset(ctx, update.asset, cancellationSignal)
+                    updates.mapIndexed { index, update ->
+                        AppUpdateManager.downloadReleaseAsset(
+                            ctx, update.asset, cancellationSignal
+                        ) { bytesRead, assetTotal ->
+                            if (assetTotal > 0) {
+                                val currentAssetPercent =
+                                    (bytesRead.coerceAtMost(assetTotal) * 100 / assetTotal).toInt()
+                                val overallPercent =
+                                    (index * 100 + currentAssetPercent) / updates.size
+                                setProgressPercent(overallPercent)
+                            }
+                        }.also {
+                            setProgressPercent((index + 1) * 100 / updates.size)
+                        }
                     }
                 }
                 withContext(Dispatchers.Main) {

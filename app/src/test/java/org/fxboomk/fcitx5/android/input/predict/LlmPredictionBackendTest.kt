@@ -17,6 +17,26 @@ import kotlinx.coroutines.runBlocking
 class LlmPredictionBackendTest {
 
     @Test
+    fun translationCandidateRejectsSourceTextEcho() {
+        assertEquals("", normalizeTranslationCandidate("今天", "今天"))
+        assertEquals("", normalizeTranslationCandidate("臨時切換", "\"臨時切換\""))
+    }
+
+    @Test
+    fun translationCandidateKeepsActualTranslation() {
+        assertEquals("Today", normalizeTranslationCandidate("今天", "Today"))
+        assertEquals("临时切换", normalizeTranslationCandidate("臨時切換", "临时切换"))
+    }
+
+    @Test
+    fun translationPartialCandidateRejectsSourcePrefix() {
+        assertEquals("", normalizeTranslationPartialCandidate("今天", "今"))
+        assertEquals("", normalizeTranslationPartialCandidate("今天", "今天"))
+        assertEquals("", normalizeTranslationPartialCandidate("臨時切換", "臨時"))
+        assertEquals("Today", normalizeTranslationPartialCandidate("今天", "Today"))
+    }
+
+    @Test
     fun selectPredictionBackendChoosesLocalWhenRuntimeIsLocal() {
         val config = LlmPrefs.Config(
             enabled = true,
@@ -101,6 +121,45 @@ class LlmPredictionBackendTest {
         assertEquals(LlmOutputMode.Suggestions, runtime.lastPredictRequest?.outputMode)
         assertEquals(LlmTaskMode.Completion, runtime.lastPredictRequest?.taskMode)
         assertFalse(runtime.lastPredictRequest?.enableThinking ?: true)
+    }
+
+    @Test
+    fun localBackendSkipsTranslationSourceEchoBeforeTakingFirstCandidate() {
+        val context = ContextWrapper(null)
+        val runtime = RecordingRuntime(
+            predictions = listOf("今天", "Today")
+        )
+        val backend = LocalLlmPredictionBackend(
+            runtime = runtime,
+            modelManager = TestLocalModelStore,
+            resourceManager = TestLocalResourceStore,
+            appContext = context,
+        )
+        val config = LlmPrefs.Config(
+            enabled = true,
+            runtime = LlmPrefs.Runtime.LocalOnDevice,
+            backend = LlmPrefs.Backend.ChatCompletions,
+            baseUrl = "",
+            model = "qwen3-local",
+            apiKey = "",
+            debounceMs = 200,
+            sampleCount = 1,
+            maxContextChars = 64,
+            preferLastCommit = true,
+            maxPredictionCandidates = 2,
+        )
+
+        val response = runBlocking {
+            backend.predict(
+                config = config,
+                request = LlmPredictor.Request(
+                    beforeCursor = "今天",
+                    taskMode = LlmTaskMode.Translate,
+                ),
+            )
+        }
+
+        assertEquals(listOf("Today"), response.suggestions)
     }
 
     @Test
@@ -391,5 +450,34 @@ class LlmPredictionBackendTest {
         override fun prewarm(request: LocalLlmPredictionRequest) {
             lastPrewarmRequest = request
         }
+    }
+
+    private object TestLocalModelStore : LocalLlmModelStore {
+        override fun currentModel(context: android.content.Context): LlmLocalModelManager.InstalledModel =
+            LlmLocalModelManager.InstalledModel(
+                file = java.io.File("/tmp/model.onnx"),
+                displayName = "model.onnx",
+                source = LlmLocalModelManager.Source.Imported,
+                sizeBytes = 123,
+                updatedAtMillis = 1L,
+                compatibility = LlmLocalModelManager.CompatibilityInfo(
+                    state = LlmLocalModelManager.Compatibility.Compatible,
+                ),
+            )
+    }
+
+    private object TestLocalResourceStore : LocalLlmResourceStore {
+        override fun prepareRuntimeBundle(
+            context: android.content.Context,
+            modelFile: java.io.File,
+        ): LlmLocalResourceManager.ResourceBundle =
+            LlmLocalResourceManager.ResourceBundle(
+                directory = java.io.File("/tmp/runtime-bundle"),
+                model = modelFile,
+                tokenizer = java.io.File("/tmp/runtime-bundle/tokenizer.json"),
+                tokenizerConfig = java.io.File("/tmp/runtime-bundle/tokenizer_config.json"),
+                modelConfig = java.io.File("/tmp/runtime-bundle/config.json"),
+                genAiConfig = java.io.File("/tmp/runtime-bundle/genai_config.json"),
+            )
     }
 }

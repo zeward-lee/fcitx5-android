@@ -740,6 +740,7 @@
     <string name="update_download_background">В фоне</string>
     <string name="update_download_background_running">Обновление в фоне...</string>
     <string name="update_mirror_accelerate">Ускорить через зеркало</string>
+    <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">У вас уже установлена последняя стабильная версия</string>
     <string name="update_canceled">Обновление отменено</string>
     <string name="enable_unknown_apps_install">Сначала разрешите приложению устанавливать APK из неизвестных источников, затем повторите попытку</string>

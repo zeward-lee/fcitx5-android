@@ -742,6 +742,7 @@
     <string name="update_download_background">Segundo plano</string>
     <string name="update_download_background_running">Actualizando en segundo plano...</string>
     <string name="update_mirror_accelerate">Acelerar con espejo</string>
+    <string name="download_progress_percent">%1$d%%</string>
     <string name="already_latest_version">Ya tiene la última versión estable</string>
     <string name="update_canceled">Actualización cancelada</string>
     <string name="enable_unknown_apps_install">Primero permita que esta aplicación instale apps de orígenes desconocidos y luego vuelva a intentarlo</string>

@@ -11,6 +11,15 @@ import org.junit.Test
 class LlmPromptTest {
 
     @Test
+    fun translationCorrectionInstructionRejectsSourceEcho() {
+        val prompt = LlmPrompt.translationCorrectionInstruction()
+
+        assertTrue(prompt.contains("完全相同"))
+        assertTrue(prompt.contains("invalid"))
+        assertTrue(prompt.contains("do not copy"))
+    }
+
+    @Test
     fun systemPromptReflectsConfiguredCandidateLimit() {
         val prompt = LlmPrompt.systemPrompt(maxPredictionCandidates = 7)
 
@@ -260,7 +269,8 @@ class LlmPromptTest {
         assertTrue(system.contains("Use [[BR]] instead of actual line breaks."))
         assertTrue(system.contains("Keep the item order fixed as: 释义 -> 音标 -> n. -> v. -> adj. -> adv. -> prep. -> phr."))
         assertTrue(system.contains("never reorder the remaining items"))
-        assertTrue(user.contains("Translate the full text below into natural Chinese"))
+        assertTrue(user.contains("First identify the language of the complete input"))
+        assertTrue(user.contains("every other language, including Traditional Chinese, Japanese, Korean, English, and other languages"))
         assertTrue(user.contains("literal separator `[[BR]]`"))
         assertTrue(user.contains("Do not use real line breaks"))
         assertTrue(!user.contains("<persona>"))
@@ -338,7 +348,67 @@ class LlmPromptTest {
     }
 
     @Test
-    fun localOnDevicePromptUsesEnglishSpacingInstructionForChineseTranslateMode() {
+    fun userPromptAsksModelToDetectLanguageForTraditionalChineseTranslateMode() {
+        val prompt = LlmPrompt.userPrompt(
+            beforeCursor = "臨時切換",
+            recentCommittedText = "",
+            historyText = "",
+            useRecentCommitBias = false,
+            taskMode = LlmTaskMode.Translate,
+        )
+
+        assertTrue(prompt.contains("只有确认整段文本是简体中文时才翻译成"))
+        assertTrue(prompt.contains("任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言"))
+        assertTrue(prompt.contains("不要因为包含相似汉字就把繁体中文或日文误判为简体中文"))
+        assertTrue(prompt.contains("繁体中文 `臨時切換` 应译为简体中文 `临时切换`"))
+        assertTrue(prompt.contains("不得原样返回"))
+    }
+
+    @Test
+    fun userPromptTargetsSimplifiedChineseForJapaneseTranslateMode() {
+        val prompt = LlmPrompt.userPrompt(
+            beforeCursor = "今晩ご飯を一緒に食べませんか。",
+            recentCommittedText = "",
+            historyText = "",
+            useRecentCommitBias = false,
+            taskMode = LlmTaskMode.Translate,
+        )
+
+        assertTrue(prompt.contains("任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言"))
+        assertTrue(prompt.contains("自然、准确、可直接发送的简体中文"))
+    }
+
+    @Test
+    fun localOnDevicePromptTargetsSimplifiedChineseForTraditionalChineseTranslateMode() {
+        val prompt = LlmPrompt.localOnDevicePrompt(
+            beforeCursor = "這是我們的對話紀錄，請確認。",
+            recentCommittedText = "",
+            historyText = "",
+            maxPredictionCandidates = 1,
+            taskMode = LlmTaskMode.Translate,
+        )
+
+        assertTrue(prompt.contains("请先识别完整输入的语言"))
+        assertTrue(prompt.contains("任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言"))
+        assertTrue(prompt.contains("繁体中文 `臨時切換` 应译为简体中文 `临时切换`"))
+    }
+
+    @Test
+    fun systemPromptTargetsSimplifiedChineseForTraditionalChineseTranslateMode() {
+        val prompt = LlmPrompt.systemPrompt(
+            maxPredictionCandidates = 5,
+            beforeCursor = "這是我們的對話紀錄，請確認。",
+            taskMode = LlmTaskMode.Translate,
+        )
+
+        assertTrue(prompt.contains("输入法翻译助手"))
+        assertTrue(prompt.contains("先判断 INSTRUCTION 的语言"))
+        assertTrue(prompt.contains("任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言"))
+        assertTrue(prompt.contains("繁体中文 `臨時切換` 的最终译文是简体中文 `临时切换`"))
+    }
+
+    @Test
+    fun localOnDevicePromptAsksModelToDetectLanguageForChineseTranslateMode() {
         val prompt = LlmPrompt.localOnDevicePrompt(
             beforeCursor = "今天晚上一起吃饭吗？",
             recentCommittedText = "",
@@ -347,7 +417,8 @@ class LlmPromptTest {
             taskMode = LlmTaskMode.Translate,
         )
 
-        assertTrue(prompt.contains("英文单词之间必须保留正常空格"))
+        assertTrue(prompt.contains("请先识别完整输入的语言"))
+        assertTrue(prompt.contains("只有确认整段输入是简体中文时才翻译成自然英文"))
         assertTrue(!prompt.contains("中文续写助手"))
     }
 

@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import org.fxboomk.fcitx5.android.BuildConfig
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.ui.common.PaddingPreferenceFragment
-import org.fxboomk.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
+import org.fxboomk.fcitx5.android.ui.common.DeterminateProgressBarDialog
 import org.fxboomk.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fxboomk.fcitx5.android.utils.Const
 import org.fxboomk.fcitx5.android.utils.addCategory
@@ -35,7 +35,7 @@ class AboutFragment : PaddingPreferenceFragment() {
     private var updateCheckJob: Job? = null
     private var updateDownloadJob: Job? = null
     private var activeDownloadSignal: AppUpdateManager.CancellationSignal? = null
-    private var updateDownloadDialog: AlertDialog? = null
+    private var updateDownloadDialog: DeterminateProgressBarDialog? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
@@ -127,15 +127,18 @@ class AboutFragment : PaddingPreferenceFragment() {
             return
         }
         updateDownloadDialog?.dismiss()
-        val dialog = ctx.ProgressBarDialogIndeterminate(
+        val dialogHandle = DeterminateProgressBarDialog(
+            context = ctx,
             title = R.string.upgrade_latest,
             cancelable = true,
             negativeButton = android.R.string.cancel
-        )
-            .setPositiveButton(R.string.update_mirror_accelerate, null)
-            .setNeutralButton(R.string.update_download_background, null)
-            .show()
-        updateDownloadDialog = dialog
+        ).apply {
+            builder
+                .setPositiveButton(R.string.update_mirror_accelerate, null)
+                .setNeutralButton(R.string.update_download_background, null)
+        }
+        updateDownloadDialog = dialogHandle
+        val dialog = dialogHandle.show()
         dialog.setCanceledOnTouchOutside(false)
         dialog.setOnCancelListener {
             cancelUpdateDownload()
@@ -145,7 +148,7 @@ class AboutFragment : PaddingPreferenceFragment() {
             dialog.dismiss()
         }
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-            if (updateDownloadDialog === dialog) {
+            if (updateDownloadDialog === dialogHandle) {
                 updateDownloadDialog = null
             }
             applyBackgroundUpdateState()
@@ -168,6 +171,7 @@ class AboutFragment : PaddingPreferenceFragment() {
         val cancellationSignal = AppUpdateManager.CancellationSignal()
         activeDownloadSignal = cancellationSignal
         updatePreference.actionEnabled = false
+        updateDownloadDialog?.setProgressPercent(0)
         updateDownloadJob = lifecycleScope.launch {
             try {
                 val apkFile = withContext(Dispatchers.IO) {
@@ -175,7 +179,14 @@ class AboutFragment : PaddingPreferenceFragment() {
                         context = ctx,
                         asset = update.asset,
                         cancellationSignal = cancellationSignal,
-                        useMirror = useMirror
+                        useMirror = useMirror,
+                        onProgress = { bytesRead, totalBytes ->
+                            if (totalBytes > 0 && activeDownloadSignal === cancellationSignal) {
+                                updateDownloadDialog?.setProgressPercent(
+                                    (bytesRead * 100 / totalBytes).toInt()
+                                )
+                            }
+                        }
                     )
                 }
                 if (activeDownloadSignal !== cancellationSignal) return@launch

@@ -43,6 +43,7 @@ internal class LlmClient(
         val outputMode: LlmOutputMode = LlmOutputMode.Suggestions,
         val taskMode: LlmTaskMode = LlmTaskMode.Completion,
         val enableThinking: Boolean = false,
+        val translationCorrectionAttempt: Boolean = false,
     )
 
     data class PredictionResponse(
@@ -68,9 +69,25 @@ internal class LlmClient(
         request: PredictionRequest,
         onPartialText: ((String) -> Unit)? = null,
     ): PredictionResponse = withContext(Dispatchers.IO) {
-        when (request.config.backend) {
+        val response = when (request.config.backend) {
             LlmPrefs.Backend.ChatCompletions -> predictChat(request, onPartialText)
             LlmPrefs.Backend.Completion -> predictCompletion(request, onPartialText)
+        }
+        if (
+            request.taskMode == LlmTaskMode.Translate &&
+            !request.translationCorrectionAttempt &&
+            response.suggestions.none {
+                normalizeTranslationCandidate(request.beforeCursor, it).isNotBlank()
+            }
+        ) {
+            Log.w(TAG, "translation response echoed the source; retrying with correction prompt")
+            val retryRequest = request.copy(translationCorrectionAttempt = true)
+            when (retryRequest.config.backend) {
+                LlmPrefs.Backend.ChatCompletions -> predictChat(retryRequest, onPartialText)
+                LlmPrefs.Backend.Completion -> predictCompletion(retryRequest, onPartialText)
+            }
+        } else {
+            response
         }
     }
 
@@ -104,6 +121,7 @@ internal class LlmClient(
         beforeCursor: String,
         extractContent: (String) -> String,
         parseSuggestions: (String, String) -> List<String> = LlmSuggestionParser::parse,
+        suppressTranslationEcho: Boolean = false,
         onPartialText: ((String) -> Unit)? = null,
     ): PredictionResponse {
         Log.d(TAG, "POST $endpoint beforeCursor='${beforeCursor.take(60)}'")
@@ -120,7 +138,16 @@ internal class LlmClient(
                 consumeStreamingResponse(
                     input = input,
                     endpoint = endpoint,
-                    onPartialText = onPartialText,
+                    onPartialText = if (suppressTranslationEcho && onPartialText != null) {
+                        { partial ->
+                            val filtered = normalizeTranslationPartialCandidate(beforeCursor, partial)
+                            if (filtered.isNotBlank()) {
+                                onPartialText(filtered)
+                            }
+                        }
+                    } else {
+                        onPartialText
+                    },
                 )
             } else {
                 BufferedReader(InputStreamReader(input, StandardCharsets.UTF_8)).use { reader ->
@@ -163,7 +190,13 @@ internal class LlmClient(
             taskMode = request.taskMode,
             personaPreset = request.config.personaPreset,
             customPersona = request.config.customPersona,
-        )
+        ).let { prompt ->
+            if (request.translationCorrectionAttempt) {
+                "$prompt\n\n${LlmPrompt.translationCorrectionInstruction()}"
+            } else {
+                prompt
+            }
+        }
         val streaming = shouldStreamResponse(request)
         val maxTokens = resolveMaxTokens(request)
         val openAiPayload = JSONObject()
@@ -198,7 +231,13 @@ internal class LlmClient(
                                     useRecentCommitBias = useRecentCommitBias,
                                     outputMode = request.outputMode,
                                     taskMode = request.taskMode,
-                                )
+                                ).let { prompt ->
+                                    if (request.translationCorrectionAttempt) {
+                                        "$prompt\n\n${LlmPrompt.translationCorrectionInstruction()}"
+                                    } else {
+                                        prompt
+                                    }
+                                }
                             )
                     )
             )
@@ -222,7 +261,13 @@ internal class LlmClient(
                             useRecentCommitBias = useRecentCommitBias,
                             outputMode = request.outputMode,
                             taskMode = request.taskMode,
-                        )
+                        ).let { prompt ->
+                            if (request.translationCorrectionAttempt) {
+                                "$prompt\n\n${LlmPrompt.translationCorrectionInstruction()}"
+                            } else {
+                                prompt
+                            }
+                        }
                     )
             ))
             .put("max_tokens", maxTokens)
@@ -261,6 +306,7 @@ internal class LlmClient(
             beforeCursor = request.beforeCursor,
             plans = plans,
             onPartialText = onPartialText,
+            suppressTranslationEcho = request.taskMode == LlmTaskMode.Translate,
         )
     }
 
@@ -275,6 +321,7 @@ internal class LlmClient(
             beforeCursor = request.beforeCursor,
             plans = plans,
             onPartialText = onPartialText,
+            suppressTranslationEcho = request.taskMode == LlmTaskMode.Translate,
         )
     }
 
@@ -283,6 +330,7 @@ internal class LlmClient(
         apiKey: String,
         beforeCursor: String,
         plans: List<RequestPlan>,
+        suppressTranslationEcho: Boolean = false,
         onPartialText: ((String) -> Unit)?,
     ): PredictionResponse {
         var lastFailure: Throwable? = null
@@ -297,6 +345,7 @@ internal class LlmClient(
                     beforeCursor = beforeCursor,
                     extractContent = plan.extractContent,
                     parseSuggestions = plan.parseSuggestions,
+                    suppressTranslationEcho = suppressTranslationEcho,
                     onPartialText = onPartialText,
                 )
             } catch (failure: HttpRequestFailure) {
@@ -338,7 +387,13 @@ internal class LlmClient(
             useRecentCommitBias = request.useRecentCommitBias,
             outputMode = request.outputMode,
             taskMode = request.taskMode,
-        )
+        ).let { prompt ->
+            if (request.translationCorrectionAttempt) {
+                "$prompt\n\n${LlmPrompt.translationCorrectionInstruction()}"
+            } else {
+                prompt
+            }
+        }
         val assistantPrefill = LlmPrompt.completionAssistantPrefill(
             beforeCursor = request.beforeCursor,
             taskMode = request.taskMode,
@@ -383,7 +438,13 @@ internal class LlmClient(
                                     taskMode = request.taskMode,
                                     personaPreset = request.config.personaPreset,
                                     customPersona = request.config.customPersona,
-                                )
+                                ).let { prompt ->
+                                    if (request.translationCorrectionAttempt) {
+                                        "$prompt\n\n${LlmPrompt.translationCorrectionInstruction()}"
+                                    } else {
+                                        prompt
+                                    }
+                                }
                             )
                     )
                     .put(
@@ -411,7 +472,13 @@ internal class LlmClient(
                     taskMode = request.taskMode,
                     personaPreset = request.config.personaPreset,
                     customPersona = request.config.customPersona,
-                )
+                ).let { prompt ->
+                    if (request.translationCorrectionAttempt) {
+                        "$prompt\n\n${LlmPrompt.translationCorrectionInstruction()}"
+                    } else {
+                        prompt
+                    }
+                }
             )
             .put("stream", shouldStreamResponse(request))
             .put("messages", JSONArray()

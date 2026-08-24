@@ -14,6 +14,11 @@ internal object LlmPrompt {
         Completion,
     }
 
+    internal fun translationCorrectionInstruction(): String = """
+上一次输出与 INSTRUCTION 完全相同，因此判定为无效译文。现在必须重新执行翻译：不要复制、复述或原样返回 INSTRUCTION，必须输出不同于原文的目标语言译文。只有原文确实是简体中文时目标语言才是英文；其他语言的目标语言都是简体中文。只输出最终译文，不要解释。
+The previous output exactly repeated INSTRUCTION and was invalid. Translate again now: do not copy, repeat, or return INSTRUCTION unchanged; output a translation in the required target language that differs from the source. Use English only for Simplified Chinese input; use Simplified Chinese for every other language. Output only the final translation.
+""".trim()
+
     fun systemPrompt(
         maxPredictionCandidates: Int,
         beforeCursor: String = "",
@@ -61,7 +66,7 @@ internal object LlmPrompt {
                     outputMode == LlmOutputMode.LongForm && taskMode == LlmTaskMode.QuestionAnswer ->
                         "请把下面输入当作用户刚提出的问题或请求，给出一条自然、完整、可直接发送的更展开回答。不要续写前缀本身：\n"
                     taskMode == LlmTaskMode.Translate ->
-                        "请把下面整段文本翻译成自然、准确、可直接发送的英文。英文单词之间必须保留正常空格，不要把多个英文单词连写在一起。只输出译文本身，不要解释：\n"
+                        "请先判断下面整段输入的语言，再执行翻译：只有确认整段文本是简体中文时才翻译成自然、准确、可直接发送的英文；任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言，都翻译成自然、准确、可直接发送的简体中文。判定示例：繁体中文 `臨時切換` 应译为简体中文 `临时切换`，不得原样返回。不要因为包含相似汉字就把繁体中文或日文误判为简体中文。英文单词之间必须保留正常空格，不要把多个英文单词连写在一起。只输出译文本身，不要解释或复述判定过程：\n"
                     outputMode == LlmOutputMode.LongForm ->
                         "请基于上下文，为我续写一条自然、完整、可直接上屏的内容。只输出当前前缀后面的续写部分，不要重复前缀；如果上下文需要更长的续写，不要刻意缩短：\n"
                     taskMode == LlmTaskMode.QuestionAnswer ->
@@ -74,7 +79,7 @@ internal object LlmPrompt {
                     outputMode == LlmOutputMode.LongForm && taskMode == LlmTaskMode.QuestionAnswer ->
                         "Treat the text below as the user's latest question or request and answer with one natural, fuller reply. Do not continue the prefix itself, and do not cut the answer short if more detail is needed:\n"
                     taskMode == LlmTaskMode.Translate ->
-                        "Translate the full text below into natural Chinese. If the input is a single English word or a very short phrase, output one plain-text line using the literal separator `[[BR]]` in this fixed order: `释义：...[[BR]]音标：...[[BR]]n. ...[[BR]]v. ...[[BR]]adj. ...[[BR]]adv. ...[[BR]]prep. ...[[BR]]phr. ...`. Skip unavailable items but do not reorder. Do not use real line breaks inside that glossary-style result. For longer text, output only the natural Chinese translation itself:\n"
+                        "First identify the language of the complete input, then translate it. Translate to natural English only when the complete input is Simplified Chinese; translate every other language, including Traditional Chinese, Japanese, Korean, English, and other languages, into natural Simplified Chinese (简体中文). Classification example: Traditional Chinese `臨時切換` must become Simplified Chinese `临时切换`, never be returned unchanged. Do not mistake Traditional Chinese or Japanese for Simplified Chinese just because they contain similar Han characters. If the input is a single English word or a very short phrase, output one plain-text line using the literal separator `[[BR]]` in this fixed order: `释义：...[[BR]]音标：...[[BR]]n. ...[[BR]]v. ...[[BR]]adj. ...[[BR]]adv. ...[[BR]]prep. ...[[BR]]phr. ...`. Skip unavailable items but do not reorder. Do not use real line breaks inside that glossary-style result. For longer text, output only the final translation itself without describing the classification step:\n"
                     outputMode == LlmOutputMode.LongForm ->
                         "Continue my input with one natural, complete continuation. Output only the continuation after the current prefix without repeating the prefix, and do not shorten it if the context clearly needs more detail:\n"
                     taskMode == LlmTaskMode.QuestionAnswer ->
@@ -249,7 +254,7 @@ internal object LlmPrompt {
         val basePrompt = when (language) {
             LlmLanguage.Chinese -> when {
                 taskMode == LlmTaskMode.Translate ->
-                    "你是输入法翻译助手。把输入翻译成自然英文，只输出译文本身，不解释。英文单词之间必须保留正常空格，不要把多个英文单词连写在一起。"
+                    "你是输入法翻译助手。请先识别完整输入的语言，再执行翻译：只有确认整段输入是简体中文时才翻译成自然英文；任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言，都翻译成自然简体中文。判定示例：繁体中文 `臨時切換` 应译为简体中文 `临时切换`，不得原样返回。不要因为包含相似汉字就把繁体中文或日文误判为简体中文。只输出最终译文，不解释或复述判定过程。"
 
                 taskMode == LlmTaskMode.QuestionAnswer && outputMode == LlmOutputMode.LongForm ->
                     "你是输入法应答助手。把输入当作问题或请求，输出 1 条自然、完整、可直接发送的中文回答；如果问题需要展开说明，就尽量完整回答，不解释。"
@@ -266,7 +271,7 @@ internal object LlmPrompt {
 
             LlmLanguage.English -> when {
                 taskMode == LlmTaskMode.Translate ->
-                    "You are an IME translator. Translate the input into natural Chinese. If the input is a single English word or a very short phrase, output one plain-text line using the literal separator `[[BR]]` in this fixed order: `释义：...[[BR]]音标：...[[BR]]n. ...[[BR]]v. ...[[BR]]adj. ...[[BR]]adv. ...[[BR]]prep. ...[[BR]]phr. ...`. Skip unavailable items but do not reorder. Do not use real line breaks inside that glossary-style result. For longer text, output only the translation itself."
+                    "You are an IME translator. First identify the language of the complete input, then translate it. Translate to natural English only when the complete input is Simplified Chinese; translate every other language, including Traditional Chinese, Japanese, Korean, English, and other languages, into natural Simplified Chinese (简体中文). Classification example: Traditional Chinese `臨時切換` must become Simplified Chinese `临时切换`, never be returned unchanged. Do not mistake Traditional Chinese or Japanese for Simplified Chinese just because they contain similar Han characters. If the input is a single English word or a very short phrase, output one plain-text line using the literal separator `[[BR]]` in this fixed order: `释义：...[[BR]]音标：...[[BR]]n. ...[[BR]]v. ...[[BR]]adj. ...[[BR]]adv. ...[[BR]]prep. ...[[BR]]phr. ...`. Skip unavailable items but do not reorder. Do not use real line breaks inside that glossary-style result. For longer text, output only the final translation itself without describing the classification step."
 
                 taskMode == LlmTaskMode.QuestionAnswer && outputMode == LlmOutputMode.LongForm ->
                     "You are an IME reply assistant. Treat the input as a request and output one natural, fuller reply without cutting important detail short."
@@ -405,7 +410,10 @@ INSTRUCTION = the current input text to process
             taskMode == LlmTaskMode.Translate -> """
 只输出最终译文文本本身，不要输出 JSON，不要输出标签。
 将 INSTRUCTION 视为完整待翻译文本，不要续写，不要总结，不要解释。
- 英文译文中的单词之间必须保留正常空格，不要把多个英文单词连写在一起。
+先判断 INSTRUCTION 的语言，再执行翻译：只有确认整段文本是简体中文时才翻译成英文；任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言，都翻译成简体中文。
+判定示例：繁体中文 `臨時切換` 的最终译文是简体中文 `临时切换`，不得原样返回，也不要输出判定过程。
+不要因为包含相似汉字就把繁体中文或日文误判为简体中文。英文译文中的单词之间必须保留正常空格，不要把多个英文单词连写在一起。
+译文必须使用与上述判断一致的目标语言；翻译成简体中文时不要使用繁体字。
 """.trim()
 
             outputMode == LlmOutputMode.LongForm -> """
@@ -454,13 +462,15 @@ If the question needs more detail, do not cut the answer short.
 
             taskMode == LlmTaskMode.Translate -> """
 Treat INSTRUCTION as the complete source text to translate, not as a prefix to continue.
+First identify the language of the complete INSTRUCTION, then translate it. Translate to English only when it is Simplified Chinese; translate every other language, including Traditional Chinese, Japanese, Korean, English, and other languages, into Simplified Chinese (简体中文). Do not mistake Traditional Chinese or Japanese for Simplified Chinese just because they contain similar Han characters.
+Classification example: the final translation of Traditional Chinese `臨時切換` is Simplified Chinese `临时切换`; never return it unchanged or output the classification process.
 If INSTRUCTION is a single English word or a very short phrase, output one plain-text line using the literal separator [[BR]] in this exact order:
 释义：<最常用中文释义>[[BR]]音标：<音标，没有就省略这一项>[[BR]]n. <名词释义，没有就省略>[[BR]]v. <动词释义，没有就省略>[[BR]]adj. <形容词释义，没有就省略>[[BR]]adv. <副词释义，没有就省略>[[BR]]prep. <介词释义，没有就省略>[[BR]]phr. <短语释义，没有就省略>
 Use [[BR]] instead of actual line breaks.
 Keep the item order fixed as: 释义 -> 音标 -> n. -> v. -> adj. -> adv. -> prep. -> phr.
 If some items are unavailable, omit them, but never reorder the remaining items.
 Do not output JSON, markdown, or extra labels beyond those lines.
-If INSTRUCTION is a longer sentence or paragraph, output only the final translation text itself.
+If INSTRUCTION is a longer sentence or paragraph, output only the final translation text itself in the target language determined above.
 """.trim()
 
             outputMode == LlmOutputMode.LongForm -> """
@@ -502,8 +512,10 @@ If the assistant prefix already includes the typed prefix, each line should cont
         LlmLanguage.Chinese -> when {
             taskMode == LlmTaskMode.Translate -> """
 保持原意，保留必要的人名、专有名词、数字、URL、邮箱和代码片段；不确定时优先保留原样。
-译文要自然、简洁、符合英文表达习惯，不要补充原文没有的信息。
-英文译文中的单词之间必须保留正常空格，不要把多个英文单词连写在一起。
+只有确认整段输入是简体中文时才翻译成英文；任何非简体中文语言，包括繁体中文、日文、韩文、英文及其他语言，都翻译成简体中文。
+判定示例：繁体中文 `臨時切換` 必须输出简体中文 `临时切换`，不得原样返回。
+不要因为包含相似汉字就把繁体中文或日文误判为简体中文。目标语言必须与这个判断一致，翻译成简体中文时不要使用繁体字。
+翻译成英文时，英文单词之间必须保留正常空格，不要把多个英文单词连写在一起。
 不要输出 markdown 符号、引号、前缀说明或额外注释。
 """.trim()
 
@@ -542,7 +554,8 @@ If the assistant prefix already includes the typed prefix, each line should cont
         LlmLanguage.English -> when {
             taskMode == LlmTaskMode.Translate -> """
 Preserve the original meaning and keep names, numbers, URLs, emails, and code snippets when needed.
-Make the Chinese translation natural, concise, and ready to send directly without adding new information.
+Translate to English only when the complete input is Simplified Chinese; translate every other language, including Traditional Chinese, Japanese, Korean, English, and other languages, into natural, concise Simplified Chinese (简体中文). Do not mistake Traditional Chinese or Japanese for Simplified Chinese just because they contain similar Han characters, and never use Traditional Chinese characters in a Simplified Chinese translation.
+Classification example: Traditional Chinese `臨時切換` must be output as Simplified Chinese `临时切换`, never returned unchanged.
 For a single English word or a very short phrase, prefer a compact dictionary-style result encoded in plain text with the literal separator `[[BR]]`. Keep the fixed order `释义` -> `音标` -> `n.` -> `v.` -> `adj.` -> `adv.` -> `prep.` -> `phr.`, skip unavailable items, and do not reorder.
 Do not explain, annotate, quote, or output markdown symbols.
 """.trim()

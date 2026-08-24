@@ -459,6 +459,7 @@ class AiSuggestionStripComponent(
                     beforeCursor = beforeCursor,
                     outputMode = LlmOutputMode.LongForm,
                     taskMode = taskMode,
+                    isPartial = true,
                 )
                 if (streamed.isBlank()) return@request
                 receivedStreamingPartial = true
@@ -1050,6 +1051,7 @@ class AiSuggestionStripComponent(
                     beforeCursor = sourceText,
                     outputMode = LlmOutputMode.Suggestions,
                     taskMode = LlmTaskMode.Translate,
+                    isPartial = true,
                 )
                 if (streamed.isBlank()) return@request
                 receivedStreamingPartial = true
@@ -1143,6 +1145,7 @@ class AiSuggestionStripComponent(
                     beforeCursor = beforeCursor,
                     outputMode = request.outputMode,
                     taskMode = LlmTaskMode.QuestionAnswer,
+                    isPartial = true,
                 )
                 if (streamed.isBlank()) return@request
                 cancelPseudoStreaming()
@@ -1266,9 +1269,14 @@ class AiSuggestionStripComponent(
         beforeCursor: String,
         outputMode: LlmOutputMode,
         taskMode: LlmTaskMode,
+        isPartial: Boolean = false,
     ): String {
         val compact = if (taskMode == LlmTaskMode.Translate) {
-            LlmSuggestionParser.normalizeSingleTextDisplay(candidate)
+            if (isPartial) {
+                normalizeTranslationPartialCandidate(beforeCursor, candidate)
+            } else {
+                normalizeTranslationCandidate(beforeCursor, candidate)
+            }
         } else {
             candidate.lineSequence()
                 .map(String::trim)
