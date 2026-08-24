@@ -1149,6 +1149,20 @@ class AltTextKeyView(
         }
     }
 
+    /**
+     * The punctuation sublabel position for this key: the row-level override set in
+     * the layout editor when present, otherwise the global theme preference.
+     */
+    private fun effectivePunctuationPosition(): PunctuationPosition {
+        val pref = ThemeManager.prefs.punctuationPosition.getValue()
+        return when (def.altTextPositionOverride) {
+            KeyDef.Appearance.AltTextPosition.Top -> PunctuationPosition.Top
+            KeyDef.Appearance.AltTextPosition.TopRight -> PunctuationPosition.TopRight
+            KeyDef.Appearance.AltTextPosition.Bottom -> PunctuationPosition.Bottom
+            KeyDef.Appearance.AltTextPosition.TopBottom, null -> pref
+        }
+    }
+
     private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
         val uppercase = resolveUppercaseMode()
         if (uppercase != UppercasePosition.None) {
@@ -1159,7 +1173,7 @@ class AltTextKeyView(
 
     private fun resolveUppercaseLayoutMode(keyHeight: Int, uppercase: UppercasePosition): AltTextLayoutMode {
         val hasPunct = !altText.text.isNullOrBlank()
-        val punctPref = ThemeManager.prefs.punctuationPosition.getValue()
+        val punctPref = effectivePunctuationPosition()
         // Either label set to "None" simply hides that label; the other keeps its own position
         val preferred = if (!hasPunct || punctPref == PunctuationPosition.None) {
             if (uppercase == UppercasePosition.Top) AltTextLayoutMode.UpperTop else AltTextLayoutMode.UpperBottom
@@ -1184,11 +1198,12 @@ class AltTextKeyView(
         val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val upperHeight = upperText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val compactMinHeight = max(mainHeight, altHeight + cornerLabelTopSafeInset)
-        // Compact: dual sublabels overlay the top/bottom edges of the centered main text
-        // instead of requiring the sum of all three text heights
+        // Compact overlays only need the sublabel itself to fit: the centered main
+        // text auto-scales down on short rows (e.g. 0.75x heightMultiplier rows),
+        // so its unscaled metrics must not gate the compact minimum height.
+        val compactMinHeight = altHeight + cornerLabelTopSafeInset
         val dualCompactMinHeight = max(compactMinHeight, upperHeight + cornerLabelTopSafeInset)
-        val upperCompactMinHeight = max(mainHeight, upperHeight + cornerLabelTopSafeInset)
+        val upperCompactMinHeight = upperHeight + cornerLabelTopSafeInset
         val upperStackedMinHeight = mainHeight + upperHeight + dp(1)
 
         return when (preferred) {
@@ -1216,7 +1231,11 @@ class AltTextKeyView(
 
     private fun resolvePunctuationLayoutMode(keyHeight: Int): AltTextLayoutMode {
         if (altText.text.isNullOrBlank()) return AltTextLayoutMode.Hidden
-        if (ThemeManager.prefs.punctuationPosition.getValue() == PunctuationPosition.None) {
+        // An explicit row-level override must display even when the global
+        // preference hides sublabels everywhere else
+        if (def.altTextPositionOverride == null &&
+            ThemeManager.prefs.punctuationPosition.getValue() == PunctuationPosition.None
+        ) {
             return AltTextLayoutMode.Hidden
         }
         val hasSecondAlt = hasSecondAltText()
@@ -1241,10 +1260,11 @@ class AltTextKeyView(
         val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val altText1Height = altText1.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val compactMinHeight = max(mainHeight, altHeight + cornerLabelTopSafeInset)
+        // Compact overlays only need the sublabel itself to fit: the centered main
+        // text auto-scales down on short rows (e.g. 0.75x heightMultiplier rows),
+        // so its unscaled metrics must not gate the compact minimum height.
+        val compactMinHeight = altHeight + cornerLabelTopSafeInset
         val stackedMinHeight = mainHeight + altHeight + dp(1)
-        // Compact: top/bottom sublabels overlay the edges of the centered main text
-        // instead of requiring the sum of all three text heights
         val topBottomCompactMinHeight = max(compactMinHeight, altText1Height + cornerLabelTopSafeInset)
 
         return when (preferred) {
