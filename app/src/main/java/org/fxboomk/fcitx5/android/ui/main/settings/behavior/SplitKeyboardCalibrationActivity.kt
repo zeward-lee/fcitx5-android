@@ -29,11 +29,13 @@ import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
 import org.fxboomk.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fxboomk.fcitx5.android.data.prefs.SplitKeyboardStateManager
 import org.fxboomk.fcitx5.android.data.theme.ThemeManager
+import org.fxboomk.fcitx5.android.utils.DefaultAccentColor
 import org.fxboomk.fcitx5.android.input.keyboard.TextKeyboard
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.preview.PreviewKeyBlurMaskView
 import org.fxboomk.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
 import org.fxboomk.fcitx5.android.utils.DeviceInfoCollector
 import org.fxboomk.fcitx5.android.utils.DeviceType
+import org.fxboomk.fcitx5.android.utils.styledColorOrDefault
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
@@ -380,7 +382,7 @@ class SplitKeyboardCalibrationActivity : AppCompatActivity() {
             id = R.id.value_text
             text = valueTextProvider(initialValue)
             textSize = 14f
-            setTextColor(styledColor(android.R.attr.colorAccent))
+            setTextColor(styledColorOrDefault(android.R.attr.colorAccent, DefaultAccentColor))
             minWidth = dp(60)
             gravity = Gravity.END
         }

@@ -33,8 +33,10 @@ import com.canhub.cropper.CropImageView
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.utils.DefaultAccentColor
 import org.fxboomk.fcitx5.android.utils.item
 import org.fxboomk.fcitx5.android.utils.parcelable
+import org.fxboomk.fcitx5.android.utils.styledColorOrDefault
 import org.fxboomk.fcitx5.android.utils.subMenu
 import org.fxboomk.fcitx5.android.utils.toast
 import splitties.dimensions.dp
@@ -211,7 +213,7 @@ class CropImageActivity : AppCompatActivity() {
                 snapRadius = 0f,
                 guidelines = CropImageView.Guidelines.ON_TOUCH,
                 showProgressBar = true,
-                progressBarColor = styledColor(android.R.attr.colorAccent),
+                progressBarColor = styledColorOrDefault(android.R.attr.colorAccent, DefaultAccentColor),
                 // CropOverlayView
                 borderLineThickness = dp(1f),
                 borderCornerOffset = 0f,

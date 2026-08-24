@@ -5,6 +5,7 @@
 package org.fxboomk.fcitx5.android.ui.main.settings
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import androidx.core.widget.addTextChangedListener
@@ -14,6 +15,8 @@ import org.fxboomk.fcitx5.android.core.KeyState
 import org.fxboomk.fcitx5.android.core.KeyStates
 import org.fxboomk.fcitx5.android.core.KeySym
 import org.fxboomk.fcitx5.android.input.FcitxInputMethodService
+import org.fxboomk.fcitx5.android.utils.DefaultAccentColor
+import org.fxboomk.fcitx5.android.utils.styledColorOrDefault
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.styledColor
@@ -68,9 +71,12 @@ class KeyPreferenceUi(override val ctx: Context) : Ui {
             }
 
         fun applyStyles() = root.apply {
-            backgroundTintList = ctx.styledColorSL(
-                if (checked) android.R.attr.colorAccent else android.R.attr.colorBackgroundFloating
-            )
+            backgroundTintList = if (checked)
+                ColorStateList.valueOf(
+                    ctx.styledColorOrDefault(android.R.attr.colorAccent, DefaultAccentColor)
+                )
+            else
+                ctx.styledColorSL(android.R.attr.colorBackgroundFloating)
             setTextColor(
                 ctx.styledColor(
                     if (checked) android.R.attr.colorForegroundInverse else android.R.attr.colorForeground

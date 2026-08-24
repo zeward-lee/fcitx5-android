@@ -35,6 +35,9 @@ fun Context.styledColorOrDefault(@AttrRes attrRes: Int, @ColorInt defaultValue: 
         }
     }
 
+@ColorInt
+const val DefaultAccentColor = 0xFF008577.toInt() // material_deep_teal_500
+
 @Suppress("NOTHING_TO_INLINE")
 inline fun View.styledFloat(@AttrRes attrRes: Int) = context.styledFloat(attrRes)
 

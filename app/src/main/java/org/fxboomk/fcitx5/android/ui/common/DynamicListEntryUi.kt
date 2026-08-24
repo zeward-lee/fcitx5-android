@@ -8,6 +8,8 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import org.fxboomk.fcitx5.android.R
+import org.fxboomk.fcitx5.android.utils.DefaultAccentColor
+import org.fxboomk.fcitx5.android.utils.styledColorOrDefault
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.resolveThemeAttribute
@@ -39,7 +41,7 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
 
     val handleImage = imageView {
         imageDrawable = drawable(R.drawable.ic_baseline_drag_handle_24)!!.apply {
-            setTint(styledColor(android.R.attr.colorAccent))
+            setTint(styledColorOrDefault(android.R.attr.colorAccent, DefaultAccentColor))
         }
         setPaddingDp(3, 0, 3, 0)
     }
