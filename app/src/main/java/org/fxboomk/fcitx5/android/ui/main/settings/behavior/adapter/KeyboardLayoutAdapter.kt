@@ -105,11 +105,65 @@ class KeyboardLayoutAdapter(
         fun onKeyMovedAcrossRows(fromRow: Int, fromIndex: Int, toRow: Int, toIndex: Int)
     }
 
-    private companion object {
+    internal companion object {
+        private const val KEY_CHIP_WIDTH_DP = 36
         private const val KEY_ACTION_CHIP_WIDTH_DP = 32
+        private const val CUSTOM_KEY_BORDER_WIDTH_DP = 2
+        private const val CUSTOM_KEY_BORDER_COLOR = -13730510 // #FF2E7D32
         private const val VIEW_TYPE_ROW = 0
         private const val VIEW_TYPE_ADD_ROW = 1
         private const val CROSS_ROW_STEP_DELAY_MS = 100L
+
+        private val REQUIRED_KEY_FIELDS = mapOf(
+            "AlphabetKey" to setOf("type", "main", "alt"),
+            "LayoutSwitchKey" to setOf("type", "label", "subLabel"),
+            "SymbolKey" to setOf("type", "label"),
+            "MacroKey" to setOf("type", "label", "tap")
+        )
+
+        private val DEFAULT_KEY_WEIGHTS = mapOf(
+            "AlphabetKey" to 0.1f,
+            "CapsKey" to 0.15f,
+            "LayoutSwitchKey" to 0.15f,
+            "CommaKey" to 0.1f,
+            "LanguageKey" to 0.1f,
+            "SpaceKey" to 0f,
+            "SymbolKey" to 0.1f,
+            "ReturnKey" to 0.15f,
+            "BackspaceKey" to 0.15f,
+            "MacroKey" to 0.1f
+        )
+
+        /**
+         * Required fields identify a key, while non-default optional fields are property
+         * overrides written by the key editor. Serializer-emitted nulls and default values
+         * are ignored so an untouched preset is not shown as customized.
+         */
+        internal fun hasCustomizedProperties(key: Map<String, Any?>): Boolean {
+            val type = key["type"] as? String
+            val requiredFields = REQUIRED_KEY_FIELDS[type] ?: setOf("type")
+            return key.any { (name, value) ->
+                when {
+                    name in requiredFields || value == null -> false
+                    name == "weight" -> !isDefaultWeight(type, value)
+                    name == "displayText" && type == "AlphabetKey" -> value != key["main"]
+                    name == "independentColor" -> value == true
+                    value is String -> value.isNotBlank()
+                    value is Map<*, *> -> value.isNotEmpty()
+                    value is Collection<*> -> value.isNotEmpty()
+                    else -> true
+                }
+            }
+        }
+
+        internal fun isSingleCharacterKeyLabel(label: String): Boolean =
+            label.codePointCount(0, label.length) == 1
+
+        private fun isDefaultWeight(type: String?, value: Any?): Boolean {
+            val weight = (value as? Number)?.toFloat() ?: return false
+            val defaultWeight = DEFAULT_KEY_WEIGHTS[type] ?: return false
+            return kotlin.math.abs(weight - defaultWeight) < 0.000001f
+        }
     }
 
     /**
@@ -439,10 +493,14 @@ class KeyboardLayoutAdapter(
 
         val displayRow = buildDisplayRowForPreview(position, row)
         val rowStyle = KeyboardRowStyleUtils.rowStyle(row)
+        val isLetterArea = position < rows.lastIndex
 
         // Add keys - short click to edit, with drag support (directly on the key)
         displayRow.forEachIndexed { keyIndex, key ->
             val actualKeyIndex = resolveActualKeyIndex(position, keyIndex)
+            val keyLabel = buildKeyLabel(key)
+            val usesFixedWidth = isLetterArea && isSingleCharacterKeyLabel(keyLabel)
+            val isCustomized = hasCustomizedProperties(key)
             val theme = ThemeManager.activeTheme
             val rowBackgroundColor = KeyboardRowStyleUtils.resolveRowBackgroundColor(
                 style = rowStyle,
@@ -455,16 +513,28 @@ class KeyboardLayoutAdapter(
                 ) ?: rowStyle.backgroundColor
             )
             val keyChip = TextView(context).apply {
-                text = buildKeyLabel(key)
+                text = keyLabel
                 textSize = 14f
                 setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
                 gravity = Gravity.CENTER
                 background = android.graphics.drawable.GradientDrawable().apply {
                     setColor(resolvePreviewKeyBackgroundColor(key, rowBackgroundColor))
-                    setStroke(context.dp(1), theme.dividerColor)
+                    setStroke(
+                        context.dp(
+                            if (isCustomized) {
+                                CUSTOM_KEY_BORDER_WIDTH_DP
+                            } else {
+                                1
+                            }
+                        ),
+                        if (isCustomized) CUSTOM_KEY_BORDER_COLOR else theme.dividerColor
+                    )
                     cornerRadius = context.dp(4).toFloat()
                 }
                 setTextColor(resolvePreviewKeyTextColor(key))
+                if (!usesFixedWidth) {
+                    setSingleLine(true)
+                }
                 setOnClickListener {
                     val adapterPosition = holder.bindingAdapterPosition
                     if (adapterPosition != RecyclerView.NO_POSITION && actualKeyIndex >= 0) {
@@ -474,7 +544,7 @@ class KeyboardLayoutAdapter(
             }
 
             holder.keysFlow.addView(keyChip, ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
+                if (usesFixedWidth) context.dp(KEY_CHIP_WIDTH_DP) else ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
                 rightMargin = context.dp(6)
