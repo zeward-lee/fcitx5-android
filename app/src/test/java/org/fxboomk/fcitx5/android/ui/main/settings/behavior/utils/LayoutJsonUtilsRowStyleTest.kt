@@ -11,8 +11,12 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.fxboomk.fcitx5.android.input.keyboard.AlphabetKey
 import org.fxboomk.fcitx5.android.input.keyboard.KeyAction
 import org.fxboomk.fcitx5.android.input.keyboard.KeyDef
+import org.fxboomk.fcitx5.android.input.keyboard.MacroAction
+import org.fxboomk.fcitx5.android.input.keyboard.MacroKey
+import org.fxboomk.fcitx5.android.input.keyboard.SymbolKey
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.data.LayoutHeightPercentOverrides
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -182,6 +186,44 @@ class LayoutJsonUtilsRowStyleTest {
 
         assertEquals(KeyAction.FcitxKeyAction("1"), swipe.action)
         assertNull(swipe.downAction)
+    }
+
+    @Test
+    fun onlyAlphabetKey_supportsUppercaseHint() {
+        val alphabet = AlphabetKey("q", "1").appearance as KeyDef.Appearance.AltText
+        val symbol = SymbolKey(".", swipeLabel = "?").appearance as KeyDef.Appearance.AltText
+        val macro = MacroKey(
+            label = "a",
+            altLabel = "?",
+            tap = MacroAction(emptyList())
+        ).appearance as KeyDef.Appearance.AltText
+
+        assertTrue(alphabet.supportsUppercaseHint)
+        assertFalse(symbol.supportsUppercaseHint)
+        assertFalse(macro.supportsUppercaseHint)
+    }
+
+    @Test
+    fun createKeyDef_appliesBottomRowOverrideToSymbolAndMacroTextSublabels() {
+        val rowStyle = KeyboardRowStyleUtils.RowStyle(
+            altTextPosition = KeyboardRowStyleUtils.AltTextPosition.Bottom
+        )
+        val symbol = LayoutJsonUtils.createKeyDef(
+            key = LayoutJsonUtils.KeyJson(type = "SymbolKey", label = ".", swipeLabel = "?"),
+            rowStyle = rowStyle
+        )
+        val macro = LayoutJsonUtils.createKeyDef(
+            key = LayoutJsonUtils.KeyJson(
+                type = "MacroKey",
+                label = "a",
+                altLabel = "?",
+                tap = MacroAction(emptyList())
+            ),
+            rowStyle = rowStyle
+        )
+
+        assertEquals(KeyDef.Appearance.AltTextPosition.Bottom, symbol.appearance.altTextPositionOverride)
+        assertEquals(KeyDef.Appearance.AltTextPosition.Bottom, macro.appearance.altTextPositionOverride)
     }
 
     @Test

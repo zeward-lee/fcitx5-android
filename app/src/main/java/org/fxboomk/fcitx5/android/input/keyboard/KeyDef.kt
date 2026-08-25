@@ -103,6 +103,7 @@ open class KeyDef(
             val altText: String,
             val character: String,
             val altText1: String? = null,
+            val supportsUppercaseHint: Boolean = false,
             textSize: Float,
             /**
              * `Int` constants in [Typeface].

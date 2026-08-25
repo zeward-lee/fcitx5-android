@@ -785,6 +785,7 @@ class AltTextKeyView(
     private fun resolveUppercaseMode(): UppercasePosition {
         val pref = ThemeManager.prefs.uppercasePosition.getValue()
         if (pref == UppercasePosition.None) return UppercasePosition.None
+        if (!altDef.supportsUppercaseHint) return UppercasePosition.None
         // Keys already showing two sublabels have no room for the uppercase hint,
         // unless the second sublabel is the auto-filled uppercase alias
         if (hasSecondAltText() && !isUppercaseAliasAlt1()) return UppercasePosition.None
@@ -1257,14 +1258,12 @@ class AltTextKeyView(
         if (keyHeight <= 0) return preferred
 
         val contentHeight = keyHeight - vMargin * 2
-        val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val altText1Height = altText1.paint.run { fontMetrics.bottom - fontMetrics.top }
         // Compact overlays only need the sublabel itself to fit: the centered main
         // text auto-scales down on short rows (e.g. 0.75x heightMultiplier rows),
         // so its unscaled metrics must not gate the compact minimum height.
         val compactMinHeight = altHeight + cornerLabelTopSafeInset
-        val stackedMinHeight = mainHeight + altHeight + dp(1)
         val topBottomCompactMinHeight = max(compactMinHeight, altText1Height + cornerLabelTopSafeInset)
 
         return when (preferred) {
@@ -1274,8 +1273,7 @@ class AltTextKeyView(
                 else -> AltTextLayoutMode.Hidden
             }
             AltTextLayoutMode.Bottom -> when {
-                contentHeight >= stackedMinHeight -> AltTextLayoutMode.Bottom
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
+                contentHeight >= compactMinHeight -> AltTextLayoutMode.Bottom
                 else -> AltTextLayoutMode.Hidden
             }
             AltTextLayoutMode.TopCorners,

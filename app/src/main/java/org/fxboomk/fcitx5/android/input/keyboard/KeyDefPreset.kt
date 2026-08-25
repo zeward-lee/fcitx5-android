@@ -99,6 +99,7 @@ class AlphabetKey(
         altText = punctuation,
         altText1 = punctuation1,
         character = character,
+        supportsUppercaseHint = true,
         textSize = 23f,
         variant = variant,
         percentWidth = weight ?: 0.1f,
