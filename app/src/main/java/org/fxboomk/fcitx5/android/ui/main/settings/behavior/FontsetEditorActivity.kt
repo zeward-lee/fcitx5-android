@@ -5,16 +5,19 @@
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior
 
 import android.app.AlertDialog
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.fonts.Font
 import android.graphics.fonts.FontFamily
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -47,7 +50,8 @@ class FontsetEditorActivity : AppCompatActivity() {
         val key: String,
         @StringRes val titleRes: Int,
         val sample: String,
-        val defaultFontSize: Float = 20f
+        val defaultFontSize: Float = 20f,
+        val supportsFontSize: Boolean = true
     )
 
     private data class FontRowViews(
@@ -78,7 +82,13 @@ class FontsetEditorActivity : AppCompatActivity() {
             FontEntry("cand_font", R.string.fontset_entry_candidate, getString(R.string.fontset_sample_candidate), 20f),
             FontEntry("popup_key_font", R.string.fontset_entry_popup_key, getString(R.string.fontset_sample_popup), 18f),
             FontEntry("preedit_font", R.string.fontset_entry_preedit, getString(R.string.fontset_sample_preedit), 18f),
-            FontEntry("button_icon_font", R.string.fontset_entry_button_icon, "⌨ ⚙ ✕", 20f)
+            FontEntry(
+                "button_icon_font",
+                R.string.fontset_entry_button_icon,
+                "⌨ ⚙ ✕",
+                20f,
+                supportsFontSize = false
+            )
         )
     }
 
@@ -225,13 +235,55 @@ class FontsetEditorActivity : AppCompatActivity() {
             val openPicker = { openFontPicker(entry) }
             val openFontSizeEditor = { openFontSizeEditor(entry) }
 
+            val titleRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                if (index > 0) setPadding(0, dp(8), 0, 0)
+            }
+
             val title = TextView(this).apply {
                 text = getString(entry.titleRes)
                 setTextColor(styledColor(android.R.attr.textColorPrimary))
                 textSize = 15f
                 setOnClickListener { openPicker() }
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    weight = 1f
+                }
             }
-            listContainer.addView(title)
+            titleRow.addView(title)
+
+            if (entry.supportsFontSize) {
+                val fontSizeControl = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setOnClickListener { openFontSizeEditor(entry) }
+                }
+
+                val fontSizeValue = TextView(this).apply {
+                    textSize = 14f
+                    setTextColor(styledColor(android.R.attr.textColorSecondary))
+                    setPadding(dp(8), 0, dp(8), 0)
+                    gravity = Gravity.END
+                }
+                fontSizeControl.addView(fontSizeValue)
+
+                val fontSizeSettings = ImageView(this).apply {
+                    setImageResource(R.drawable.ic_baseline_settings_24)
+                    imageTintList = ColorStateList.valueOf(
+                        styledColor(android.R.attr.textColorSecondary)
+                    )
+                    contentDescription = getString(R.string.font_size)
+                }
+                fontSizeControl.addView(
+                    fontSizeSettings,
+                    LinearLayout.LayoutParams(dp(20), dp(20))
+                )
+
+                titleRow.addView(fontSizeControl)
+                fontSizeViews[entry.key] = fontSizeValue
+            }
+
+            listContainer.addView(titleRow)
 
             val preview = TextView(this).apply {
                 text = entry.sample
@@ -244,46 +296,10 @@ class FontsetEditorActivity : AppCompatActivity() {
             val value = TextView(this).apply {
                 textSize = 13f
                 setTextColor(styledColor(android.R.attr.textColorSecondary))
-                setPadding(0, dp(4), 0, 0)
+                setPadding(0, dp(4), 0, dp(8))
                 setOnClickListener { openPicker() }
             }
             listContainer.addView(value)
-
-            // Font size editor row
-            val fontSizeRow = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = android.view.Gravity.CENTER_VERTICAL
-                setPadding(0, dp(8), 0, dp(8))
-                setOnClickListener { openFontSizeEditor(entry) }
-            }
-
-            val fontSizeLabel = TextView(this).apply {
-                text = getString(R.string.font_size)
-                textSize = 14f
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                    weight = 1f
-                }
-            }
-            fontSizeRow.addView(fontSizeLabel)
-
-            val fontSizeValue = TextView(this).apply {
-                textSize = 14f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
-                setPadding(dp(8), 0, dp(8), 0)
-                gravity = android.view.Gravity.END
-            }
-            fontSizeRow.addView(fontSizeValue)
-
-            val fontSizeArrow = TextView(this).apply {
-                text = "⚙"
-                textSize = 16f
-                alpha = 0.6f
-                setPadding(0, 0, dp(8), 0)
-            }
-            fontSizeRow.addView(fontSizeArrow)
-
-            listContainer.addView(fontSizeRow)
 
             val divider = View(this).apply {
                 setBackgroundColor(
@@ -301,7 +317,6 @@ class FontsetEditorActivity : AppCompatActivity() {
             )
 
             rowViews[entry.key] = FontRowViews(preview, value)
-            fontSizeViews[entry.key] = fontSizeValue
         }
 
         val hint = TextView(this).apply {

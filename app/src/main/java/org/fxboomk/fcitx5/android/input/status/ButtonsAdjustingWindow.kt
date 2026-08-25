@@ -364,13 +364,24 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     }
                 }
             } else {
+                val button = outer.inputMethodOptionsConfig
                 val action = ButtonAction.fromId("input_method_options")
-                val icon = action?.defaultIcon ?: R.drawable.ic_baseline_language_24
-                val label = action?.let { holder.itemView.context.getString(it.defaultLabelRes) } ?: "IME"
+                val fallbackIcon = action?.defaultIcon ?: R.drawable.ic_baseline_language_24
+                val label = button.label
+                    ?: action?.let { holder.itemView.context.getString(it.defaultLabelRes) }
+                    ?: "IME"
                 ui.bind(
-                    iconRes = icon,
-                    iconText = null,
-                    iconDrawable = null,
+                    iconRes = ButtonIconSpec.drawableResource(
+                        holder.itemView.context,
+                        button.icon,
+                        fallbackIcon
+                    ),
+                    iconText = ButtonIconSpec.glyph(button.icon),
+                    iconDrawable = ButtonIconSpec.drawable(
+                        holder.itemView.context,
+                        button.icon,
+                        fallbackIcon
+                    ).takeIf { ButtonIconSpec.svg(button.icon) != null },
                     text = label,
                     disabled = true,
                     theme = theme
