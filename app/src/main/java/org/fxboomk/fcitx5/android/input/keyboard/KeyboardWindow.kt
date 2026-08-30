@@ -50,6 +50,20 @@ private fun InputMethodEntry.isRimeInputMethod(): Boolean =
 internal fun toggledNumberKeyboardLayout(currentLayout: String): String =
     if (currentLayout == NumberKeyboard.Name) TextKeyboard.Name else NumberKeyboard.Name
 
+internal fun keyboardLayoutOnStartInput(
+    inputType: Int,
+    currentLayout: String,
+    restarting: Boolean,
+    manuallySelected: Boolean,
+): String {
+    if (restarting && manuallySelected) return currentLayout
+    return when (inputType and InputType.TYPE_MASK_CLASS) {
+        InputType.TYPE_CLASS_NUMBER -> NumberKeyboard.Name
+        InputType.TYPE_CLASS_PHONE -> NumberKeyboard.Name
+        else -> TextKeyboard.Name
+    }
+}
+
 class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), EssentialWindow,
     InputBroadcastReceiver {
 
@@ -85,6 +99,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     private val keyboards = hashMapOf<String, BaseKeyboard>()
     private var currentKeyboardName = ""
+    private var layoutManuallySelected = false
     private var lastSymbolType: String by AppPrefs.getInstance().internal.lastSymbolLayout
     private var preeditEmpty = true
     private var hasVisibleCandidates = false
@@ -192,6 +207,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     fun switchLayout(to: String, remember: Boolean = true) {
         val target = to.ifEmpty { lastSymbolType }
         ContextCompat.getMainExecutor(service).execute {
+            if (remember) {
+                layoutManuallySelected = true
+            }
             if (target == TextKeyboard.Name || target == NumberKeyboard.Name) {
                 if (remember && target != TextKeyboard.Name) {
                     lastSymbolType = target
@@ -215,7 +233,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         switchLayout(toggledNumberKeyboardLayout(currentKeyboardName))
     }
 
-    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
+    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         preeditEmpty = true
         hasVisibleCandidates = false
         currentInputMethod = fcitx.runImmediately { inputMethodEntryCached }
@@ -227,10 +245,14 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             currentKeyboard?.onCompositionStateChanged(false)
             service.inputView?.requestBlurRefresh(retryFrames = 2, hierarchyChanged = true)
         }
-        val targetLayout = when (info.inputType and InputType.TYPE_MASK_CLASS) {
-            InputType.TYPE_CLASS_NUMBER -> NumberKeyboard.Name
-            InputType.TYPE_CLASS_PHONE -> NumberKeyboard.Name
-            else -> TextKeyboard.Name
+        val targetLayout = keyboardLayoutOnStartInput(
+            inputType = info.inputType,
+            currentLayout = currentKeyboardName,
+            restarting = restarting,
+            manuallySelected = layoutManuallySelected,
+        )
+        if (!restarting) {
+            layoutManuallySelected = false
         }
         switchLayout(targetLayout, remember = false)
         updateCompositionState()

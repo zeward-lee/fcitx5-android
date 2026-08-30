@@ -2565,7 +2565,7 @@ class InputView(
             hideButtonsAdjustingOverlay()
         }
         keyboardWindow.checkAndApplyFontRefresh()
-        broadcaster.onStartInput(info, capFlags)
+        broadcaster.onStartInput(info, capFlags, restarting)
         returnKeyDrawable.updateDrawableOnEditorInfo(info)
         if (focusChangeResetKeyboard || !restarting) {
             windowManager.attachWindow(KeyboardWindow)

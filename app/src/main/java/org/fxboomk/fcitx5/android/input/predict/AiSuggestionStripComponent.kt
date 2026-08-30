@@ -221,7 +221,7 @@ class AiSuggestionStripComponent(
         restoreRememberedMode(LlmPrefs.read(service.applicationContext))
     }
 
-    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
+    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         val config = LlmPrefs.read(service.applicationContext)
         allowPrediction = config.enabled && !capFlags.has(CapabilityFlag.PasswordOrSensitive)
         hasClientPreedit = false

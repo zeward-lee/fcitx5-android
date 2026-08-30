@@ -724,7 +724,7 @@ class HorizontalCandidateComponent :
         return nativeCandidateSnapshot.total == -1 || nativeCandidateSnapshot.total > consumedCount
     }
 
-    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
+    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         clearNativeCandidateFlow()
         resetRowWindowState()
         updateNativeCandidateSnapshot(emptyArray(), 0, 0, -1)
