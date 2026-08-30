@@ -164,8 +164,6 @@
     <string name="uppercase_pos_none">None</string>
     <string name="uppercase_pos_top">Top</string>
     <string name="uppercase_pos_bottom">Bottom</string>
-    <string name="expand_toolbar_by_default">Expand toolbar by default</string>
-    <string name="toolbar_manually_toggled">Toolbar manually toggled</string>
     <string name="popup_on_key_press">Popup on key press</string>
     <string name="disable_animation">Disable animation</string>
     <string name="import_from_file">Import from file…</string>
@@ -250,7 +248,6 @@
     <string name="focus_change_reset_disabled_summary">Keep the current panel on focus change</string>
     <string name="inline_suggestions_enabled_summary">Show inline autofill suggestions</string>
     <string name="inline_suggestions_disabled_summary">Hide inline autofill suggestions</string>
-    <string name="toolbar_collapsed_by_default">Collapse toolbar by default</string>
     <string name="voice_input_button_visible_summary">Voice input button shown</string>
     <string name="voice_input_hidden_summary">Voice input button hidden</string>
     <string name="popup_preview_visible_summary">Show popup preview on key press</string>
@@ -674,9 +671,8 @@
     <string name="switch_to_voice_input">Switch to voice input</string>
     <string name="hide_keyboard">Hide keyboard</string>
     <string name="toggle_number_keyboard">Toggle number keyboard</string>
-    <string name="private_mode">Private mode (tap to toggle toolbar)</string>
-    <string name="hide_toolbar">Hide toolbar</string>
-    <string name="expand_toolbar">Expand toolbar</string>
+    <string name="private_mode">Private mode (tap to open status area)</string>
+    <string name="return_to_toolbar">Return to toolbar</string>
     <string name="back_to_keyboard">Back to keyboard</string>
     <string name="backspace">Backspace</string>
     <string name="move_cursor_up">Move cursor up</string>

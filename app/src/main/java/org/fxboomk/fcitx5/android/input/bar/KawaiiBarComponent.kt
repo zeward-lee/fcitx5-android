@@ -159,7 +159,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val clipboardMaskSensitive by prefs.clipboard.clipboardMaskSensitive
     private val expandedCandidateStyle by prefs.keyboard.expandedCandidateStyle
     private val compositionAreaStyle = prefs.keyboard.compositionAreaStyle
-    private val expandToolbarByDefault by prefs.keyboard.expandToolbarByDefault
     private val toolbarNumRowOnPassword by prefs.keyboard.toolbarNumRowOnPassword
     private val showVoiceInputButton by prefs.keyboard.showVoiceInputButton
     private val preferredVoiceInput by prefs.keyboard.preferredVoiceInput
@@ -240,14 +239,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             isClipboardFresh -> IdleUi.State.Clipboard
             isInlineSuggestionPresent -> IdleUi.State.InlineSuggestion
             isCapabilityFlagsPassword && !isKeyboardLayoutNumber && numberRowState != NumberRowState.ForceHide -> IdleUi.State.NumberRow
-            /**
-             * state matrix:
-             *                               expandToolbarByDefault
-             *                          |   \   |    true |   false
-             * toolbarManuallyToggled   |  true |   Empty | Toolbar
-             *                          | false | Toolbar |   Empty
-             */
-            expandToolbarByDefault == prefs.keyboard.toolbarManuallyToggled.getValue() -> IdleUi.State.Empty
             else -> IdleUi.State.Toolbar
         }
         if (newState == idleUi.currentState) return
@@ -433,12 +424,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 showToolbarImmediately()
                 return@setOnClickListener
             }
-            // menuButton now opens StatusAreaWindow (secondary menu) instead of toggling toolbar
+            // Open the same status area as a configurable "more" button.
             windowManager.attachWindow(StatusAreaWindow())
         }
         ui.menuButton.setOnLongClickListener {
             restoreVirtualKeyboardMode()
-            // Completely disable toggle when adjusting overlay is visible to prevent conflicts
+            // Ignore long presses while the adjusting overlay is already visible.
             if (service.inputView?.isButtonsAdjustingOverlayVisible == true) {
                 return@setOnLongClickListener true
             }

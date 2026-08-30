@@ -143,8 +143,6 @@
     <string name="uppercase_pos_none">無</string>
     <string name="uppercase_pos_top">頂部</string>
     <string name="uppercase_pos_bottom">底部</string>
-    <string name="expand_toolbar_by_default">預設展開工具列</string>
-    <string name="toolbar_manually_toggled">工具列手動切換狀態</string>
     <string name="popup_on_key_press">按鍵時彈出顯示字元</string>
     <string name="disable_animation">停用動畫</string>
     <string name="import_from_file">從檔案匯入…</string>
@@ -262,7 +260,6 @@
     <string name="focus_change_reset_disabled_summary">焦點變化後保持目前面板</string>
     <string name="inline_suggestions_enabled_summary">顯示內嵌自動填充建議</string>
     <string name="inline_suggestions_disabled_summary">不顯示內嵌自動填充建議</string>
-    <string name="toolbar_collapsed_by_default">預設收起工具列</string>
     <string name="voice_input_button_visible_summary">顯示語音輸入按鈕</string>
     <string name="voice_input_hidden_summary">不顯示語音輸入按鈕</string>
     <string name="popup_preview_visible_summary">按鍵時顯示彈出字元</string>
@@ -427,9 +424,8 @@
     <string name="switch_to_voice_input">切換到語音輸入</string>
     <string name="toggle_number_keyboard">切換數字鍵盤</string>
     <string name="hide_keyboard">隱藏鍵盤</string>
-    <string name="private_mode">隱私模式（點擊以切換工具欄）</string>
-    <string name="hide_toolbar">隱藏工具列</string>
-    <string name="expand_toolbar">展開工具列</string>
+    <string name="private_mode">隱私模式（點擊開啟狀態區）</string>
+    <string name="return_to_toolbar">返回工具列</string>
     <string name="back_to_keyboard">返回鍵盤</string>
     <string name="backspace">退格</string>
     <string name="move_cursor_up">向上移動游標</string>

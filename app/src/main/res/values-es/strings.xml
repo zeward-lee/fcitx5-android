@@ -13,7 +13,6 @@
     <string name="advanced">Avanzado</string>
     <string name="ignore_sys_cursor">Ignorar posición del cursor del sistema</string>
     <string name="hide_key_config">Ocultar configuraciones de atajos</string>
-    <string name="toolbar_manually_toggled">Barra de herramientas alternada manualmente</string>
     <string name="allow_original_plugins">Permitir plugins oficiales de Fcitx5</string>
     <string name="_not_available_">(No disponible)</string>
     <string name="button_haptic_feedback">Respuesta háptica al presionar teclas</string>
@@ -84,7 +83,6 @@
     <string name="navbar_bkg_color_only">Seguir color de teclado</string>
     <string name="navbar_bkg_full">Imagen de fondo de teclado</string>
     <string name="punctuation_position">Posición de puntuación</string>
-    <string name="expand_toolbar_by_default">Expandir barra de htas. de manera predeterminada</string>
     <string name="disable_animation">Desactivar animación</string>
     <string name="import_from_file">Importar desde archivo...</string>
     <string name="light_mode_theme">Tema en modo claro</string>
@@ -538,7 +536,6 @@
     <string name="exception_user_data_package_name_mismatch">Los datos de usuario no coinciden con la aplicacion actual (encontrado: %1$s)</string>
     <string name="expand_candidates_list">Expandir lista de candidatos</string>
     <string name="expand_keypress_area">Expandir el area de las teclas hasta el borde</string>
-    <string name="expand_toolbar">Expandir barra de herramientas</string>
     <string name="expanded_candidate_grid_span_count">Numero de columnas de candidatos expandidos en estilo de cuadricula</string>
     <string name="expanded_candidate_style">Estilo de candidatos expandidos</string>
     <string name="expanded_candidate_style_flexbox">Flexbox</string>
@@ -563,7 +560,6 @@
     <string name="grant_permission">Conceder permiso</string>
     <string name="hide_candidates_list">Ocultar lista de candidatos</string>
     <string name="hide_keyboard">Ocultar teclado</string>
-    <string name="hide_toolbar">Ocultar barra de herramientas</string>
     <string name="hide_unsupported_emojis">Ocultar emojis no compatibles</string>
     <string name="horizontal_candidate_always_fill">Rellenar ancho siempre</string>
     <string name="horizontal_candidate_auto_fill">Rellenar ancho segun necesidad</string>
@@ -621,7 +617,7 @@
     <string name="popup_on_key_press">Mostrar popup al pulsar tecla</string>
     <string name="popup_preset_saved_at">popuppreset.json guardado en: %1$s</string>
     <string name="preferred_voice_input">Entrada de voz preferida</string>
-    <string name="private_mode">Modo privado (toque para alternar la barra de herramientas)</string>
+    <string name="private_mode">Modo privado (toque para abrir el área de estado)</string>
     <string name="punctuation_pos_bottom">Abajo</string>
     <string name="punctuation_pos_top">Arriba</string>
     <string name="uppercase_position">Posición de las mayúsculas</string>
@@ -661,7 +657,7 @@
     <string name="focus_change_reset_disabled_summary">Mantener el panel actual al cambiar el foco</string>
     <string name="inline_suggestions_enabled_summary">Mostrar sugerencias de autocompletado integradas</string>
     <string name="inline_suggestions_disabled_summary">Ocultar sugerencias de autocompletado integradas</string>
-    <string name="toolbar_collapsed_by_default">Contraer la barra de herramientas por defecto</string>
+    <string name="return_to_toolbar">Volver a la barra de herramientas</string>
     <string name="voice_input_button_visible_summary">Mostrar boton de entrada por voz</string>
     <string name="voice_input_hidden_summary">Ocultar boton de entrada por voz</string>
     <string name="popup_preview_visible_summary">Mostrar vista emergente al pulsar una tecla</string>

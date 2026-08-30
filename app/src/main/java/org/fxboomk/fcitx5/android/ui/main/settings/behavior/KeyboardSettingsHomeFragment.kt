@@ -104,17 +104,11 @@ class KeyboardSettingsHomeFragment : ManagedPreferenceFragment(AppPrefs.getInsta
     }
 
     private fun buildToolbarSummary(keyboardPrefs: AppPrefs.Keyboard): String {
-        val toolbarSummary = if (keyboardPrefs.expandToolbarByDefault.getValue()) {
-            getString(R.string.expand_toolbar_by_default)
-        } else {
-            getString(R.string.toolbar_collapsed_by_default)
-        }
-        val voiceSummary = if (keyboardPrefs.showVoiceInputButton.getValue()) {
+        return if (keyboardPrefs.showVoiceInputButton.getValue()) {
             getString(R.string.voice_input_button_visible_summary)
         } else {
             getString(R.string.voice_input_hidden_summary)
         }
-        return "$toolbarSummary，$voiceSummary"
     }
 
     private fun buildKeyAndGestureSummary(keyboardPrefs: AppPrefs.Keyboard): String {

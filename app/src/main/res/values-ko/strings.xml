@@ -13,7 +13,6 @@
     <string name="advanced">고급</string>
     <string name="ignore_sys_cursor">시스템 커서 위치 무시</string>
     <string name="hide_key_config">단축키 구성 숨김</string>
-    <string name="toolbar_manually_toggled">도구 모음 수동 전환 상태</string>
     <string name="allow_original_plugins">공식 Fcitx5 플러그인 허용</string>
     <string name="_not_available_">(사용할 수 없음)</string>
     <string name="add">추가</string>
@@ -519,8 +518,6 @@
     <string name="exception_user_data_package_name_mismatch">사용자 데이터가 현재 앱과 일치하지 않습니다 (발견됨: %1$s)</string>
     <string name="expand_candidates_list">후보 목록 펼치기</string>
     <string name="expand_keypress_area">키 범위를 가장자리까지 확장</string>
-    <string name="expand_toolbar">툴바 펼치기</string>
-    <string name="expand_toolbar_by_default">기본으로 툴바 펼치기</string>
     <string name="expanded_candidate_grid_span_count">그리드 스타일 확장 후보 열 수</string>
     <string name="export_user_data">사용자 데이터 내보내기</string>
     <string name="faq">자주 묻는 질문</string>
@@ -544,7 +541,6 @@
     <string name="grant_permission">권한 부여</string>
     <string name="hide_candidates_list">후보 목록 숨기기</string>
     <string name="hide_keyboard">키보드 숨기기</string>
-    <string name="hide_toolbar">툴바 숨기기</string>
     <string name="hide_unsupported_emojis">지원되지 않는 이모지 숨기기</string>
     <string name="horizontal_candidate_always_fill">항상 너비 채우기</string>
     <string name="horizontal_candidate_auto_fill">필요 시 너비 채우기</string>
@@ -610,7 +606,7 @@
     <string name="popup_preset_saved_at">popuppreset.json 저장 위치: %1$s</string>
     <string name="portrait">세로</string>
     <string name="preferred_voice_input">선호 음성 입력</string>
-    <string name="private_mode">개인정보 모드 (눌러서 툴바 전환)</string>
+    <string name="private_mode">개인정보 모드 (눌러서 상태 영역 열기)</string>
     <string name="punctuation_pos_bottom">하단</string>
     <string name="punctuation_pos_top">상단</string>
     <string name="uppercase_position">대문자 위치</string>
@@ -646,7 +642,7 @@
     <string name="focus_change_reset_disabled_summary">포커스가 바뀌어도 현재 패널 유지</string>
     <string name="inline_suggestions_enabled_summary">인라인 자동 완성 제안 표시</string>
     <string name="inline_suggestions_disabled_summary">인라인 자동 완성 제안 숨기기</string>
-    <string name="toolbar_collapsed_by_default">기본적으로 도구 모음 접기</string>
+    <string name="return_to_toolbar">도구 모음으로 돌아가기</string>
     <string name="voice_input_button_visible_summary">음성 입력 버튼 표시</string>
     <string name="voice_input_hidden_summary">음성 입력 버튼 숨기기</string>
     <string name="popup_preview_visible_summary">키를 누를 때 팝업 문자 표시</string>

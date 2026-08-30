@@ -13,7 +13,6 @@ import android.view.Gravity
 import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationSet
 import android.view.animation.TranslateAnimation
-import android.widget.Space
 import android.widget.ViewAnimator
 import org.fxboomk.fcitx5.android.R
 import org.fxboomk.fcitx5.android.data.prefs.AppPrefs
@@ -54,10 +53,10 @@ class IdleUi(
 ) : Ui {
 
     enum class State {
-        Empty, Toolbar, Clipboard, NumberRow, InlineSuggestion
+        Toolbar, Clipboard, NumberRow, InlineSuggestion
     }
 
-    var currentState = State.Empty
+    var currentState = State.Toolbar
         private set
 
     private val disableAnimation by AppPrefs.getInstance().advanced.disableAnimation
@@ -79,6 +78,7 @@ class IdleUi(
         ),
         theme
     ).apply {
+        contentDescription = ctx.getString(R.string.status_area)
         when {
             ButtonIconSpec.glyph(menuButtonConfig?.icon) != null ->
                 setIconText(ButtonIconSpec.glyph(menuButtonConfig?.icon)!!)
@@ -89,8 +89,6 @@ class IdleUi(
     }
 
     val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_keyboard_hide_24, theme)
-
-    val emptyBar = Space(ctx)
 
     val buttonsUi = ButtonsBarUi(ctx, theme, buttonsConfig.filter { it.id != "more" })
 
@@ -109,7 +107,6 @@ class IdleUi(
     }
 
     private val animator = ViewAnimator(ctx).apply {
-        add(emptyBar, lParams(matchParent, matchParent))
         add(buttonsUi.root, lParams(matchParent, matchParent))
         add(clipboardUi.root, lParams(matchParent, matchParent))
         add(inlineSuggestionsBar.root, lParams(matchParent, matchParent))
@@ -163,9 +160,9 @@ class IdleUi(
 
     private fun updateMenuButtonIcon() {
         when {
-            inPrivate -> menuButton.setIcon(R.drawable.ic_view_private)
-            currentState == State.Clipboard || currentState == State.InlineSuggestion ->
+            currentState == State.Clipboard ->
                 menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
+            inPrivate -> menuButton.setIcon(R.drawable.ic_view_private)
             else -> {
                 val iconText = ButtonIconSpec.glyph(menuButtonConfig?.icon)
                 if (iconText != null) {
@@ -191,9 +188,9 @@ class IdleUi(
 
     private fun updateMenuButtonContentDescription() {
         menuButton.contentDescription = when {
+            currentState == State.Clipboard -> ctx.getString(R.string.return_to_toolbar)
             inPrivate -> ctx.getString(R.string.private_mode)
-            currentState == State.Toolbar -> ctx.getString(R.string.hide_toolbar)
-            else -> ctx.getString(R.string.expand_toolbar)
+            else -> ctx.getString(R.string.status_area)
         }
     }
 
@@ -244,11 +241,10 @@ class IdleUi(
             setAnimation()
         }
         when (state) {
-            State.Empty -> animator.displayedChild = 0
-            State.Toolbar -> animator.displayedChild = 1
-            State.Clipboard -> animator.displayedChild = 2
+            State.Toolbar -> animator.displayedChild = 0
+            State.Clipboard -> animator.displayedChild = 1
             State.NumberRow -> {}
-            State.InlineSuggestion -> animator.displayedChild = 3
+            State.InlineSuggestion -> animator.displayedChild = 2
         }
         if (state == State.NumberRow) {
             numberRow.keyActionListener = commonKeyActionListener.listener

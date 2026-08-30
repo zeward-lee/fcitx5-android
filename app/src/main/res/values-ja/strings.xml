@@ -13,7 +13,6 @@
     <string name="advanced">高度な設定</string>
     <string name="ignore_sys_cursor">システムカーソル位置を無視する</string>
     <string name="hide_key_config">ホットキー設定を隠す</string>
-    <string name="toolbar_manually_toggled">ツールバーの手動切り替え状態</string>
     <string name="allow_original_plugins">公式 Fcitx5 プラグインを許可</string>
     <string name="_not_available_">(利用不可)</string>
     <string name="button_haptic_feedback">キー押下時の触覚フィードバック</string>
@@ -129,7 +128,6 @@
     <string name="uppercase_pos_top">上部</string>
     <string name="uppercase_pos_bottom">下部</string>
     <string name="punctuation_pos_top_right">右上</string>
-    <string name="expand_toolbar_by_default">デフォルトでツールバーを展開する</string>
     <string name="popup_on_key_press">キー押下時にポップアップする</string>
     <string name="disable_animation">アニメーションを無効にする</string>
     <string name="import_from_file">ファイルからインポート…</string>
@@ -230,7 +228,6 @@
     <string name="focus_change_reset_disabled_summary">フォーカス変更時も現在のパネルを維持</string>
     <string name="inline_suggestions_enabled_summary">インライン自動入力候補を表示</string>
     <string name="inline_suggestions_disabled_summary">インライン自動入力候補を表示しない</string>
-    <string name="toolbar_collapsed_by_default">ツールバーを既定で折りたたむ</string>
     <string name="voice_input_button_visible_summary">音声入力ボタンを表示</string>
     <string name="voice_input_hidden_summary">音声入力ボタンを表示しない</string>
     <string name="popup_preview_visible_summary">キー押下時にポップアップ文字を表示</string>
@@ -655,7 +652,6 @@
     <string name="emoji_skin_tone_type_5">🏾 やや濃い肌色（タイプ5）</string>
     <string name="emoji_skin_tone_type_6">🏿 濃い肌色（タイプ6）</string>
     <string name="expand_candidates_list">候補リストを展開</string>
-    <string name="expand_toolbar">ツールバーを展開</string>
     <string name="follow_input_device">入力デバイスに従う</string>
     <string name="fontset_editor_hint">各項目をタップして fonts ディレクトリから 1 つ以上のフォントを選択できます。複数のフォントは指定された順番でフォールバックとして使用されます。</string>
     <string name="fontset_entry_candidate">候補フォント</string>
@@ -669,7 +665,7 @@
     <string name="no_fonts_found">fonts/ にフォントファイルが見つかりません</string>
     <string name="popup_preset_saved_at">popuppreset.json を %1$s に保存しました</string>
     <string name="preferred_voice_input">優先音声入力</string>
-    <string name="private_mode">プライベートモード（ツールバーを切り替えるにはタップ）</string>
+    <string name="private_mode">プライベートモード（タップしてステータス領域を開く）</string>
     <string name="punctuation_pos_none">なし</string>
     <string name="reset_keyboard_on_focus_change">フォーカス変更時にキーボードにリセット</string>
     <string name="copy">コピー</string>
@@ -701,7 +697,7 @@
     <!-- Previously missing strings (now translated) -->
     <string name="hide_candidates_list">非表示</string>
     <string name="hide_keyboard">キーボードを非表示</string>
-    <string name="hide_toolbar">ツールバーを非表示</string>
+    <string name="return_to_toolbar">ツールバーに戻る</string>
     <string name="hide_unsupported_emojis">サポートされていない絵文字を非表示</string>
     <string name="key_border_stroke">キー枠のストロークを有効化</string>
     <string name="move_cursor_down">カーソルを下に移動</string>
