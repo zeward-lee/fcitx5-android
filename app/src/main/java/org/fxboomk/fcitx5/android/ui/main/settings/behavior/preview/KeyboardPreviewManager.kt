@@ -101,7 +101,6 @@ class KeyboardPreviewManager(
 
         ConfigProviders.provider = tempProvider
         TextKeyboard.clearCachedKeyDefLayouts()
-        val originalIme = TextKeyboard.ime
 
         try {
             createKeyboardPreview(layoutName, previewSubModeLabel, fcitxConnection)
@@ -109,10 +108,9 @@ class KeyboardPreviewManager(
             android.util.Log.e("KeyboardPreview", "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel", e)
             showError(e.message ?: "Unknown error")
         } finally {
-            // Restore original provider and shared layout context
+            // Restore the real layout provider after the preview has been built.
             ConfigProviders.provider = DefaultConfigProvider
             TextKeyboard.clearCachedKeyDefLayouts()
-            TextKeyboard.ime = originalIme
         }
     }
 

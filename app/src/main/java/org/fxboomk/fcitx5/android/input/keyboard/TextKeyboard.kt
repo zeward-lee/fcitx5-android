@@ -26,10 +26,17 @@ import kotlinx.serialization.Serializable
 import org.fxboomk.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 
 @SuppressLint("ViewConstructor")
-class TextKeyboard(
+class TextKeyboard private constructor(
     context: Context,
-    theme: Theme
-) : BaseKeyboard(context, theme, ::getLayout) {
+    theme: Theme,
+    private val layoutState: TextKeyboardLayoutState,
+) : BaseKeyboard(context, theme, layoutState::getLayout) {
+
+    constructor(
+        context: Context,
+        theme: Theme,
+        initialIme: InputMethodEntry? = null,
+    ) : this(context, theme, TextKeyboardLayoutState(initialIme))
 
     enum class CapsState { None, Once, Lock }
 
@@ -173,8 +180,9 @@ class TextKeyboard(
                 return cachedRawLayoutJson
             }
 
-        fun getLayout(): List<List<KeyDef>> {
-            val currentIme = ime
+        fun getLayout(): List<List<KeyDef>> = getLayout(ime)
+
+        internal fun getLayout(currentIme: InputMethodEntry?): List<List<KeyDef>> {
             val imeName = currentIme?.uniqueName
             val subModeLabel = currentIme?.subMode?.label ?: ""
             val showLangSwitch = AppPrefs.getInstance().keyboard.showLangSwitchKey.getValue()
@@ -309,7 +317,7 @@ class TextKeyboard(
     private val spaceKeyLabelMode = AppPrefs.getInstance().keyboard.spaceKeyLabelMode
     private val punctuationPosition = ThemeManager.prefs.punctuationPosition
     private val uppercasePosition = ThemeManager.prefs.uppercasePosition
-    private var currentIme: InputMethodEntry? = null
+    private var currentIme: InputMethodEntry? = layoutState.ime
 
     @Keep
     private val showLangSwitchKeyListener = ManagedPreference.OnChangeListener<Boolean> { _, _ ->
@@ -332,7 +340,7 @@ class TextKeyboard(
     private val keepLettersUppercase by AppPrefs.getInstance().keyboard.keepLettersUppercase
 
     init {
-        ime?.let { lastLayoutSignature = layoutSignature(it) }
+        currentIme?.let { lastLayoutSignature = layoutSignature(it) }
     }
 
     private val textKeys: List<TextKeyView>
@@ -609,7 +617,7 @@ class TextKeyboard(
 
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
         currentIme = ime
-        TextKeyboard.ime = ime
+        layoutState.ime = ime
         val signature = layoutSignature(ime)
         if (signature != lastLayoutSignature) {
             reloadLayout()

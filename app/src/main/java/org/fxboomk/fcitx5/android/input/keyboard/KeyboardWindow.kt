@@ -109,10 +109,15 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     private val currentKeyboard: BaseKeyboard? get() = keyboards[currentKeyboardName]
 
+    private fun updateCurrentInputMethod(ime: InputMethodEntry) {
+        currentInputMethod = ime
+        TextKeyboard.ime = ime
+    }
+
     private fun getOrCreateKeyboard(name: String): BaseKeyboard? {
         keyboards[name]?.let { return it }
         val keyboard = when (name) {
-            TextKeyboard.Name -> TextKeyboard(context, theme)
+            TextKeyboard.Name -> TextKeyboard(context, theme, currentInputMethod)
             NumberKeyboard.Name -> NumberKeyboard(context, theme)
             else -> return null
         }
@@ -172,7 +177,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     // This will be called EXACTLY ONCE
     override fun onCreateView(): View {
-        TextKeyboard.ime = fcitx.runImmediately { inputMethodEntryCached }
+        updateCurrentInputMethod(fcitx.runImmediately { inputMethodEntryCached })
         keyboardView = context.frameLayout(R.id.keyboard_view)
         attachLayout(TextKeyboard.Name)
         return keyboardView
@@ -198,7 +203,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             it.onAttach()
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
             val inputMethod = fcitx.runImmediately { inputMethodEntryCached }
-            currentInputMethod = inputMethod
+            updateCurrentInputMethod(inputMethod)
             it.onInputMethodUpdate(inputMethod)
             updateCompositionState()
         }
@@ -236,7 +241,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         preeditEmpty = true
         hasVisibleCandidates = false
-        currentInputMethod = fcitx.runImmediately { inputMethodEntryCached }
+        updateCurrentInputMethod(fcitx.runImmediately { inputMethodEntryCached })
         // Reset composition visuals even when the target layout is unchanged,
         // because switchLayout skips re-attach for the same layout and
         // updateCompositionState would early-return on equal state.
@@ -259,7 +264,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     override fun onImeUpdate(ime: InputMethodEntry) {
-        currentInputMethod = ime
+        updateCurrentInputMethod(ime)
         currentKeyboard?.onInputMethodUpdate(ime)
         updateCompositionState()
     }

@@ -2851,6 +2851,7 @@ class InputView(
         } else {
             // Fallback: directly update TextKeyboard if KeyboardWindow is not ready
             // This can happen during initial view setup
+            TextKeyboard.ime = ime
             val kv = keyboardView
             val viewGroup = kv as? ViewGroup
             val childCount = viewGroup?.childCount ?: 0

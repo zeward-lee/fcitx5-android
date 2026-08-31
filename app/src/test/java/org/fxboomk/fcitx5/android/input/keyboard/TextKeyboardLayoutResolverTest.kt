@@ -7,6 +7,7 @@ package org.fxboomk.fcitx5.android.input.keyboard
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import org.fxboomk.fcitx5.android.core.InputMethodEntry
 import org.fxboomk.fcitx5.android.data.theme.ThemePreset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -15,6 +16,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TextKeyboardLayoutResolverTest {
+
+    @Test
+    fun previewInputMethodUpdateDoesNotChangeRealKeyboardLayoutState() {
+        val realIme = InputMethodEntry("real")
+        val previewIme = InputMethodEntry("preview")
+        val realState = TextKeyboardLayoutState(realIme)
+        val previewState = TextKeyboardLayoutState(realIme)
+
+        previewState.ime = previewIme
+
+        assertEquals(realIme, realState.ime)
+        assertEquals(previewIme, previewState.ime)
+    }
 
     @Test
     fun keyDefLayoutCacheKey_changesWithThemeColors() {
