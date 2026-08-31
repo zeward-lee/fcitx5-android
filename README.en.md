@@ -14,19 +14,21 @@ This fork mainly strengthens two areas:
 
 After consolidating the latest 10 commits, this round of updates mainly falls into the following areas:
 
-- Candidate-bar and input behavior keep improving:
-  - Horizontal candidate-item spacing is now independent from highlight rendering, and paged candidates re-bind correctly to reduce display shifts.
+- Input state and candidate-bar behavior keep improving:
+  - The manually selected keyboard layout is preserved after an input-method restart, and each text-keyboard instance now keeps its own IME state.
+  - Horizontal candidate-item spacing is independent from highlight rendering, and paged candidates re-bind correctly to reduce display shifts.
+  - Toolbar expand/collapse state handling has been simplified by removing an unnecessary toggle preference, making idle-state feedback more direct.
+- Keyboard layouts and button configuration are more flexible:
   - Custom keyboards can toggle the number keyboard, and the layout editor can move a keyboard row upward.
-  - Alternate characters for custom keys preserve their original text, while popup preset editing can restore default values.
-- Toolbar and theme editing are more flexible:
-  - Toolbar buttons support custom icons from either drawable resources or iconfont characters.
-  - Theme editing actions are clearer, theme configurations can be shared and imported, and previews stay aligned with current keyboard behavior.
-- Localization and stability maintenance:
-  - Localized settings labels and popup-editor wording continue to be refined.
-  - Color lookup now falls back correctly when an Android theme does not provide `colorAccent`, and custom touch-event dispatching has been cleaned up.
+  - Alternate characters for custom keys preserve their original text, uppercase hints can be configured, and customized keys are marked with a distinct editor border.
+  - Toolbar buttons support custom icons from drawable resources or iconfont characters, and previews apply custom button icons and inline font sizes.
+- Theme, update, and stability maintenance:
+  - The theme color editor no longer produces invisible colors when adjusting HSV values with transparency, and previews stay aligned with current keyboard behavior.
+  - Application and plugin update downloads now show determinate progress so their state is visible.
+  - Color lookup falls back correctly when an Android theme does not provide `colorAccent`, and canceling a gesture dismisses all popups.
 - Build and upstream maintenance:
-  - Personal build scripts and RIME patch handling have been improved.
-  - The fcitx5 Chinese add-ons component was updated to keep Chinese input-method compatibility.
+  - Personal build scripts and RIME patch handling have been improved, and related fcitx5 submodules were updated.
+  - Localized settings labels and popup-editor wording continue to be refined.
 
 ## Highlights
 
@@ -81,6 +83,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - The AI provider list now includes options such as Moonshot.
 - AI candidates support an expanded candidate window for browsing more prediction results.
 - Horizontal candidate bars support independent item-spacing and highlight styling, with correct refreshes when paging.
+- The manually selected keyboard layout is preserved after an input-method restart, reducing unexpected fallback to the default layout.
 - The keyboard layer also keeps gaining configurable features such as MacroKey support, Shift behavior switches, and popup gesture highlight improvements.
 
 ### 4. Keyboard layout and popup preset sharing
@@ -92,12 +95,14 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - Text keyboard layout JSON supports separate portrait and landscape keyboard-height settings for each layout.
 - The keyboard layout editor can move a complete row upward, and alternate characters for custom keys preserve their original text.
 - Toolbar and keyboard buttons can be configured to toggle the number keyboard.
+- Custom keyboard keys can show configurable uppercase hints, and modified keys are marked with a distinct editor border.
 - Popup preset editing can restore default candidate content and continues to support QR import/export.
 
 ### 5. Toolbar and UI customization
 
 - Toolbar buttons support both icon-font and drawable-based icon sources, making style unification easier.
 - Toolbar button icons can be customized with iconfont code points for a consistent icon-font style.
+- Toolbar previews support custom button icons and inline font sizes, with icons tinted according to the active theme.
 - The main settings page supports search, including cross-page navigation and automatic positioning of matched settings.
 - Layout, key, font, and popup editors use state-aware save icons.
 - The input bar includes a more semantic hide-keyboard icon for better visual clarity.
@@ -108,6 +113,7 @@ If your workflow is “copy on desktop, input on phone” or “copy on phone, r
 - The About page includes a `Check for updates` entry that compares against the latest stable GitHub Release.
 - When a new version is found, the app downloads an APK matching the current package name and device ABI, then lets the user start installation manually.
 - Locally built and CI artifacts use a date plus short commit hash in their version segment to make issue tracing easier.
+- Application and plugin update downloads show determinate progress and support canceling the current download.
 
 ### 7. Multi-theme switching
 
