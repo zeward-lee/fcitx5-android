@@ -4,6 +4,7 @@
  */
 package org.fxboomk.fcitx5.android.ui.main.settings.behavior.dialog
 
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -847,7 +848,10 @@ class MacroEditorActivity : AppCompatActivity() {
     private fun updateSaveButtonState() {
         hasChanges = isStepsChanged()
         // Update menu button enabled state
-        saveMenuItem?.isEnabled = hasChanges
+        saveMenuItem?.let { menuItem ->
+            menuItem.isEnabled = hasChanges
+            menuItem.icon?.mutate()?.setTint(if (hasChanges) Color.BLACK else Color.GRAY)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
