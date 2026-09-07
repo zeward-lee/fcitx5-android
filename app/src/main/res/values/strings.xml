@@ -764,6 +764,8 @@
     <string name="text_keyboard_layout_key_alt_text_color">Secondary Text Color</string>
     <string name="text_keyboard_layout_key_background_color">Background Color</string>
     <string name="text_keyboard_layout_key_shadow_color">Shadow Color</string>
+    <string name="text_keyboard_layout_key_color_mode_recent">Recent Colors</string>
+    <string name="text_keyboard_layout_key_color_mode_last">Last Color</string>
     <string name="text_keyboard_layout_key_color_mode_theme">Follow Theme</string>
     <string name="text_keyboard_layout_key_color_mode_custom">Custom Color</string>
     <string name="text_keyboard_layout_key_color_mode_theme_key_pick">Use Theme Color</string>
