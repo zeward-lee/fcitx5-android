@@ -109,6 +109,7 @@ class KeyEditorActivity : AppCompatActivity() {
     private var keyColorOverrides: LinkedHashMap<String, Any?> = LinkedHashMap()
     private var inheritedBaseKeyColorData: MutableMap<String, Any?> = mutableMapOf()
     private var composeOverrideData: MutableMap<String, Any?>? = null
+    private val colorSelectionHistory by lazy { ColorSelectionHistory(this) }
 
     private lateinit var typeSpinner: Spinner
     private lateinit var fieldsContainer: LinearLayout
@@ -192,6 +193,10 @@ class KeyEditorActivity : AppCompatActivity() {
         registerForActivityResult(ThemeColorEditorActivity.Contract()) { result ->
             result ?: return@registerForActivityResult
             val field = editableColorFields.firstOrNull { it.customKey == result.fieldName } ?: return@registerForActivityResult
+            colorSelectionHistory.record(
+                colorHistoryAttribute(field),
+                ColorSelection.Argb(result.color)
+            )
             persistCurrentDraft()
             setColorOverride(field, result.color, null)
             rebuildFields()
@@ -954,6 +959,16 @@ class KeyEditorActivity : AppCompatActivity() {
         val options = mutableListOf<String>()
         val actions = mutableListOf<() -> Unit>()
 
+        if (colorSelectionHistory.recent().isNotEmpty()) {
+            options += getString(R.string.text_keyboard_layout_key_color_mode_recent)
+            actions += { showRecentColorOptions(field) }
+        }
+
+        colorSelectionHistory.last(colorHistoryAttribute(field))?.let { last ->
+            options += getString(R.string.text_keyboard_layout_key_color_mode_last)
+            actions += { applyColorSelection(field, last) }
+        }
+
         options += getString(R.string.text_keyboard_layout_key_color_mode_theme)
         actions += {
             persistCurrentDraft()
@@ -980,6 +995,50 @@ class KeyEditorActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showRecentColorOptions(field: EditableColorField) {
+        val recent = colorSelectionHistory.recent()
+        if (recent.isEmpty()) return
+        AlertDialog.Builder(this)
+            .setTitle(R.string.text_keyboard_layout_key_color_mode_recent)
+            .setItems(
+                recent.map(::formatColorSelection).toTypedArray()
+            ) { _, which ->
+                recent.getOrNull(which)?.let { applyColorSelection(field, it) }
+            }
+            .show()
+    }
+
+    private fun applyColorSelection(field: EditableColorField, selection: ColorSelection) {
+        when (selection) {
+            is ColorSelection.Argb -> {
+                colorSelectionHistory.record(colorHistoryAttribute(field), selection)
+                persistCurrentDraft()
+                setColorOverride(field, selection.color, null)
+            }
+            is ColorSelection.Monet -> {
+                colorSelectionHistory.record(colorHistoryAttribute(field), selection)
+                persistCurrentDraft()
+                setColorOverride(field, null, selection.resourceId)
+            }
+            is ColorSelection.ThemeReference -> {
+                colorSelectionHistory.record(colorHistoryAttribute(field), selection)
+                persistCurrentDraft()
+                setColorOverride(field, null, selection.reference)
+            }
+        }
+        rebuildFields()
+        updateActionButtonState()
+    }
+
+    private fun colorHistoryAttribute(field: EditableColorField): String =
+        "key:${field.customKey}"
+
+    private fun formatColorSelection(selection: ColorSelection): String = when (selection) {
+        is ColorSelection.Argb -> formatAndroidColorCode(selection.color)
+        is ColorSelection.Monet -> formatColorReferenceName(selection.resourceId)
+        is ColorSelection.ThemeReference -> formatColorReferenceName(selection.reference)
+    }
+
     private fun openThemeColorTokenPicker(field: EditableColorField) {
         val theme = ThemeManager.activeTheme
         val currentToken = (keyColorOverrides[field.monetKey] as? String)
@@ -995,8 +1054,13 @@ class KeyEditorActivity : AppCompatActivity() {
             ) { dialog, which ->
                 val token = ThemeColorTokenPicker.tokens.getOrNull(which)
                     ?: return@setSingleChoiceItems
+                val reference = "$THEME_COLOR_REF_PREFIX$token"
+                colorSelectionHistory.record(
+                    colorHistoryAttribute(field),
+                    ColorSelection.ThemeReference(reference)
+                )
                 persistCurrentDraft()
-                setColorOverride(field, null, "$THEME_COLOR_REF_PREFIX$token")
+                setColorOverride(field, null, reference)
                 dialog.dismiss()
                 rebuildFields()
                 updateActionButtonState()
@@ -1048,10 +1112,7 @@ class KeyEditorActivity : AppCompatActivity() {
             current,
             object : SystemColorResourcePickerDialog.OnColorResourceSelectedListener {
                 override fun onColorResourceSelected(resourceId: SystemColorResourceId) {
-                    persistCurrentDraft()
-                    setColorOverride(field, null, resourceId.resourceId)
-                    rebuildFields()
-                    updateActionButtonState()
+                    applyColorSelection(field, ColorSelection.Monet(resourceId.resourceId))
                 }
             }
         )
