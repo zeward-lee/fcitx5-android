@@ -111,6 +111,7 @@ lint/tmp/
 
 .omx/
 .claude/
+.agents/
 .gitnexus
 .codegraph
 .local-thirdparty-artifacts/
