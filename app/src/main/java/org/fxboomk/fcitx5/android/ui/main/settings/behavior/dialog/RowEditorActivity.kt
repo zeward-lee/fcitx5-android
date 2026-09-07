@@ -90,10 +90,15 @@ class RowEditorActivity : AppCompatActivity() {
     private lateinit var backgroundStyleSpinner: Spinner
     private lateinit var backgroundColorValue: TextView
     private lateinit var backgroundColorSwatch: View
+    private val colorSelectionHistory by lazy { ColorSelectionHistory(this) }
 
     private val colorEditorLauncher =
         registerForActivityResult(ThemeColorEditorActivity.Contract()) { result ->
             result ?: return@registerForActivityResult
+            colorSelectionHistory.record(
+                COLOR_HISTORY_ATTRIBUTE,
+                ColorSelection.Argb(result.color)
+            )
             rowStyle = rowStyle.copy(backgroundColor = result.color, backgroundColorMonet = null)
             bindUiState()
         }
@@ -340,6 +345,16 @@ class RowEditorActivity : AppCompatActivity() {
         val options = mutableListOf<String>()
         val actions = mutableListOf<() -> Unit>()
 
+        if (colorSelectionHistory.recent().isNotEmpty()) {
+            options += getString(R.string.text_keyboard_layout_key_color_mode_recent)
+            actions += { showRecentColorOptions() }
+        }
+
+        colorSelectionHistory.last(COLOR_HISTORY_ATTRIBUTE)?.let { last ->
+            options += getString(R.string.text_keyboard_layout_key_color_mode_last)
+            actions += { applyColorSelection(last) }
+        }
+
         options += getString(R.string.text_keyboard_layout_key_color_mode_theme)
         actions += {
             rowStyle = rowStyle.copy(backgroundColor = null, backgroundColorMonet = null)
@@ -365,6 +380,44 @@ class RowEditorActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showRecentColorOptions() {
+        val recent = colorSelectionHistory.recent()
+        if (recent.isEmpty()) return
+        AlertDialog.Builder(this)
+            .setTitle(R.string.text_keyboard_layout_key_color_mode_recent)
+            .setItems(
+                recent.map(::formatColorSelection).toTypedArray()
+            ) { _, which ->
+                recent.getOrNull(which)?.let { applyColorSelection(it) }
+            }
+            .show()
+    }
+
+    private fun applyColorSelection(selection: ColorSelection) {
+        colorSelectionHistory.record(COLOR_HISTORY_ATTRIBUTE, selection)
+        rowStyle = when (selection) {
+            is ColorSelection.Argb -> rowStyle.copy(
+                backgroundColor = selection.color,
+                backgroundColorMonet = null
+            )
+            is ColorSelection.Monet -> rowStyle.copy(
+                backgroundColor = null,
+                backgroundColorMonet = selection.resourceId
+            )
+            is ColorSelection.ThemeReference -> rowStyle.copy(
+                backgroundColor = null,
+                backgroundColorMonet = selection.reference
+            )
+        }
+        bindUiState()
+    }
+
+    private fun formatColorSelection(selection: ColorSelection): String = when (selection) {
+        is ColorSelection.Argb -> String.format("#%08X", selection.color)
+        is ColorSelection.Monet -> formatColorReferenceName(selection.resourceId)
+        is ColorSelection.ThemeReference -> formatColorReferenceName(selection.reference)
+    }
+
     private fun openThemeColorTokenPicker() {
         val currentToken = rowStyle.backgroundColorMonet
             ?.takeIf { it.startsWith(THEME_COLOR_REF_PREFIX) }
@@ -384,9 +437,14 @@ class RowEditorActivity : AppCompatActivity() {
             ) { dialog, which ->
                 val token = ThemeColorTokenPicker.tokens.getOrNull(which)
                     ?: return@setSingleChoiceItems
+                val reference = "$THEME_COLOR_REF_PREFIX$token"
+                colorSelectionHistory.record(
+                    COLOR_HISTORY_ATTRIBUTE,
+                    ColorSelection.ThemeReference(reference)
+                )
                 rowStyle = rowStyle.copy(
                     backgroundColor = null,
-                    backgroundColorMonet = "$THEME_COLOR_REF_PREFIX$token"
+                    backgroundColorMonet = reference
                 )
                 dialog.dismiss()
                 bindUiState()
@@ -415,11 +473,7 @@ class RowEditorActivity : AppCompatActivity() {
             current,
             object : SystemColorResourcePickerDialog.OnColorResourceSelectedListener {
                 override fun onColorResourceSelected(resourceId: SystemColorResourceId) {
-                    rowStyle = rowStyle.copy(
-                        backgroundColor = null,
-                        backgroundColorMonet = resourceId.resourceId
-                    )
-                    bindUiState()
+                    applyColorSelection(ColorSelection.Monet(resourceId.resourceId))
                 }
             }
         )
@@ -534,6 +588,7 @@ class RowEditorActivity : AppCompatActivity() {
 
         const val RESULT_ACTION_SAVE = "save"
 
+        private const val COLOR_HISTORY_ATTRIBUTE = "row:backgroundColor"
         private const val MENU_SAVE_ID = 1
     }
 }
