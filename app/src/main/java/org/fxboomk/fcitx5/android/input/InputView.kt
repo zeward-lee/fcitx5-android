@@ -52,6 +52,7 @@ import org.fxboomk.fcitx5.android.data.theme.ThemeMonet
 import org.fxboomk.fcitx5.android.data.theme.ThemePreset
 import org.fxboomk.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fxboomk.fcitx5.android.utils.DarkenColorFilter
+import org.fxboomk.fcitx5.android.input.calculator.CalculatorExpression
 import org.fxboomk.fcitx5.android.input.config.ConfigChangeListener
 import org.fxboomk.fcitx5.android.input.config.ConfigProviders
 import org.fxboomk.fcitx5.android.input.broadcast.InputBroadcaster
@@ -130,6 +131,7 @@ class InputView(
 ) : BaseInputView(service, fcitx, theme) {
     private companion object {
         const val AI_CANDIDATE_EXPAND_DELAY_MS = 160L
+        const val CALCULATOR_CONTEXT_CHARS = 512
     }
 
     private val keyBorder by ThemeManager.prefs.keyBorder
@@ -2625,6 +2627,15 @@ class InputView(
     }
 
     fun updateSelection(start: Int, end: Int) {
+        val textBeforeCursor = service.currentInputConnection
+            ?.getTextBeforeCursor(CALCULATOR_CONTEXT_CHARS, 0)
+            ?.toString()
+        val calculatorSuggestion = if (start == end) {
+            textBeforeCursor?.let(CalculatorExpression::extractSuggestion)
+        } else {
+            null
+        }
+        horizontalCandidate.updateCalculatorSuggestion(calculatorSuggestion)
         broadcaster.onSelectionUpdate(start, end)
     }
 
@@ -2677,6 +2688,11 @@ class InputView(
                 ?.dismissExpandedCandidateToToolbar()
             kawaiiBar.restoreToolbarAfterPredictionCancelled()
         }
+    }
+
+    internal fun commitCalculatorSuggestionFromUi(suggestion: String) {
+        service.commitText(suggestion)
+        horizontalCandidate.updateCalculatorSuggestion(null)
     }
 
     internal fun toggleAiThinkingMode(): Boolean = aiSuggestionStrip.toggleThinkingMode()

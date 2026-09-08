@@ -183,6 +183,22 @@ class HorizontalCandidateComponentTest {
     }
 
     @Test
+    fun `keeps calculator result when the candidate row has no measured width`() {
+        val placement = placeAiCandidatesInRow(
+            nativeCandidates = arrayOf("51.8"),
+            aiSuggestions = listOf("ai"),
+            availableWidth = 1,
+            dividerWidth = 1,
+            maxCandidateCount = Int.MAX_VALUE,
+        ) { candidate ->
+            if (candidate == "51.8") 80 else 40
+        }
+
+        assertEquals(listOf("51.8"), placement.candidates.toList())
+        assertEquals(0, placement.visibleAiCount)
+    }
+
+    @Test
     fun `places ai suggestion in empty row when it fits completely`() {
         val placement = placeAiCandidatesInRow(
             nativeCandidates = emptyArray(),

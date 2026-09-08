@@ -735,6 +735,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         } else {
             ic.deleteSurroundingText(before, after)
         }
+        refreshInputViewSelectionAfterEdit()
     }
 
     private fun handleBackspaceKey() {
@@ -757,11 +758,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // in almost every EditText.
         if (editorInfo.privateImeOptions != DeleteSurroundingFlag || isTypeNull) {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
+            refreshInputViewSelectionAfterEdit()
             return
         }
         if (!hasSelection) {
             if (lastSelection.start <= 0) {
                 sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
+                refreshInputViewSelectionAfterEdit()
                 return
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -772,6 +775,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         } else {
             ic.commitText("", 0)
         }
+        refreshInputViewSelectionAfterEdit()
     }
 
     private fun handleReturnKey() {
@@ -850,6 +854,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
                 ic.finishComposingText()
             }
+            refreshInputViewSelectionAfterEdit()
             return
         }
         // committed text should replace composing (if any), replace selected range (if any),
@@ -866,6 +871,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 commitText(text, 1)
                 setSelection(target, target)
             }
+        }
+        refreshInputViewSelectionAfterEdit()
+    }
+
+    private fun refreshInputViewSelectionAfterEdit() {
+        contentView.post {
+            val latest = selection.latest
+            inputView?.updateSelection(latest.start, latest.end)
         }
     }
 
@@ -1099,6 +1112,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (lastSelection.isEmpty()) return
         selection.predict(lastSelection.start)
         currentInputConnection?.commitText("", 1)
+        refreshInputViewSelectionAfterEdit()
     }
 
     fun sendCombinationKeyEvents(

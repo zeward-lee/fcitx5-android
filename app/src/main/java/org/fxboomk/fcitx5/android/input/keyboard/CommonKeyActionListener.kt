@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fxboomk.fcitx5.android.core.CapabilityFlag
 import org.fxboomk.fcitx5.android.core.CapabilityFlags
 import org.fxboomk.fcitx5.android.core.FcitxAPI
@@ -248,7 +249,10 @@ class CommonKeyActionListener :
                                 hasNativePredictionCandidatesVisible = hasNativePredictionCandidatesVisible(),
                                 predictionSpaceBehavior = predictionSpaceBehavior,
                             ) -> {
-                            if (!service.selectVisibleCandidateHighlight()) {
+                            val selected = withContext(Dispatchers.Main.immediate) {
+                                service.selectVisibleCandidateHighlight()
+                            }
+                            if (!selected) {
                                 sendKey(action.sym, action.states)
                             }
                         }

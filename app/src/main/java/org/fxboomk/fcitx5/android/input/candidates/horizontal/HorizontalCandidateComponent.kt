@@ -204,6 +204,7 @@ class HorizontalCandidateComponent :
     private var hasExpandedNativeCandidates = false
     private var aiDisplayMode = LlmPrefs.PredictionDisplayMode.FloatingWindow
     private var aiSuggestions: List<String> = emptyList()
+    private var calculatorSuggestion: String? = null
     private var expandedAiSuggestions: List<String> = emptyList()
     private val rowWindowHistory = ArrayDeque<RowWindow>()
 
@@ -215,6 +216,7 @@ class HorizontalCandidateComponent :
     )
 
     private var nativeCandidateSnapshot = NativeCandidateSnapshot()
+    private var displayedCalculatorIndex = -1
 
     private data class RowWindow(
         val start: Int,
@@ -282,6 +284,7 @@ class HorizontalCandidateComponent :
         resetRowWindowState()
         updateNativeCandidateSnapshot(emptyArray(), 0, 0, -1)
         aiSuggestions = emptyList()
+        calculatorSuggestion = null
         renderCurrentCandidates()
     }
 
@@ -296,6 +299,10 @@ class HorizontalCandidateComponent :
     fun selectActiveCandidate(): Boolean {
         val idx = adapter.activeIndex
         if (idx !in adapter.candidates.indices) return false
+        if (isCalculatorCandidatePosition(idx)) {
+            calculatorSuggestion?.let(inputView::commitCalculatorSuggestionFromUi)
+            return true
+        }
         if (isAiCandidatePosition(idx)) {
             inputView.commitAiSuggestionFromUi(adapter.candidates[idx].text)
             return true
@@ -304,8 +311,11 @@ class HorizontalCandidateComponent :
         return true
     }
 
+    private fun isCalculatorCandidatePosition(position: Int): Boolean =
+        position == displayedCalculatorIndex
+
     private fun isAiCandidatePosition(position: Int): Boolean =
-        showingAiSuggestions || (displayedAiStartIndex >= 0 && position >= displayedAiStartIndex)
+        displayedAiStartIndex >= 0 && position >= displayedAiStartIndex
 
     private fun candidateFetchBatchSize(): Int = max(maxSpanCountPref.getValue() * 3, 24)
 
@@ -364,7 +374,10 @@ class HorizontalCandidateComponent :
 
     private fun aiSuggestionCandidate(text: String) = CandidateWord("", text, "", false)
 
-    private fun placeAiSuggestionsAfterNative(nativeCandidates: Array<CandidateWord>): CandidateWordRowPlacement {
+    private fun placeAiSuggestionsAfterNative(
+        nativeCandidates: Array<CandidateWord>,
+        suggestions: List<String> = aiSuggestions,
+    ): CandidateWordRowPlacement {
         val availableWidth = (view.width - view.paddingLeft - view.paddingRight).coerceAtLeast(1)
         val maxSpanCount = maxSpanCountPref.getValue()
         val layoutMinWidth = when (fillStyle) {
@@ -378,7 +391,7 @@ class HorizontalCandidateComponent :
         }
         val placement = placeAiCandidatesInRow(
             nativeCandidates = nativeCandidates.map { it.textWithComment() }.toTypedArray(),
-            aiSuggestions = aiSuggestions,
+            aiSuggestions = suggestions,
             availableWidth = availableWidth,
             dividerWidth = dividerDrawable.intrinsicWidth,
             maxCandidateCount = maxCandidateCount,
@@ -470,16 +483,19 @@ class HorizontalCandidateComponent :
                 holder.ui.setFontScale(
                     if (inlineMode) INLINE_CANDIDATE_FONT_SCALE else 1f
                 )
+                val isCalculatorCandidate = isCalculatorCandidatePosition(position)
                 val isAiCandidate = isAiCandidatePosition(position)
                 holder.itemView.setOnClickListener {
-                    if (isAiCandidate) {
+                    if (isCalculatorCandidate) {
+                        calculatorSuggestion?.let(inputView::commitCalculatorSuggestionFromUi)
+                    } else if (isAiCandidate) {
                         inputView.commitAiSuggestionFromUi(holder.text)
                     } else {
                         fcitx.launchOnReady { it.select(holder.idx) }
                     }
                 }
                 holder.itemView.setOnLongClickListener {
-                    if (isAiCandidate) {
+                    if (isCalculatorCandidate || isAiCandidate) {
                         false
                     } else {
                         inputView.showCandidateActionMenu(holder.idx, holder.text, holder.ui.root)
@@ -632,6 +648,12 @@ class HorizontalCandidateComponent :
         renderCurrentCandidates()
     }
 
+    internal fun updateCalculatorSuggestion(suggestion: String?) {
+        if (calculatorSuggestion == suggestion) return
+        calculatorSuggestion = suggestion
+        renderCurrentCandidates()
+    }
+
     private fun renderCandidateWindow(
         candidates: Array<CandidateWord>,
         total: Int,
@@ -666,45 +688,87 @@ class HorizontalCandidateComponent :
     private fun renderCurrentCandidates() {
         expandedAiSuggestions = emptyList()
         displayedAiStartIndex = -1
+        displayedCalculatorIndex = -1
 
         val normalizedNative = normalizedSingleRowCandidates(nativeCandidateSnapshot.candidates)
         displayedNativeCount = normalizedNative.size
         hasExpandedNativeCandidates = hasMoreNativeCandidates(displayedNativeCount)
 
-        if (aiDisplayMode == LlmPrefs.PredictionDisplayMode.CandidateBar && aiSuggestions.isNotEmpty()) {
-            renderAiOnlyCandidates(aiSuggestions.toTypedArray())
+        val extraSuggestions = buildList {
+            calculatorSuggestion?.let(::add)
+            addAll(aiSuggestions)
+        }
+        if (aiDisplayMode == LlmPrefs.PredictionDisplayMode.CandidateBar &&
+            extraSuggestions.isNotEmpty()
+        ) {
+            renderAiOnlyCandidates(
+                extraSuggestions.toTypedArray(),
+                calculatorIncluded = calculatorSuggestion != null,
+            )
             return
         }
 
         showingAiSuggestions = false
-        if (aiDisplayMode == LlmPrefs.PredictionDisplayMode.CandidateExpanded && aiSuggestions.isNotEmpty()) {
-            val placement = placeAiSuggestionsAfterNative(normalizedNative)
+        if (aiDisplayMode == LlmPrefs.PredictionDisplayMode.CandidateExpanded &&
+            extraSuggestions.isNotEmpty()
+        ) {
+            // Calculator results are mandatory row content. Only AI suggestions are
+            // width-limited and moved to the expanded area when they do not fit.
+            val calculatorCandidate = calculatorSuggestion?.let(::aiSuggestionCandidate)
+            val rowNativeCandidates = if (calculatorCandidate != null) {
+                normalizedNative + calculatorCandidate
+            } else {
+                normalizedNative
+            }
+            val placement = placeAiSuggestionsAfterNative(rowNativeCandidates, aiSuggestions)
             val visibleAiCount = placement.visibleAiCount
-            displayedAiStartIndex = normalizedNative.size.takeIf { visibleAiCount > 0 } ?: -1
+            displayedCalculatorIndex =
+                normalizedNative.size.takeIf { calculatorCandidate != null } ?: -1
+            displayedAiStartIndex = normalizedNative.size
+                .plus(if (calculatorCandidate != null) 1 else 0)
+                .takeIf { visibleAiCount > 0 }
+                ?: -1
             expandedAiSuggestions = aiSuggestions.drop(visibleAiCount)
             hasExpandableCandidates = hasExpandedNativeCandidates || expandedAiSuggestions.isNotEmpty()
             updateCandidates(
                 placement.candidates,
                 nativeCandidateSnapshot.total,
-                nativeCandidateSnapshot.activeIndex,
+                nativeCandidateSnapshot.activeIndex.takeIf {
+                    it >= 0 || normalizedNative.isNotEmpty()
+                } ?: activeCandidateIndex(0, placement.candidates.size),
                 nativeCandidateSnapshot.indexOffset,
             )
             return
         }
 
         hasExpandableCandidates = hasExpandedNativeCandidates
+        displayedCalculatorIndex = calculatorSuggestion?.let { normalizedNative.size } ?: -1
+        val calculatorCandidates = calculatorSuggestion
+            ?.let { arrayOf(aiSuggestionCandidate(it)) }
+            ?: emptyArray()
+        val renderedCandidates = normalizedNative + calculatorCandidates
         updateCandidates(
-            normalizedNative,
+            renderedCandidates,
             nativeCandidateSnapshot.total,
-            nativeCandidateSnapshot.activeIndex,
+            nativeCandidateSnapshot.activeIndex.takeIf {
+                it >= 0 || normalizedNative.isNotEmpty()
+            } ?: activeCandidateIndex(0, renderedCandidates.size),
             nativeCandidateSnapshot.indexOffset,
         )
     }
 
-    private fun renderAiOnlyCandidates(candidates: Array<String>) {
-        showingAiSuggestions = candidates.isNotEmpty()
+    private fun renderAiOnlyCandidates(
+        candidates: Array<String>,
+        calculatorIncluded: Boolean,
+    ) {
+        showingAiSuggestions = aiSuggestions.isNotEmpty()
         displayedNativeCount = 0
-        displayedAiStartIndex = 0
+        displayedCalculatorIndex = if (calculatorIncluded) 0 else -1
+        displayedAiStartIndex = if (aiSuggestions.isNotEmpty()) {
+            if (calculatorIncluded) 1 else 0
+        } else {
+            -1
+        }
         hasExpandedNativeCandidates = false
         hasExpandableCandidates = false
         val singleRowCandidates = normalizedSingleRowCandidates(
@@ -729,6 +793,7 @@ class HorizontalCandidateComponent :
         resetRowWindowState()
         updateNativeCandidateSnapshot(emptyArray(), 0, 0, -1)
         aiSuggestions = emptyList()
+        calculatorSuggestion = null
         renderCurrentCandidates()
     }
 
