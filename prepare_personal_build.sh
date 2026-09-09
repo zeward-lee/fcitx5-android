@@ -17,11 +17,10 @@ PREBUILT_DIR="${PROJECT_ROOT}/lib/fcitx5/src/main/cpp/prebuilt"
 
 # Patch files
 RIME_SCHEMA_NAME_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-full-schema-name.patch"
-RIME_PREEDIT_LABEL_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-preedit-cursor-label.patch"
 RIME_SCHEMA_SELECTOR_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-schema-selector.patch"
-# FCITX5_ALT_TRIGGER_PATCH="${RIME_DIR}/fcitx5-alt-trigger-v4point1.patch"
 FCITX5_GLOBAL_OPTIONS_UI_PATCH="${PROJECT_ROOT}/lib/fcitx5/fcitx5-global-options-ui.patch"
 FCITX5_INSERT_SPACE_ZH_EN_PATCH="${PROJECT_ROOT}/lib/fcitx5/fcitx5-insert-space-zh-en.patch"
+# RIME_PREEDIT_LABEL_PATCH="${PROJECT_ROOT}/plugin/rime/fcitx5-rime-preedit-cursor-label.patch"
 
 apply_patch() {
     local repository="$1"
@@ -48,13 +47,12 @@ git -C "${RIME_DIR}" checkout gh/master
 # apply patches for fcitx5-rime
 echo "applying fcitx5-rime patches"
 apply_patch "${RIME_DIR}" "${RIME_SCHEMA_NAME_PATCH}" "schema name"
-apply_patch "${RIME_DIR}" "${RIME_PREEDIT_LABEL_PATCH}" "preedit cursor label"
 apply_patch "${RIME_DIR}" "${RIME_SCHEMA_SELECTOR_PATCH}" "schema selector"
+# apply_patch "${RIME_DIR}" "${RIME_PREEDIT_LABEL_PATCH}" "preedit cursor label"
 
 # apply fcitx5 patches
 echo "applying fcitx5 patches"
 git -C "${FCITX5_DIR}" checkout -- .
-# apply_patch "${FCITX5_DIR}" "${FCITX5_ALT_TRIGGER_PATCH}" "alt-trigger"
 apply_patch "${FCITX5_DIR}" "${FCITX5_GLOBAL_OPTIONS_UI_PATCH}" "global-options-ui"
 apply_patch "${FCITX5_DIR}" "${FCITX5_INSERT_SPACE_ZH_EN_PATCH}" "insert-space-zh-en"
 
