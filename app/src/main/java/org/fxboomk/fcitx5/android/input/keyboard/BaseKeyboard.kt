@@ -1812,7 +1812,7 @@ abstract class BaseKeyboard(
     private fun executeClearBeforeCursor() {
         val service = getService() ?: return
         val ic = service.currentInputConnection ?: return
-        val cursorEnd = ic.getSelectionEnd()
+        val cursorEnd = ic.getTextBeforeCursor(10000, 0)?.length ?: 0
         if (cursorEnd > 0) {
             ic.beginBatchEdit()
             ic.setSelection(0, cursorEnd)
