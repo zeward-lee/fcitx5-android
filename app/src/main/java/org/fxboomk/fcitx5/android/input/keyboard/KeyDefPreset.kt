@@ -637,7 +637,7 @@ class MacroKey(
         displayText = label,
         altText = altLabel ?: "",
         altText1 = altLabel1,
-        character = character,
+        character = label.lowercase(),
         textSize = 23f,
         percentWidth = percentWidth,
         variant = variant,
