@@ -1811,6 +1811,8 @@ abstract class BaseKeyboard(
 
     private fun executeClearBeforeCursor() {
         val service = getService() ?: return
+        // Reset Rime to clear candidates and composing/preedit state
+        service.postFcitxJob { reset() }
         val ic = service.currentInputConnection ?: return
         val cursorEnd = ic.getTextBeforeCursor(10000, 0)?.length ?: 0
         if (cursorEnd > 0) {
