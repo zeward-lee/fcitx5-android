@@ -2,7 +2,7 @@
 
 set -e  # Exit on error
 
-FCITX5_RIME_REPO="${FCITX5_RIME_REPO:-https://github.com/fcitx/fcitx5-rime.git}"
+FCITX5_RIME_REPO="${FCITX5_RIME_REPO:-https://github.com/boomker/fcitx5-rime.git}"
 PREBUILT_REPO="${PREBUILT_REPO:-https://github.com/boomker/f5a-prebuilt.git}"
 PREBUILDER_REPO="${PREBUILDER_REPO:-https://github.com/boomker/f5a-prebuilder.git}"
 

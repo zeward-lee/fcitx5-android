@@ -94,7 +94,7 @@ jobs:
       - name: Prepare personal build sources
         env:
           # FCITX5_RIME_REPO: https://github.com/fxliang/fcitx5-rime.git
-          FCITX5_RIME_REPO: https://github.com/fcitx/fcitx5-rime.git
+          FCITX5_RIME_REPO: https://github.com/boomker/fcitx5-rime.git
           PREBUILT_REPO: https://github.com/boomker/f5a-prebuilt.git
           PREBUILDER_REPO: https://github.com/boomker/f5a-prebuilder.git
         run: |
