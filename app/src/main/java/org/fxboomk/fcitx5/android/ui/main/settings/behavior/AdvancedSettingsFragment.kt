@@ -25,6 +25,7 @@ import org.fxboomk.fcitx5.android.ui.common.withLoadingDialog
 import org.fxboomk.fcitx5.android.ui.main.MainViewModel
 import org.fxboomk.fcitx5.android.utils.AppUtil
 import org.fxboomk.fcitx5.android.utils.addPreference
+import org.fxboomk.fcitx5.android.ui.main.settings.behavior.webeditor.ImeWebEditorBridgeServer
 import org.fxboomk.fcitx5.android.utils.buildDocumentsProviderIntent
 import org.fxboomk.fcitx5.android.utils.buildPrimaryStorageIntent
 import org.fxboomk.fcitx5.android.utils.formatDateTime
@@ -135,6 +136,23 @@ class AdvancedSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance(
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
+        }
+        screen.addPreference(
+            "网页编辑器",
+            summary = "启动本地网页编辑器服务器并在浏览器中打开"
+        ) {
+            val session = ImeWebEditorBridgeServer.start()
+            val url = session.editorUrl
+            try {
+                val intent = android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse(url)
+                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                ctx.startActivity(intent)
+                ctx.toast("网页编辑器已启动：$url")
+            } catch (e: Exception) {
+                ctx.toast(e)
+            }
         }
     }
 }
