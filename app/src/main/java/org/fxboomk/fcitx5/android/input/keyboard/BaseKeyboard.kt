@@ -797,7 +797,7 @@ abstract class BaseKeyboard(
                             val result = if (clearOnSwipeUp && lock == SwipeAxis.Y && deltaY < -inputSwipeThreshold && !upClearTriggered) {
                                 // Up event commits clear, not Move (must-fix 2)
                                 upClearTriggered = true
-                                executeClearAll()
+                                executeClearBeforeCursor()
                                 InputFeedbacks.hapticFeedback(view, true)
                                 true
                             } else if (def.swipe != null &&
@@ -839,7 +839,7 @@ abstract class BaseKeyboard(
                     if (!backspaceClearTriggered && checkBackspaceClearPopupHit(v, x, y)) {
                         backspaceClearTriggered = true
                         InputFeedbacks.hapticFeedback(v, true)
-                        executeClearAll()
+                        executeClearBeforeCursor()
                         dismissBackspaceClearPopup()
                     }
                 }
@@ -1807,6 +1807,18 @@ abstract class BaseKeyboard(
         ic.performContextMenuAction(android.R.id.selectAll)
         ic.commitText("", 1)
         ic.endBatchEdit()
+    }
+
+    private fun executeClearBeforeCursor() {
+        val service = getService() ?: return
+        val ic = service.currentInputConnection ?: return
+        val cursorEnd = ic.getSelectionEnd()
+        if (cursorEnd > 0) {
+            ic.beginBatchEdit()
+            ic.setSelection(0, cursorEnd)
+            ic.commitText("", 0)
+            ic.endBatchEdit()
+        }
     }
 
     /**
