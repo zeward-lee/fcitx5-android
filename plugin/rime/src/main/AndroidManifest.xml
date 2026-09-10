@@ -3,5 +3,14 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name" />
+        android:label="@string/app_name">
+        <activity
+            android:name=".PluginManifestActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="${mainApplicationId}.plugin.MANIFEST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>
