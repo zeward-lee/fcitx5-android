@@ -45,6 +45,7 @@ object LayoutJsonUtils {
         "rowHeightPercent",
         "tap",
         "swipe",
+        "swipeDown",
         "longPress",
         "composeOverride",
         "independentColor",
@@ -250,6 +251,7 @@ object LayoutJsonUtils {
             shadowColorMonet = obj["shadowColorMonet"]?.jsonPrimitive?.contentOrNull,
             tap = obj["tap"]?.jsonObject?.let { parseMacroAction(it) },
             swipe = obj["swipe"]?.jsonObject?.let { parseMacroAction(it) },
+            swipeDown = obj["swipeDown"]?.jsonObject?.let { parseMacroAction(it) },
             longPress = obj["longPress"]?.jsonObject?.let { parseMacroAction(it) },
             independentColor = independentColor,
             composeOverride = composeOverride
@@ -522,6 +524,7 @@ object LayoutJsonUtils {
         val shadowColorMonet: String? = null,
         val tap: MacroAction? = null,  // MacroKey 使用
         val swipe: MacroAction? = null,  // MacroKey 使用
+        val swipeDown: MacroAction? = null,  // MacroKey 使用
         val longPress: MacroAction? = null,  // MacroKey 使用
         val independentColor: Boolean? = null,
         val composeOverride: KeyJson? = null
@@ -617,6 +620,7 @@ object LayoutJsonUtils {
                 }
                 json["tap"] = macroActionToJson(keyDef.tap)
                 keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                keyDef.swipeDown?.let { json["swipeDown"] = macroActionToJson(it) }
                 keyDef.longPress?.let { json["longPress"] = macroActionToJson(it) }
                 json["weight"] = appearance.percentWidth.takeIf { it != 0.1f }
             }
@@ -871,6 +875,7 @@ object LayoutJsonUtils {
                     longPressLabel = key.longPressLabel,
                     tap = tap,
                     swipe = key.swipe,
+                    swipeDown = key.swipeDown,
                     longPress = key.longPress,
                     percentWidth = key.weight ?: 0.1f,
                     textColor = key.textColor,

@@ -619,6 +619,7 @@ class MacroKey(
     val longPressLabel: String? = null,
     val tap: MacroAction,
     val swipe: MacroAction? = null,
+    val swipeDown: MacroAction? = null,
     val longPress: MacroAction? = null,
     percentWidth: Float = 0.1f,
     variant: Variant = Variant.Normal,
@@ -649,7 +650,7 @@ class MacroKey(
         shadowColor = shadowColor,
         shadowColorMonet = shadowColorMonet
     ),
-    buildBehaviors(tap, swipe, longPress),
+    buildBehaviors(tap, swipe, longPress, swipeDown),
     buildPopup(popup, tap, label, longPress, longPressLabel)
 ) {
     private companion object {
@@ -719,11 +720,12 @@ class MacroKey(
         fun buildBehaviors(
             tap: MacroAction,
             swipe: MacroAction?,
-            longPress: MacroAction?
+            longPress: MacroAction?,
+            swipeDown: MacroAction? = null
         ): Set<Behavior> {
             return buildSet {
                 add(Behavior.Press(tap))
-                swipe?.let { add(Behavior.Swipe(it)) }
+                swipe?.let { add(Behavior.Swipe(it, swipeDown)) }
                 longPress?.let { add(Behavior.LongPress(it)) }
             }
         }

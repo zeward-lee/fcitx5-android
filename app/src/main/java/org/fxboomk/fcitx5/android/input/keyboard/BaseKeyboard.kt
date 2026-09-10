@@ -753,20 +753,54 @@ abstract class BaseKeyboard(
                 swipeRepeatEnabled = true
                 swipeThresholdX = selectionSwipeThreshold
                 swipeThresholdY = if (def.swipe != null) inputSwipeThreshold else disabledSwipeThreshold
+                // Swipe-up clear only enabled when no swipe macro and on TextKeyboard (must-fix 3)
+                val clearOnSwipeUp = def.swipe == null && this@BaseKeyboard is TextKeyboard
+                // Direction lock using raw displacement, decoupled from threshold (must-fix 1)
+                var downX = 0f
+                var downY = 0f
+                var swipeDirectionLocked: SwipeAxis? = null
+                var upClearTriggered = false
                 onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {
+                        GestureType.Down -> {
+                            downX = event.x
+                            downY = event.y
+                            swipeDirectionLocked = null
+                            upClearTriggered = false
+                            false
+                        }
                         GestureType.Move -> {
-                            val count = event.countX
-                            if (count != 0) {
-                                onAction(KeyAction.MoveSelectionAction(count))
-                                if (hapticOnRepeat) InputFeedbacks.hapticFeedback(view)
-                                true
-                            } else false
+                            // Lock direction on first displacement using raw coords (must-fix 1)
+                            if (swipeDirectionLocked == null) {
+                                val dx = kotlin.math.abs(event.x - downX)
+                                val dy = kotlin.math.abs(event.y - downY)
+                                if (dx > 1f || dy > 1f) {
+                                    swipeDirectionLocked = if (dx >= dy) SwipeAxis.X else SwipeAxis.Y
+                                }
+                            }
+                            // X direction: original MoveSelectionAction; Y direction: no-op, wait for Up (must-fix 2)
+                            if (swipeDirectionLocked == SwipeAxis.X) {
+                                val count = event.countX
+                                if (count != 0) {
+                                    onAction(KeyAction.MoveSelectionAction(count))
+                                    if (hapticOnRepeat) InputFeedbacks.hapticFeedback(view)
+                                    true
+                                } else false
+                            } else {
+                                false
+                            }
                         }
                         GestureType.Up -> {
                             dismissBackspaceClearPopup()
-                            if (
-                                def.swipe != null &&
+                            val lock = swipeDirectionLocked
+                            val deltaY = event.y - downY
+                            val result = if (clearOnSwipeUp && lock == SwipeAxis.Y && deltaY < -inputSwipeThreshold && !upClearTriggered) {
+                                // Up event commits clear, not Move (must-fix 2)
+                                upClearTriggered = true
+                                executeClearAll()
+                                InputFeedbacks.hapticFeedback(view, true)
+                                true
+                            } else if (def.swipe != null &&
                                 kotlin.math.abs(event.totalY) > kotlin.math.abs(event.totalX) &&
                                 shouldTriggerSymbolBySwipe(view, event.totalY)
                             ) {
@@ -778,6 +812,11 @@ abstract class BaseKeyboard(
                                 }
                                 false
                             }
+                            // Reset state on Up, including backspaceClearTriggered (must-fix 2: fix existing bug)
+                            backspaceClearTriggered = false
+                            swipeDirectionLocked = null
+                            upClearTriggered = false
+                            result
                         }
                         else -> false
                     }
@@ -1501,14 +1540,22 @@ abstract class BaseKeyboard(
         return selectSwipeAltTarget(view, totalY) != null
     }
 
-    private fun selectSwipeAltTarget(view: View, totalY: Int): AltTextSwipeTarget? {
+    private fun selectSwipeAltTarget(view: View, totalY: Int, hasDownAction: Boolean = false): AltTextSwipeTarget? {
         if (totalY == 0) return null
         return when (swipeSymbolDirection) {
             SwipeSymbolDirection.Up ->
-                AltTextSwipeTarget.Primary.takeIf { totalY < 0 }
+                if (totalY < 0) AltTextSwipeTarget.Primary
+                else if (hasDownAction) AltTextSwipeTarget.Secondary
+                else null
             SwipeSymbolDirection.Down ->
-                ((view as? SwipeHintAwareKeyView)?.secondarySwipeTarget()
-                    ?: AltTextSwipeTarget.Secondary).takeIf { totalY > 0 }
+                if (hasDownAction) {
+                    // Bidirectional: main (down) -> Primary, reverse (up) -> Secondary
+                    if (totalY > 0) AltTextSwipeTarget.Primary else AltTextSwipeTarget.Secondary
+                } else {
+                    // Original logic preserved for preview/trigger callers
+                    ((view as? SwipeHintAwareKeyView)?.secondarySwipeTarget()
+                        ?: AltTextSwipeTarget.Secondary).takeIf { totalY > 0 }
+                }
             SwipeSymbolDirection.Disabled -> null
             SwipeSymbolDirection.Auto ->
                 (view as? SwipeHintAwareKeyView)?.selectAltTextSwipeTarget(totalY)
@@ -1520,7 +1567,9 @@ abstract class BaseKeyboard(
         totalY: Int,
         behavior: KeyDef.Behavior.Swipe
     ): KeyAction? {
-        return when (selectSwipeAltTarget(view, totalY)) {
+        // Bidirectional fast-path: when downAction is present, main direction -> action, reverse -> downAction
+        val hasDownAction = behavior.downAction != null
+        return when (selectSwipeAltTarget(view, totalY, hasDownAction)) {
             AltTextSwipeTarget.Primary -> behavior.action
             AltTextSwipeTarget.Secondary -> behavior.downAction ?: behavior.action
             AltTextSwipeTarget.Uppercase ->
