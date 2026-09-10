@@ -83,6 +83,11 @@ jobs:
           git commit -m "chore: add fixed debug keystore"
           git push origin HEAD:main
 
+      - name: Use fixed debug keystore for all modules
+        run: |
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
+
       - name: Setup Android environment
         uses: android-actions/setup-android@v4
 
