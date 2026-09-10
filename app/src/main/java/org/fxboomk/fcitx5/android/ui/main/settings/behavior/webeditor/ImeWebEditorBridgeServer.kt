@@ -344,7 +344,7 @@ object ImeWebEditorBridgeServer {
                     writeJson(output, buildJsonObject {
                         put("borderEnabled", JsonPrimitive(prefs.keyBorder.getValue()))
                         put("borderOutline", JsonPrimitive(prefs.keyBorderStroke.getValue()))
-                        put("gboardStyle", JsonPrimitive(prefs.specialKeyOvalShape.getValue()))
+                        // put("gboardStyle", JsonPrimitive(prefs.specialKeyOvalShape.getValue()))
                         put("keyHGap", JsonPrimitive(prefs.keyHorizontalMargin.getValue()))
                         put("keyVGap", JsonPrimitive(prefs.keyVerticalMargin.getValue()))
                         put("keyRadius", JsonPrimitive(prefs.keyRadius.getValue()))
@@ -370,7 +370,7 @@ object ImeWebEditorBridgeServer {
                     val prefs = ThemeManager.prefs
                     body["borderEnabled"]?.jsonPrimitive?.booleanOrNull?.let { prefs.keyBorder.setValue(it) }
                     body["borderOutline"]?.jsonPrimitive?.booleanOrNull?.let { prefs.keyBorderStroke.setValue(it) }
-                    body["gboardStyle"]?.jsonPrimitive?.booleanOrNull?.let { prefs.specialKeyOvalShape.setValue(it) }
+                    // body["gboardStyle"]?.jsonPrimitive?.booleanOrNull?.let { prefs.specialKeyOvalShape.setValue(it) }
                     body["keyHGap"]?.jsonPrimitive?.intOrNull?.let { prefs.keyHorizontalMargin.setValue(it) }
                     body["keyVGap"]?.jsonPrimitive?.intOrNull?.let { prefs.keyVerticalMargin.setValue(it) }
                     body["keyRadius"]?.jsonPrimitive?.intOrNull?.let { prefs.keyRadius.setValue(it) }
@@ -535,9 +535,9 @@ object ImeWebEditorBridgeServer {
             put("clipboardEntryColor", JsonPrimitive(theme.clipboardEntryColor))
             put("genericActiveBackgroundColor", JsonPrimitive(theme.genericActiveBackgroundColor))
             put("genericActiveForegroundColor", JsonPrimitive(theme.genericActiveForegroundColor))
-            if (theme.waterRippleColor != null) {
-                put("waterRippleColor", JsonPrimitive(theme.waterRippleColor!!))
-            }
+            // if (theme.waterRippleColor != null) {
+            //     put("waterRippleColor", JsonPrimitive(theme.waterRippleColor!!))
+            // }
             if (background != null) {
                 put("backgroundImage", background)
             }
@@ -775,14 +775,14 @@ object ImeWebEditorBridgeServer {
     private fun ThemePrefs.PunctuationPosition.toWebValue(): String = when (this) {
         ThemePrefs.PunctuationPosition.Bottom -> "bottom"
         ThemePrefs.PunctuationPosition.TopRight -> "top-right"
-        ThemePrefs.PunctuationPosition.TopCenter -> "top-center"
+        ThemePrefs.PunctuationPosition.Top -> "top-center"
         ThemePrefs.PunctuationPosition.None -> "none"
     }
 
     private fun punctuationPositionFromWebValue(value: String): ThemePrefs.PunctuationPosition? = when (value) {
         "bottom" -> ThemePrefs.PunctuationPosition.Bottom
         "top-right" -> ThemePrefs.PunctuationPosition.TopRight
-        "top-center" -> ThemePrefs.PunctuationPosition.TopCenter
+        "top-center" -> ThemePrefs.PunctuationPosition.Top
         "none" -> ThemePrefs.PunctuationPosition.None
         else -> null
     }
