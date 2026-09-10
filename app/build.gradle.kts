@@ -43,6 +43,10 @@ android {
         buildConfigField("String", "ORIGINAL_DEBUG_PLUGIN_MANIFEST_ACTION", "\"$originalDebugPluginManifestAction\"")
         resValue("string", "ime_settings_activity", imeSettingsActivity)
 
+        ndk {
+            abiFilters += "arm64-v8a"
+        }
+
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
