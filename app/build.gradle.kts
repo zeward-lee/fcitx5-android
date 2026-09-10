@@ -78,6 +78,22 @@ android {
         resValues = true
     }
 
+    // Fixed debug keystore so CI (and local builds) produce consistently-signed debug APKs.
+    // The keystore lives at the repo root (debug.keystore) and is committed. When absent
+    // (e.g. fresh checkout before CI bootstraps it), the signingConfig is created with no
+    // storeFile and the debug buildType falls back to AGP's default debug signing.
+    val fixedDebugKeystore = rootProject.file("debug.keystore")
+    signingConfigs {
+        create("fixedDebug") {
+            if (fixedDebugKeystore.exists()) {
+                storeFile = fixedDebugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
+    }
+
     buildTypes {
         release {
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher")
@@ -88,6 +104,9 @@ android {
         debug {
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher_debug")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round_debug")
+            if (fixedDebugKeystore.exists()) {
+                signingConfig = signingConfigs.getByName("fixedDebug")
+            }
         }
     }
 

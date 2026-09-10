@@ -64,6 +64,25 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Ensure fixed debug.keystore exists
+        run: |
+          if [ -f debug.keystore ]; then
+            echo "debug.keystore already present, skipping generation"
+            exit 0
+          fi
+          keytool -genkeypair -v \
+            -keystore debug.keystore \
+            -alias androiddebugkey \
+            -keyalg RSA -keysize 2048 \
+            -validity 10000 \
+            -storepass android -keypass android \
+            -dname "CN=Android Debug, OU=Android, O=Android, L=Debug, ST=Debug, C=US"
+          git config user.name "CI"
+          git config user.email "ci@localhost"
+          git add debug.keystore
+          git commit -m "chore: add fixed debug keystore"
+          git push origin HEAD:main
+
       - name: Setup Android environment
         uses: android-actions/setup-android@v4
 
