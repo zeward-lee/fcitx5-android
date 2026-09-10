@@ -734,8 +734,10 @@ class TextKeyboard private constructor(
                     val characterIsSingleLetter = sourceFromAppearance &&
                         character.length == 1 &&
                         character[0].isLetter()
+                    val displayTextOverridden = appearance.displayText != appearance.character
 
                     keyView.mainText.text = when {
+                        displayTextOverridden -> displayText
                         keepLettersUppercase && displayIsSingleLetter -> displayText.uppercase()
                         keepLettersUppercase -> displayText
                         !displayUppercase && displayIsSingleLetter -> displayText.lowercase()
