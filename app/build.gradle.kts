@@ -69,7 +69,6 @@ android {
         }
         create(flavorMainline) {
             dimension = "brand"
-            applicationId = "org.fcitx.fcitx5.android.fx"
             buildConfigField("boolean", "IS_FX_BUILD", "false")
         }
     }
